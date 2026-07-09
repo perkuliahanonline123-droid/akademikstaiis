@@ -1,45 +1,699 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <!-- Pengaturan viewport agar pas di HP dan tidak bisa di-zoom (seperti aplikasi asli) -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- Meta tag untuk tampilan Home Screen (PWA ringan) -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#ffffff">
-
-    <title>Sistem Informasi Kampus</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        /* Mencegah browser HP melakukan efek 'karet' atau pull-to-refresh di luar iframe */
-        body {
-            overscroll-behavior-y: none;
-            -webkit-overflow-scrolling: touch;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dasbor Akademik Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: { 
+            brand: { 900: '#064e3b', 800: '#065f46', 600: '#059669', 500: '#10b981', 100: '#d1fae5', 50: '#ecfdf5' } 
+          },
+          boxShadow: {
+            'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+            'glow': '0 0 20px rgba(16, 185, 129, 0.4)',
+            'up': '0 -4px 20px rgba(0,0,0,0.05)'
+          }
         }
-    </style>
-</head>
-<body class="bg-white h-[100dvh] w-full overflow-hidden m-0 p-0 relative">
+      }
+    }
+  </script>
 
-    <!-- Loading Indicator -->
-    <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-0">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mb-3"></div>
-        <p class="text-gray-500 text-sm animate-pulse">Memuat sistem...</p>
+  <style>
+    body { background-color: #f3f4f6; background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+    .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
+    .tab-inactive { color: #94a3b8; background: transparent; }
+    .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+  <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+    <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+
+    <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
+      <div class="relative flex-shrink-0">
+        <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+        <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+      </div>
+      <div class="text-left flex flex-col justify-center">
+        <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <div class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+          </div>
+          <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
+        </div>
+      </div>
+    </div>
+    
+    <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2">
+      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
+        Riwayat Jurnal
+      </button>
+      <button onclick="switchTab('presensi')" id="btn-presensi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
+        Presensi Mahasiswa
+      </button>
+      <button onclick="switchTab('evaluasi')" id="btn-evaluasi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
+        Evaluasi Akademik
+      </button>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0">
+    
+    <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
+      <div>
+        <h2 id="pageTitle" class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Riwayat Jurnal Perkuliahan Harian</h2>
+        <p id="pageSubtitle" class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Pantau laporan tatap muka dosen secara real-time</p>
+      </div>
+      
+      <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
+        
+        <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+          <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+          <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+          <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
+          <select id="globalTahunFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none">
+            <option value="Semua">Tampilkan Semua Semester</option>
+          </select>
+
+          <select id="globalMatkulFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:max-w-[220px] truncate">
+            <option value="Semua">Semua Mata Kuliah</option>
+          </select>
+        </div>
+        
+      </div>
+    </header>
+
+    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto">
+      
+      <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100">
+        <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-6">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
+          <i class="fas fa-database absolute inset-0 m-auto h-5 w-5 md:h-6 md:w-6 text-brand-500 text-xl"></i>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-800">Menyinkronkan Data</h3>
+        <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mengunduh data akademik secara real-time...</p>
+      </div>
+
+      <div id="globalStats" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 animate-slide-up">
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:bg-emerald-100 transition-colors duration-500"></div>
+          <div class="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl md:text-2xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm z-10 shrink-0">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="relative z-10">
+            <h4 class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 md:mb-1.5" id="statTotalSesi">0</h4>
+            <p class="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Total Sesi<br>Terlaksana</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full blur-2xl group-hover:bg-blue-100 transition-colors duration-500"></div>
+          <div class="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl md:text-2xl group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm z-10 shrink-0">
+            <i class="fas fa-book"></i>
+          </div>
+          <div class="relative z-10">
+            <h4 class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 md:mb-1.5" id="statTotalMatkul">0</h4>
+            <p class="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Mata Kuliah<br>Berjalan</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full blur-2xl group-hover:bg-amber-100 transition-colors duration-500"></div>
+          <div class="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl md:text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm z-10 shrink-0">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+          <div class="relative z-10">
+            <h4 class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 md:mb-1.5" id="statTotalDosen">0</h4>
+            <p class="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Dosen<br>Pengajar</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-jurnal" class="hidden space-y-6 animate-slide-up">
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 overflow-hidden">
+          <div class="overflow-x-auto p-2 md:p-4">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="text-slate-400 uppercase text-[10px] md:text-[11px] font-black tracking-widest border-b-2 border-slate-100">
+                <tr>
+                  <th class="p-4 md:p-6 pl-6 md:pl-8">Jadwal Sesi</th>
+                  <th class="p-4 md:p-6">Informasi Kelas & Dosen</th>
+                  <th class="p-4 md:p-6 text-center">Sesi</th>
+                  <th class="p-4 md:p-6">Pokok Bahasan / Silabus</th>
+                </tr>
+              </thead>
+              <tbody id="body-jurnal" class="divide-y divide-slate-100/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-presensi" class="hidden space-y-6 md:space-y-8 animate-slide-up">
+        
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-rose-100/60 p-5 md:p-6 flex flex-col gap-4 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 bg-rose-50 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+          
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+              <div class="flex items-center gap-3 md:gap-4">
+                  <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-rose-400 to-red-500 text-white flex items-center justify-center text-xl md:text-2xl shadow-md shadow-rose-500/30 shrink-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div>
+                      <h3 class="font-black text-slate-800 text-base md:text-xl tracking-tight">Peringatan Kelayakan Ujian</h3>
+                      <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Akumulasi Alpa <span class="font-bold text-rose-600">4 kali atau lebih</span></p>
+                  </div>
+              </div>
+              <div class="text-left md:text-right bg-rose-50/50 px-4 py-2.5 md:px-5 md:py-3 rounded-xl border border-rose-100 flex items-center md:flex-col gap-3 md:gap-0 shrink-0">
+                  <span class="text-2xl md:text-3xl font-black text-rose-600 leading-none" id="statTerblokir">0</span>
+                  <span class="text-[9px] md:text-[10px] font-black text-rose-400 uppercase tracking-widest md:mt-1">Terblokir Ujian</span>
+              </div>
+          </div>
+
+          <div id="listTerblokirContainer" class="hidden mt-2 border-t border-slate-100/80 pt-4 relative z-10">
+              <div class="overflow-x-auto custom-scrollbar max-h-[250px] pr-2">
+                  <table class="w-full text-left text-sm whitespace-nowrap">
+                      <thead class="text-slate-400 uppercase text-[9px] md:text-[10px] font-black tracking-widest border-b-2 border-slate-100 sticky top-0 bg-white">
+                          <tr>
+                              <th class="pb-3 pl-4">Nama Mahasiswa</th>
+                              <th class="pb-3">Mata Kuliah & Kelas</th>
+                              <th class="pb-3 text-center text-rose-500">Total Alpa</th>
+                          </tr>
+                      </thead>
+                      <tbody id="body-terblokir" class="divide-y divide-slate-50">
+                          </tbody>
+                  </table>
+              </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-2.5 md:p-3 rounded-[1.2rem] md:rounded-[1.5rem] shadow-soft border border-slate-100 flex items-center gap-3 focus-within:ring-4 focus-within:ring-brand-500/20 focus-within:border-brand-400 transition-all duration-300">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white shrink-0 shadow-md">
+            <i class="fas fa-search text-base md:text-lg"></i>
+          </div>
+          <input type="text" id="searchInput" oninput="renderPresensi()" placeholder="Ketik Nama Mahasiswa / Matkul" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
+        </div>
+
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 overflow-hidden">
+          <div class="overflow-x-auto p-2 md:p-4">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="text-slate-400 uppercase text-[10px] md:text-[11px] font-black tracking-widest border-b-2 border-slate-100">
+                <tr>
+                  <th class="p-4 md:p-6 pl-6 md:pl-8">Nama Mahasiswa</th>
+                  <th class="p-4 md:p-6 text-center">Hadir</th>
+                  <th class="p-4 md:p-6 text-center">Izin</th>
+                  <th class="p-4 md:p-6 text-center">Sakit</th>
+                  <th class="p-4 md:p-6 text-center">Alpa</th>
+                </tr>
+              </thead>
+              <tbody id="body-presensi" class="divide-y divide-slate-100/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-evaluasi" class="hidden space-y-6 md:space-y-8 animate-slide-up">
+        
+        <div class="bg-white p-2.5 md:p-3 rounded-[1.2rem] md:rounded-[1.5rem] shadow-soft border border-slate-100 flex items-center gap-3 focus-within:ring-4 focus-within:ring-brand-500/20 focus-within:border-brand-400 transition-all duration-300">
+          <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white shrink-0 shadow-md">
+            <i class="fas fa-search text-base md:text-lg"></i>
+          </div>
+          <input type="text" id="searchEvaluasi" oninput="renderEvaluasi()" placeholder="Cari data mahasiswa yang tidak lulus (Nama/Matkul)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
+        </div>
+
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 overflow-hidden">
+          <div class="overflow-x-auto p-2">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="text-slate-400 uppercase text-[9px] md:text-[10px] font-black tracking-widest border-b border-slate-100" id="head-evaluasi">
+              </thead>
+              <tbody id="body-evaluasi" class="divide-y divide-slate-100/60">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- Iframe Google Apps Script -->
-    <iframe
-        onload="document.getElementById('loading').style.display='none'"
-        src="https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec"
-        class="absolute inset-0 w-full h-full border-0 z-10"
-        title="Aplikasi Kampus"
-        allowfullscreen>
-    </iframe>
+    <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
+      &copy; 2026 Dasbor Akademik
+    </footer>
+    
+  </main>
 
+  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+    <button onclick="switchTab('jurnal')" id="btn-mob-jurnal" class="flex flex-col items-center gap-1 w-1/3 text-emerald-600 transform scale-110 transition-all duration-300">
+      <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
+    </button>
+    
+    <button onclick="switchTab('presensi')" id="btn-mob-presensi" class="flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
+    </button>
+
+    <button onclick="switchTab('evaluasi')" id="btn-mob-evaluasi" class="flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
+    </button>
+  </div>
+
+  <script>
+    let globalDataJurnal = [];
+    let globalDataMhs = [];
+    let globalGagalHead = [];
+    let globalGagalBody = [];
+
+    function updateJam() {
+      try {
+        const now = new Date();
+        const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const el = document.getElementById("realtimeClock");
+        if(el) {
+          el.innerText = hari[now.getDay()] + ", " + now.getDate() + " " + bulan[now.getMonth()] + " " + now.getFullYear() + " • " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + " WIB";
+        }
+      } catch(e){}
+    }
+    setInterval(updateJam, 1000);
+
+    function switchTab(tab) {
+      document.getElementById('tab-jurnal').classList.toggle('hidden', tab !== 'jurnal');
+      document.getElementById('tab-presensi').classList.toggle('hidden', tab !== 'presensi');
+      document.getElementById('tab-evaluasi').classList.toggle('hidden', tab !== 'evaluasi');
+      
+      document.getElementById('globalStats').classList.toggle('hidden', tab !== 'jurnal');
+      
+      // LOGIKA TOMBOL DESKTOP
+      const act = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4';
+      const inact = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5';
+      
+      const iconAct = 'w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm';
+      const iconInact = 'w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all';
+
+      document.getElementById('btn-jurnal').className = tab === 'jurnal' ? act : inact;
+      document.getElementById('btn-presensi').className = tab === 'presensi' ? act : inact;
+      document.getElementById('btn-evaluasi').className = tab === 'evaluasi' ? act : inact;
+
+      document.querySelector('#btn-jurnal div').className = tab === 'jurnal' ? iconAct : iconInact;
+      document.querySelector('#btn-presensi div').className = tab === 'presensi' ? iconAct : iconInact;
+      document.querySelector('#btn-evaluasi div').className = tab === 'evaluasi' ? iconAct : iconInact;
+
+      // LOGIKA TOMBOL HP (BOTTOM NAV)
+      const mobAct = 'flex flex-col items-center gap-1 w-1/3 text-emerald-600 transform scale-110 transition-all duration-300';
+      const mobInact = 'flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-emerald-500 transition-all duration-300';
+      
+      const iconMobAct = 'bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm';
+      const iconMobInact = 'w-10 h-10 rounded-full flex items-center justify-center';
+
+      const btnMobJurnal = document.getElementById('btn-mob-jurnal');
+      const btnMobPresensi = document.getElementById('btn-mob-presensi');
+      const btnMobEvaluasi = document.getElementById('btn-mob-evaluasi');
+
+      btnMobJurnal.className = tab === 'jurnal' ? mobAct : mobInact;
+      btnMobJurnal.querySelector('div').className = tab === 'jurnal' ? iconMobAct : iconMobInact;
+
+      btnMobPresensi.className = tab === 'presensi' ? mobAct : mobInact;
+      btnMobPresensi.querySelector('div').className = tab === 'presensi' ? iconMobAct : iconMobInact;
+
+      btnMobEvaluasi.className = tab === 'evaluasi' ? mobAct : mobInact;
+      btnMobEvaluasi.querySelector('div').className = tab === 'evaluasi' ? iconMobAct : iconMobInact;
+
+      if(tab === 'jurnal') {
+        document.getElementById('pageTitle').innerText = 'Riwayat Jurnal Perkuliahan Harian';
+        document.getElementById('pageSubtitle').innerText = 'Pantau laporan tatap muka dosen secara real-time';
+      } else if (tab === 'presensi') {
+        document.getElementById('pageTitle').innerText = 'Transparansi Data Presensi';
+        document.getElementById('pageSubtitle').innerText = 'Cari dan pantau tingkat kehadiran mahasiswa';
+      } else {
+        document.getElementById('pageTitle').innerText = 'Evaluasi Akademik';
+        document.getElementById('pageSubtitle').innerText = 'Daftar rekap mahasiswa yang harus mengulang mata kuliah';
+        renderEvaluasi(); 
+      }
+    }
+
+    // ==========================================
+    // PERUBAHAN UTAMA: FETCH API JSON 
+    // Menggantikan fungsi google.script.run
+    // ==========================================
+    window.onload = async function() {
+      updateJam();
+      
+      // URL Web App Anda (yang mengeluarkan JSON)
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
+      
+      try {
+        const response = await fetch(scriptUrl);
+        const result = await response.json();
+        
+        if (result.status === "success") {
+          populateData(result.data);
+        } else {
+          // Menampilkan pesan error dari backend
+          document.getElementById('loading').innerHTML = `
+            <div class="text-rose-500 mb-4"><i class="fas fa-exclamation-circle text-4xl"></i></div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800">Gagal Memuat Data</h3>
+            <p class="text-sm md:text-base text-slate-500 font-medium mt-2">${result.message}</p>
+          `;
+        }
+      } catch (err) {
+        // Menampilkan pesan error koneksi
+        document.getElementById('loading').innerHTML = `
+          <div class="text-rose-500 mb-4"><i class="fas fa-wifi text-4xl"></i></div>
+          <h3 class="text-lg md:text-xl font-bold text-slate-800">Kesalahan Jaringan</h3>
+          <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Tidak dapat terhubung ke server. Pastikan URL Web App valid dan dapat diakses publik.</p>
+        `;
+      }
+    };
+
+    function populateData(data) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('tab-jurnal').classList.remove('hidden');
+      document.getElementById('globalStats').classList.remove('hidden');
+      
+      globalDataJurnal = data.jurnal || [];
+      globalDataMhs = data.mahasiswa || [];
+      globalGagalHead = data.gagalHead || [];
+      globalGagalBody = data.gagalBody || [];
+
+      let years = new Set();
+      globalDataJurnal.forEach(j => years.add(j.tahun));
+      globalDataMhs.forEach(m => years.add(m.tahun));
+      let yearsArr = Array.from(years).filter(y => y && y !== "Semester Tidak Diketahui").sort().reverse();
+
+      let selTahun = document.getElementById('globalTahunFilter');
+      let optTahun = '<option value="Semua">Tampilkan Semua Semester</option>';
+      yearsArr.forEach(y => {
+        optTahun += `<option value="${y}">${y}</option>`;
+      });
+      selTahun.innerHTML = optTahun;
+
+      let matkuls = new Set();
+      globalDataJurnal.forEach(j => matkuls.add(j.matkul));
+      globalDataMhs.forEach(m => matkuls.add(m.matkul));
+      let matkulsArr = Array.from(matkuls).sort();
+
+      let selMatkul = document.getElementById('globalMatkulFilter');
+      let optMatkul = '<option value="Semua">Semua Mata Kuliah</option>';
+      matkulsArr.forEach(mk => {
+        optMatkul += `<option value="${mk}">${mk}</option>`;
+      });
+      selMatkul.innerHTML = optMatkul;
+
+      applyGlobalFilter();
+    }
+
+    function applyGlobalFilter() {
+      renderStats();
+      renderJurnal();
+      renderPeringatan(); 
+      renderPresensi();
+    }
+
+    function renderStats() {
+      const filterTahun = document.getElementById('globalTahunFilter').value;
+      const filterMatkul = document.getElementById('globalMatkulFilter').value;
+
+      const filteredJurnal = globalDataJurnal.filter(j => {
+          const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
+          const matchMatkul = (filterMatkul === "Semua" || j.matkul === filterMatkul);
+          return matchTahun && matchMatkul;
+      });
+
+      const totalSesi = filteredJurnal.length;
+      const uniqueMatkul = new Set(filteredJurnal.map(j => j.matkul)).size;
+      const uniqueDosen = new Set(filteredJurnal.map(j => j.dosen)).size;
+
+      document.getElementById('statTotalSesi').innerText = totalSesi;
+      document.getElementById('statTotalMatkul').innerText = uniqueMatkul;
+      document.getElementById('statTotalDosen').innerText = uniqueDosen;
+    }
+
+    function renderPeringatan() {
+      const filterTahun = document.getElementById('globalTahunFilter').value;
+      const filterMatkul = document.getElementById('globalMatkulFilter').value;
+      
+      const filteredMhs = globalDataMhs.filter(m => {
+          const matchTahun = (filterTahun === "Semua" || m.tahun === filterTahun);
+          const matchMatkul = (filterMatkul === "Semua" || m.matkul === filterMatkul);
+          return matchTahun && matchMatkul;
+      });
+      
+      const blockedMhs = filteredMhs.filter(m => m.alpa >= 4);
+      document.getElementById('statTerblokir').innerText = blockedMhs.length;
+      
+      const container = document.getElementById('listTerblokirContainer');
+      const tbody = document.getElementById('body-terblokir');
+      
+      if (blockedMhs.length > 0) {
+        container.classList.remove('hidden');
+        let html = '';
+        blockedMhs.forEach(m => {
+          html += `
+          <tr class="hover:bg-rose-50/50 transition-colors group">
+            <td class="py-3 md:py-4 pl-4 font-bold text-slate-700 flex items-center gap-3">
+              <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center text-[10px]"><i class="fas fa-user-slash"></i></div>
+              ${m.nama}
+            </td>
+            <td class="py-3 md:py-4">
+              <div class="font-bold text-slate-700 text-xs md:text-sm whitespace-normal">${m.matkul}</div>
+              <div class="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-0.5">${m.kode} • KLS ${m.kelas}</div>
+            </td>
+            <td class="py-3 md:py-4 text-center">
+              <span class="inline-flex w-7 h-7 md:w-9 md:h-9 items-center justify-center rounded-xl font-black bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/30 text-xs md:text-sm">${m.alpa}</span>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } else {
+        container.classList.add('hidden');
+        tbody.innerHTML = '';
+      }
+    }
+
+    function renderJurnal() {
+      const filterTahun = document.getElementById('globalTahunFilter').value;
+      const filterMatkul = document.getElementById('globalMatkulFilter').value;
+
+      const filteredJurnal = globalDataJurnal.filter(j => {
+          const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
+          const matchMatkul = (filterMatkul === "Semua" || j.matkul === filterMatkul);
+          return matchTahun && matchMatkul;
+      }).reverse();
+
+      let htmlJurnal = '';
+      if(filteredJurnal.length > 0) {
+        filteredJurnal.forEach(j => {
+          let tglParts = j.tanggal.split(" ");
+          let hariTgl = tglParts.length > 1 ? tglParts[0] : j.tanggal;
+          let bulanTahun = tglParts.length > 2 ? tglParts[1] + " " + tglParts[2] : "";
+
+          htmlJurnal += `
+          <tr class="hover:bg-slate-50/80 transition-all duration-200 group hover:-translate-y-1">
+            <td class="p-4 md:p-6 pl-6 md:pl-8 align-middle">
+              <div class="inline-flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300/50 px-3 py-1.5 md:px-4 md:py-2 rounded-xl shadow-sm group-hover:shadow-md transition-all">
+                <span class="text-lg md:text-xl font-black text-slate-800">${hariTgl}</span>
+                <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">${bulanTahun}</span>
+              </div>
+            </td>
+            <td class="p-4 md:p-6 align-middle">
+              <div class="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
+                <div class="font-black text-slate-800 text-sm md:text-lg whitespace-normal min-w-[150px]">${j.matkul}</div>
+                <div class="text-[9px] md:text-[10px] text-brand-700 font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg bg-brand-50 border border-brand-100 tracking-wider whitespace-nowrap">${j.kode}</div>
+              </div>
+              <div class="flex flex-col gap-1 mt-1 md:mt-1.5">
+                <div class="text-xs md:text-sm text-slate-600 font-bold flex items-center gap-1.5"><i class="fas fa-user-circle text-brand-500"></i> ${j.dosen}</div>
+                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 md:pl-5 whitespace-normal leading-tight">KLS: <span class="text-slate-600">${j.kelas}</span> • ${j.prodi}</div>
+              </div>
+            </td>
+            <td class="p-4 md:p-6 align-middle text-center">
+              <div class="inline-flex items-center justify-center w-10 h-10 md:w-14 h-14 rounded-full bg-white shadow-md border-2 border-brand-100 text-brand-600 group-hover:bg-brand-500 group-hover:border-brand-500 group-hover:text-white transition-all duration-300">
+                <span class="text-lg md:text-2xl font-black">${j.sesi}</span>
+              </div>
+            </td>
+            <td class="p-4 md:p-6 align-middle">
+              <div class="bg-slate-50 border border-slate-200/60 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-semibold text-slate-700 leading-relaxed shadow-inner min-w-[200px] md:min-w-[280px] max-w-[400px] whitespace-normal line-clamp-2 break-words" title="${j.topik}">
+                ${j.topik}
+              </div>
+            </td>
+          </tr>`;
+        });
+      } else {
+        htmlJurnal = '<tr><td colspan="4" class="p-10 md:p-16 text-center text-slate-400 font-bold text-base md:text-lg">Tidak ada data untuk filter yang dipilih.</td></tr>';
+      }
+      document.getElementById('body-jurnal').innerHTML = htmlJurnal;
+    }
+
+    function renderPresensi() {
+      const filterTahun = document.getElementById('globalTahunFilter').value;
+      const filterMatkul = document.getElementById('globalMatkulFilter').value;
+      const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+      const tbody = document.getElementById('body-presensi');
+      
+      const filtered = globalDataMhs.filter(m => {
+        const matchTahun = (filterTahun === "Semua" || m.tahun === filterTahun);
+        const matchMatkul = (filterMatkul === "Semua" || m.matkul === filterMatkul);
+        const matchKeyword = (m.matkul.toLowerCase().includes(keyword) || m.nama.toLowerCase().includes(keyword));
+        return matchTahun && matchMatkul && matchKeyword;
+      });
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-10 md:p-16 text-center text-slate-400"><i class="fas fa-folder-open text-3xl md:text-4xl block mb-3 md:mb-4 opacity-40"></i><span class="font-bold text-base md:text-lg">Data tidak ditemukan.</span></td></tr>';
+        return;
+      }
+
+      const groups = {};
+      filtered.forEach(m => {
+        const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
+        if(!groups[groupName]) groups[groupName] = [];
+        groups[groupName].push(m);
+      });
+
+      let html = '';
+      for (const [mk, mhsList] of Object.entries(groups)) {
+        html += `
+        <tr class="bg-slate-50/50">
+          <td colspan="5" class="px-5 md:px-8 py-3 md:py-4 border-y border-slate-100">
+             <div class="flex items-center gap-2 md:gap-3 font-black text-brand-700 text-[10px] md:text-xs tracking-widest uppercase whitespace-normal leading-tight">
+               <div class="w-5 h-5 md:w-6 md:h-6 rounded-md bg-brand-100 flex items-center justify-center shrink-0"><i class="fas fa-cube text-brand-600 text-[9px] md:text-[10px]"></i></div>
+               ${mk}
+             </div>
+          </td>
+        </tr>`;
+        
+        mhsList.forEach(m => {
+          let warnBg = m.alpa > 3 ? "bg-red-50/40" : "hover:bg-slate-50";
+          let warnBadge = m.alpa > 3 ? `<span class="ml-2 md:ml-3 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] md:text-[10px] font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-md shadow-sm uppercase tracking-wider animate-pulse">Warning</span>` : "";
+          
+          html += `
+          <tr class="${warnBg} transition-all duration-200 group border-b border-slate-50 last:border-0 hover:-translate-y-0.5">
+            <td class="p-4 md:p-5 pl-6 md:pl-8 font-bold text-slate-700 group-hover:text-brand-700 transition-colors flex items-center h-full min-h-[50px] md:min-h-[60px] text-xs md:text-sm whitespace-normal">
+              <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 mr-2 md:mr-3 text-[10px] md:text-xs shrink-0"><i class="fas fa-user"></i></div>
+              ${m.nama} ${warnBadge}
+            </td>
+            
+            <td class="p-4 md:p-5 text-center">
+              <span class="inline-flex w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-lg md:rounded-xl font-black ${m.hadir > 0 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-400'} shadow-sm text-xs md:text-base">${m.hadir}</span>
+            </td>
+            
+            <td class="p-4 md:p-5 text-center">
+              <span class="inline-flex w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-lg md:rounded-xl font-black ${m.izin > 0 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-400'} shadow-sm text-xs md:text-base">${m.izin}</span>
+            </td>
+            
+            <td class="p-4 md:p-5 text-center">
+              <span class="inline-flex w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-lg md:rounded-xl font-black ${m.sakit > 0 ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-400'} shadow-sm text-xs md:text-base">${m.sakit}</span>
+            </td>
+            
+            <td class="p-4 md:p-5 text-center">
+              <span class="inline-flex w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-lg md:rounded-xl font-black ${m.alpa > 0 ? 'bg-red-500 text-white border-none shadow-md shadow-red-500/30' : 'bg-slate-100 text-slate-400'} text-xs md:text-base">${m.alpa}</span>
+            </td>
+          </tr>`;
+        });
+      }
+      tbody.innerHTML = html;
+    }
+
+    function renderEvaluasi() {
+      const keyword = document.getElementById('searchEvaluasi').value.toLowerCase().trim();
+      const tbody = document.getElementById('body-evaluasi');
+      const thead = document.getElementById('head-evaluasi');
+
+      if (!globalGagalHead || globalGagalHead.length === 0 || globalGagalBody.length === 0) {
+        thead.innerHTML = '';
+        tbody.innerHTML = '<tr><td class="p-10 md:p-16 text-center text-slate-400 font-medium text-sm md:text-base whitespace-normal">Sheet "MAHASISWA GAGAL" belum ada atau data masih kosong.</td></tr>';
+        return;
+      }
+
+      thead.innerHTML = `
+        <tr>
+          <th class="py-4 md:py-6 pl-6 md:pl-8 pr-4 md:pr-6 text-left">Mahasiswa yang Gagal</th>
+          <th class="py-4 md:py-6 px-4 md:px-6 text-center">Jumlah Matkul</th>
+          <th class="py-4 md:py-6 pr-6 md:pr-8 text-left">Mata Kuliah</th>
+        </tr>
+      `;
+
+      const filtered = globalGagalBody.filter(row => {
+        let nama = row[1] ? row[1].toString().trim() : "";
+        if (nama === "" || nama === "-") return false;
+        
+        return row.some(cell => cell.toString().toLowerCase().includes(keyword));
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-10 md:p-16 text-center text-slate-400"><i class="fas fa-search-minus text-3xl md:text-4xl block mb-3 md:mb-4 opacity-40"></i><span class="font-bold text-base md:text-lg">Data tidak ditemukan.</span></td></tr>`;
+        return;
+      }
+
+      let bodyHtml = '';
+      filtered.forEach(row => {
+        let jumlah = row[0] || "0";
+        let nama = row[1] || "-";
+        
+        let matkuls = [];
+        for (let i = 2; i < row.length; i++) {
+          if (row[i] && row[i].toString().trim() !== "") {
+            matkuls.push(row[i].toString().trim());
+          }
+        }
+
+        let matkulHtml = '<div class="flex flex-col gap-2.5">';
+        matkuls.forEach(mk => {
+          matkulHtml += `
+            <div class="flex items-start gap-2.5">
+              <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0 shadow-sm"></div>
+              <span class="text-xs md:text-sm font-semibold text-slate-600 whitespace-normal leading-tight">${mk}</span>
+            </div>
+          `;
+        });
+        matkulHtml += '</div>';
+
+        if (matkuls.length === 0) matkulHtml = '<span class="text-slate-400 italic text-xs md:text-sm">Tidak ada data matkul</span>';
+
+        bodyHtml += `
+        <tr class="hover:bg-slate-50/50 transition-colors duration-200 border-b border-slate-100/60 last:border-0 group">
+          <td class="py-5 md:py-6 pl-6 md:pl-8 pr-4 md:pr-6 align-top">
+            <div class="font-black text-slate-800 text-sm md:text-base group-hover:text-brand-700 transition-colors leading-tight">${nama}</div>
+          </td>
+          <td class="py-5 md:py-6 px-4 md:px-6 align-top text-center w-32">
+            <span class="inline-flex w-8 h-8 md:w-10 md:h-10 items-center justify-center rounded-xl font-black bg-rose-50 text-rose-600 border border-rose-100 shadow-sm text-sm md:text-base">${jumlah}</span>
+          </td>
+          <td class="py-5 md:py-6 pr-6 md:pr-8 align-top">
+            ${matkulHtml}
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = bodyHtml;
+    }
+  </script>
 </body>
 </html>
