@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dasbor Akademik - Cetak KHS & Transkrip</title>
+  <meta name="theme-color" content="#064e3b">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: { 
+            brand: { 900: '#064e3b', 800: '#065f46', 600: '#059669', 500: '#10b981', 100: '#d1fae5', 50: '#ecfdf5' } 
+          },
+          boxShadow: {
+            'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+            'glow': '0 0 20px rgba(16, 185, 129, 0.4)',
+            'up': '0 -4px 20px rgba(0,0,0,0.05)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #f3f4f6; background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+    .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
+    .tab-inactive { color: #94a3b8; background: transparent; }
+    .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
+
+    /* ========================================================
+       DESAIN CETAKAN KHS & TRANSKRIP (DIPERTAHANKAN 100%)
+       ======================================================== */
+    #cetakArea { display: none; margin-top: 20px; background: #fff; padding: 40px; color: #000; border-radius: 1.5rem; }
+    .judul-dokumen { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #000; }
+    
+    .info-table-container { padding-bottom: 5px; margin-bottom: 15px; }
+    .info-table { width: 100%; border-collapse: collapse; font-size: 14px; font-weight: bold; }
+    .info-table td { padding: 4px 8px; vertical-align: top; border: none; }
+    .info-table td:nth-child(2), .info-table td:nth-child(5) { width: 10px; }
+    .label-nowrap { white-space: nowrap; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th, .data-table td { border: 1px solid #000; padding: 6px 8px; }
+    .data-table th { background-color: #8c8c8c !important; color: #000 !important; font-weight: bold; text-align: center; vertical-align: middle; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .data-table tbody td { color: #000; }
+    
+    @media print {
+        body, html { background: #fff !important; padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; }
+        
+        /* SEMBUNYIKAN SEMUA ELEMEN DASHBOARD SAAT PRINT */
+        aside, header, nav, .md\:hidden, #khs-controls, #status-msg, #printBtn, #globalStats { display: none !important; }
+        
+        main { display: block !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
+        
+        #cetakArea { display: block !important; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: none !important;}
+        
+        thead { display: table-row-group; }
+    }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+  <!-- SIDEBAR KIRI -->
+  <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+    <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+
+    <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
+      <div class="relative flex-shrink-0">
+        <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+        <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+      </div>
+      <div class="text-left flex flex-col justify-center">
+        <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <div class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+          </div>
+          <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
+        </div>
+      </div>
+    </div>
+    
+    <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto custom-scrollbar">
+      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
+        Riwayat Jurnal
+      </button>
+      <button onclick="switchTab('presensi')" id="btn-presensi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
+        Presensi Mahasiswa
+      </button>
+      <button onclick="switchTab('evaluasi')" id="btn-evaluasi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
+        Evaluasi Akademik
+      </button>
+      
+      <!-- MENU BARU: HASIL STUDI KHS -->
+      <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
+        Hasil Studi KHS
+      </button>
+    </nav>
+  </aside>
+
+  <!-- AREA KONTEN UTAMA -->
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0 print:h-auto print:overflow-visible">
+    
+    <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
+      <div>
+        <h2 id="pageTitle" class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Cetak KHS & Transkrip</h2>
+        <p id="pageSubtitle" class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Sistem Pencetakan Hasil Studi Mahasiswa</p>
+      </div>
+      
+      <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
+        <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+          <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+          <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+          <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto print:p-0 print:max-w-none">
+      
+      <!-- LOADING INDIKATOR -->
+      <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100 hidden">
+        <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-6">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
+          <i class="fas fa-database absolute inset-0 m-auto h-5 w-5 md:h-6 md:w-6 text-brand-500 text-xl"></i>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-800" id="loadingTitle">Memuat Database</h3>
+        <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mohon tunggu sebentar...</p>
+      </div>
+
+      <!-- TAB 1-3: DASHBOARD (Struktur dipertahankan agar tidak error) -->
+      <div id="tab-jurnal" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
+      <div id="tab-presensi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
+      <div id="tab-evaluasi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
+
+      <!-- ==============================================
+           TAB KHS: HASIL STUDI (FOKUS UTAMA DISINI) 
+           ============================================== -->
+      <div id="tab-khs" class="space-y-6 animate-slide-up">
+          
+          <!-- Kontrol Pencarian (KHS-Controls) -->
+          <div id="khs-controls" class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+              
+              <div class="flex-1 w-full bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
+                  <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                      <i class="fas fa-search text-base"></i>
+                  </div>
+                  <input type="text" id="searchInput" list="namaMahasiswaList" placeholder="Ketik Nama Mahasiswa (min. 3 huruf)" autocomplete="off" oninput="handleInputKHS(event)" onkeypress="handleEnterKHS(event)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
+                  <datalist id="namaMahasiswaList"></datalist>
+              </div>
+
+              <select id="jenisCetak" onchange="if(document.getElementById('searchInput').value.trim() !== '') cariKHS()" class="w-full md:w-auto bg-white px-5 py-3.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:min-w-[280px]">
+                  <option value="all">Transkrip Nilai (Semua Semester)</option>
+                  <option value="1">KHS Semester 1</option>
+                  <option value="2">KHS Semester 2</option>
+                  <option value="3">KHS Semester 3</option>
+                  <option value="4">KHS Semester 4</option>
+                  <option value="5">KHS Semester 5</option>
+                  <option value="6">KHS Semester 6</option>
+                  <option value="7">KHS Semester 7</option>
+                  <option value="8">KHS Semester 8</option>
+              </select>
+          </div>
+          
+          <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
+
+          <!-- AREA YANG AKAN DICETAK (Persis seperti format PDF Anda) -->
+          <div id="cetakArea" class="shadow-soft border border-slate-100">
+              
+              <div id="kopSurat">
+                  <div style="text-align: center; line-height: 1.15;">
+                      <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;">PUSAT ILMU KEISLAMAN INTERNASIONAL</div>
+                      <div style="font-size: 18px; font-weight: bold; letter-spacing: 1px;">SEKOLAH TINGGI AGAMA ISLAM (STAI) IMAM SYAFI’I CIANJUR</div>
+                      <div style="font-size: 20px; font-weight: bold; margin: 3px 0;">جامعة&nbsp;الإمام&nbsp;الشافعي</div>
+                      <div style="font-size: 12px; margin-top: 4px;">Jl. Sarongge No. 16, RT 01/RW 04, Desa Ciputri, Kec. Pacet, Cianjur, Jawa Barat</div>
+                      <div style="font-size: 12px;">Telp.: +62 851-1145-0055 | Email: staiis_cianjur@yahoo.com</div>
+                  </div>
+                  <div style="margin-top: 10px; margin-bottom: 2px; border-bottom: 3px solid black;"></div>
+                  <div style="margin-bottom: 15px; border-bottom: 1px solid black;"></div>
+              </div>
+
+              <div class="judul-dokumen" id="judulDokumen">KARTU HASIL STUDI (KHS)</div>
+
+              <div class="info-table-container">
+                  <table class="info-table">
+                      <tr>
+                          <td class="label-nowrap" style="width: 15%;">Nama Mahasiswa</td>
+                          <td style="width: 1%;">:</td>
+                          <td id="lblNama" style="width: 44%;"></td>
+                          
+                          <td class="label-nowrap" style="width: 15%;" id="lblNIMLabel">NIM</td>
+                          <td style="width: 1%;">:</td>
+                          <td id="lblNIM" class="label-nowrap" style="width: 24%;">-</td>
+                      </tr>
+                      <tr>
+                          <td class="label-nowrap">Program Studi</td>
+                          <td>:</td>
+                          <td id="lblProdi"></td>
+                          
+                          <td class="label-nowrap" id="lblSemesterLabel">Semester</td>
+                          <td>:</td>
+                          <td id="lblSemester" class="label-nowrap"></td>
+                      </tr>
+                  </table>
+              </div>
+
+              <table class="data-table" id="khsTable">
+                  <thead>
+                      <tr>
+                          <th rowspan="2" style="width: 4%;">No</th>
+                          <th rowspan="2" style="width: 12%;">Kode MK</th>
+                          <th rowspan="2" style="width: 34%;">Nama MK</th>
+                          <th rowspan="2" style="width: 8%;">Bobot MK<br>(sks)</th>
+                          <th colspan="3">Nilai</th>
+                          <th rowspan="2" style="width: 10%;">sks *<br>Indeks</th>
+                      </tr>
+                      <tr>
+                          <th style="width: 10%;">Angka</th>
+                          <th style="width: 8%;">Huruf</th>
+                          <th style="width: 8%;">Indeks</th>
+                      </tr>
+                  </thead>
+                  <tbody id="khsBody"></tbody>
+              </table>
+          </div>
+
+          <button class="w-full bg-brand-600 hover:bg-brand-500 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-md flex items-center justify-center gap-3" id="printBtn" onclick="window.print()" style="display: none;">
+              <i class="fas fa-print"></i> Cetak Dokumen (PDF / Printer)
+          </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- NAVIGASI BOTTOM (HP) -->
+  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+    <button onclick="switchTab('jurnal')" id="btn-mob-jurnal" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
+    </button>
+    <button onclick="switchTab('presensi')" id="btn-mob-presensi" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
+    </button>
+    <button onclick="switchTab('evaluasi')" id="btn-mob-evaluasi" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
+    </button>
+    <button onclick="switchTab('khs')" id="btn-mob-khs" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
+      <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-graduation-cap text-lg"></i></div>
+      <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
+    </button>
+  </div>
+
+  <script>
+    // FUNGSI UMUM TAMPILAN DASHBOARD
+    function updateJam() {
+      try {
+        const now = new Date();
+        const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const el = document.getElementById("realtimeClock");
+        if(el) {
+          el.innerText = hari[now.getDay()] + ", " + now.getDate() + " " + bulan[now.getMonth()] + " " + now.getFullYear() + " • " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + " WIB";
+        }
+      } catch(e){}
+    }
+    setInterval(updateJam, 1000);
+
+    function switchTab(tab) {
+      document.getElementById('tab-jurnal').classList.toggle('hidden', tab !== 'jurnal');
+      document.getElementById('tab-presensi').classList.toggle('hidden', tab !== 'presensi');
+      document.getElementById('tab-evaluasi').classList.toggle('hidden', tab !== 'evaluasi');
+      document.getElementById('tab-khs').classList.toggle('hidden', tab !== 'khs');
+      
+      const act = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4';
+      const inact = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5';
+      const iconAct = 'w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm';
+      const iconInact = 'w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all';
+
+      document.getElementById('btn-jurnal').className = tab === 'jurnal' ? act : inact;
+      document.getElementById('btn-presensi').className = tab === 'presensi' ? act : inact;
+      document.getElementById('btn-evaluasi').className = tab === 'evaluasi' ? act : inact;
+      document.getElementById('btn-khs').className = tab === 'khs' ? act : inact;
+
+      document.querySelector('#btn-jurnal div').className = tab === 'jurnal' ? iconAct : iconInact;
+      document.querySelector('#btn-presensi div').className = tab === 'presensi' ? iconAct : iconInact;
+      document.querySelector('#btn-evaluasi div').className = tab === 'evaluasi' ? iconAct : iconInact;
+      document.querySelector('#btn-khs div').className = tab === 'khs' ? iconAct : iconInact;
+
+      // Mobile
+      const mobAct = 'flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300';
+      const mobInact = 'flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300';
+      const iconMobAct = 'bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm';
+      const iconMobInact = 'w-10 h-10 rounded-full flex items-center justify-center';
+
+      ['jurnal', 'presensi', 'evaluasi', 'khs'].forEach(t => {
+        let btn = document.getElementById('btn-mob-' + t);
+        if(btn) {
+           btn.className = tab === t ? mobAct : mobInact;
+           btn.querySelector('div').className = tab === t ? iconMobAct : iconMobInact;
+        }
+      });
+
+      if(tab === 'jurnal') {
+        document.getElementById('pageTitle').innerText = 'Riwayat Jurnal Perkuliahan Harian';
+        document.getElementById('pageSubtitle').innerText = 'Pantau laporan tatap muka dosen secara real-time';
+      } else if (tab === 'presensi') {
+        document.getElementById('pageTitle').innerText = 'Transparansi Data Presensi';
+        document.getElementById('pageSubtitle').innerText = 'Cari dan pantau tingkat kehadiran mahasiswa';
+      } else if (tab === 'evaluasi') {
+        document.getElementById('pageTitle').innerText = 'Evaluasi Akademik';
+        document.getElementById('pageSubtitle').innerText = 'Daftar rekap mahasiswa yang harus mengulang mata kuliah';
+      } else {
+        document.getElementById('pageTitle').innerText = 'Cetak KHS & Transkrip';
+        document.getElementById('pageSubtitle').innerText = 'Sistem Pencetakan Hasil Studi Mahasiswa';
+      }
+    }
+
+
+    /* ========================================================
+       LOGIKA DAN FUNGSI KHS (SESUAI REQUEST SEBELUMNYA)
+       ======================================================== */
+    const SCRIPT_URL_KHS = 'https://script.google.com/macros/s/AKfycbxlS2O6Z0hEzUCYVnIyuZHg-v_bV12pRKF2mG-ujQE1TDEJeSmph5mnCqIX6bAS7rls0Q/exec'; 
+    const CACHE_KEY_KHS = 'KHS_PRODI_CACHE_V3';
+    const CACHE_EXPIRY_KHS = 60 * 60 * 1000; 
+    let khsGlobalData = null;
+    let khsAllNames = []; 
+
+    function normalizeMKKHS(text) {
+        if (!text) return "";
+        return text.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function isColumnExcludedKHS(colName) {
+        const norm = colName.toString().toLowerCase().replace(/\s+/g, '');
+        if (norm.includes('semester')) return true; 
+        const excludeList = ['ta', 'namamahasiswa', 'ppl', 'kkn', 'skripsi', 'nim'];
+        return excludeList.includes(norm);
+    }
+
+    function konversiNilaiKHS(nilai) {
+        let huruf = 'E', bobot = 0.00;
+        if (nilai >= 85.00) { huruf = 'A'; bobot = 4.00; } 
+        else if (nilai >= 80.00) { huruf = 'A-'; bobot = 3.75; } 
+        else if (nilai >= 70.00) { huruf = 'B+'; bobot = 3.50; } 
+        else if (nilai >= 65.00) { huruf = 'B'; bobot = 3.25; } 
+        else if (nilai >= 60.00) { huruf = 'B-'; bobot = 3.00; } 
+        else if (nilai >= 55.00) { huruf = 'C+'; bobot = 2.75; } 
+        else if (nilai >= 50.00) { huruf = 'C'; bobot = 2.50; } 
+        else if (nilai >= 45.00) { huruf = 'C-'; bobot = 2.25; } 
+        else if (nilai >= 40.00) { huruf = 'D'; bobot = 2.00; } 
+        else { huruf = 'E'; bobot = 0.00; }
+        return { huruf, bobot };
+    }
+
+    function formatKomaKHS(num) {
+        return num.toString().replace('.', ',');
+    }
+
+    function handleEnterKHS(e) {
+        if (e.key === 'Enter') cariKHS();
+    }
+
+    function handleInputKHS(e) {
+        const val = e.target.value.trim();
+        if (val.length >= 3) {
+            e.target.setAttribute('list', 'namaMahasiswaList');
+        } else {
+            e.target.removeAttribute('list');
+        }
+
+        if (val.length > 0) {
+            const exactMatch = khsAllNames.find(n => n.toLowerCase() === val.toLowerCase());
+            if (exactMatch) cariKHS();
+        }
+    }
+
+    function setStatusKHS(msg, type = 'normal') {
+        const statusEl = document.getElementById('status-msg');
+        if(msg === "") {
+            statusEl.style.display = "none";
+            statusEl.innerText = "";
+        } else {
+            statusEl.innerText = msg;
+            statusEl.className = 'text-center font-bold padding-4 rounded-xl border mt-4 ' + 
+                                 (type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-amber-50 text-amber-600 border-amber-200');
+            statusEl.style.display = "block";
+        }
+    }
+
+    function populateDatalistKHS() {
+        if (!khsGlobalData) return;
+        const datalist = document.getElementById('namaMahasiswaList');
+        datalist.innerHTML = '';
+        const names = new Set();
+        
+        for (const sheetName in khsGlobalData) {
+            const nameUpper = sheetName.toUpperCase();
+            if (nameUpper.includes('ASH') || nameUpper.includes('PBA') || nameUpper.includes('NIM') || nameUpper.includes('MAHASISWA')) {
+                khsGlobalData[sheetName].forEach(row => {
+                    const namaKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
+                    if (namaKey && row[namaKey] && row[namaKey].toString().trim() !== '') {
+                        names.add(row[namaKey].toString().trim());
+                    }
+                });
+            }
+        }
+        
+        khsAllNames = Array.from(names);
+        khsAllNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            datalist.appendChild(option);
+        });
+    }
+
+    async function initDataKHS() {
+        if (!SCRIPT_URL_KHS) return false;
+
+        const cachedItem = localStorage.getItem(CACHE_KEY_KHS);
+        if (cachedItem) {
+            const parsedCache = JSON.parse(cachedItem);
+            if (Date.now() - parsedCache.timestamp < CACHE_EXPIRY_KHS) {
+                khsGlobalData = parsedCache.data;
+                populateDatalistKHS();
+                return true;
+            }
+        }
+        
+        try {
+            const response = await fetch(SCRIPT_URL_KHS);
+            if (!response.ok) throw new Error("Gagal terhubung ke server");
+            
+            const json = await response.json();
+            if (json.status !== "success" || !json.data) throw new Error("Format data tidak valid.");
+
+            khsGlobalData = json.data;
+            localStorage.setItem(CACHE_KEY_KHS, JSON.stringify({ timestamp: Date.now(), data: khsGlobalData }));
+            
+            populateDatalistKHS();
+            return true;
+        } catch (error) {
+            console.log("Gagal muat KHS: ", error);
+            return false;
+        }
+    }
+
+    async function cariKHS() {
+        const namaInput = document.getElementById('searchInput').value.trim().toLowerCase();
+        const jenisCetak = document.getElementById('jenisCetak').value;
+
+        if (!namaInput) return;
+
+        if (!khsGlobalData) {
+            setStatusKHS("Sedang menyiapkan data...");
+            const isReady = await initDataKHS();
+            if (!isReady) { setStatusKHS("Gagal menyiapkan database.", "error"); return;}
+        }
+        
+        let dataASH = [], dataPBA = [], dataKurikulum = [], dataGagal = [], dataNIM = []; 
+        
+        for (const sheetName in khsGlobalData) {
+            const nameUpper = sheetName.toUpperCase();
+            if (nameUpper.includes('ASH')) dataASH = khsGlobalData[sheetName];
+            if (nameUpper.includes('PBA')) dataPBA = khsGlobalData[sheetName];
+            if (nameUpper.includes('KURIKULUM')) dataKurikulum = khsGlobalData[sheetName];
+            if (nameUpper.includes('GAGAL')) dataGagal = khsGlobalData[sheetName]; 
+            if (nameUpper.includes('NIM') || nameUpper.includes('MAHASISWA')) dataNIM = khsGlobalData[sheetName]; 
+        }
+
+        const mhsGagal = dataGagal.find(row => 
+            row['Mahasiswa yang GAGAL'] && 
+            row['Mahasiswa yang GAGAL'].toString().trim().toLowerCase() === namaInput
+        );
+
+        if (mhsGagal) {
+            let mkYangGagal = [];
+            for (const key in mhsGagal) {
+                if (key.includes('Mata Kuliah') && mhsGagal[key] && mhsGagal[key].toString().trim() !== '') {
+                    mkYangGagal.push(mhsGagal[key].toString().trim());
+                }
+            }
+            let teksMkGagal = mkYangGagal.length > 0 ? mkYangGagal.join(', ') : 'beberapa mata kuliah';
+            setStatusKHS(`❌ AKSES DITOLAK: Mahasiswa atas nama '${mhsGagal['Mahasiswa yang GAGAL']}' belum dapat mencetak dokumen karena terdapat mata kuliah yang belum lulus, yaitu: ${teksMkGagal}. Dokumen dapat dicetak setelah seluruh mata kuliah dinyatakan lulus.`, "error");
+            document.getElementById('cetakArea').style.display = 'none';
+            document.getElementById('printBtn').style.display = 'none';
+            return; 
+        }
+
+        const semuaNilai = [...dataASH, ...dataPBA];
+        
+        const mhsRows = semuaNilai.filter(row => {
+            const nmKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
+            return nmKey && row[nmKey] && row[nmKey].toString().trim().toLowerCase() === namaInput;
+        });
+
+        if (mhsRows.length === 0) {
+            setStatusKHS(`❌ Mahasiswa bernama '${document.getElementById('searchInput').value}' tidak ditemukan.`, "error");
+            document.getElementById('cetakArea').style.display = 'none';
+            document.getElementById('printBtn').style.display = 'none';
+            return;
+        }
+
+        let mhsData = {};
+        mhsRows.forEach(row => {
+            for (const [key, value] of Object.entries(row)) {
+                if (value !== null && value !== undefined && value !== '') {
+                    mhsData[key] = value;
+                }
+            }
+        });
+
+        let nimMhs = "-";
+        for (const sheetName in khsGlobalData) {
+            const nameUpper = sheetName.toUpperCase();
+            if (nameUpper.includes('NIM') || nameUpper.includes('MAHASISWA')) {
+                const sheetData = khsGlobalData[sheetName];
+                for (let i = 0; i < sheetData.length; i++) {
+                    const row = sheetData[i];
+                    const rowStr = JSON.stringify(row).toLowerCase();
+                    
+                    if (rowStr.includes(namaInput)) {
+                        for (const key in row) {
+                            if (key.trim().toUpperCase() === 'NIM' && row[key]) {
+                                nimMhs = row[key].toString().trim();
+                                break;
+                            }
+                        }
+                        if (nimMhs === "-" || nimMhs === "") {
+                            const match = rowStr.match(/\b\d{8}\b/);
+                            if (match) {
+                                nimMhs = match[0];
+                            }
+                        }
+                    }
+                    if (nimMhs !== "-") break;
+                }
+            }
+            if (nimMhs !== "-") break;
+        }
+
+        setStatusKHS(""); 
+        document.getElementById('kopSurat').style.display = 'block';
+
+        let labelIndeksText = '';
+
+        if (jenisCetak === 'all') {
+            document.getElementById('judulDokumen').innerText = 'TRANSKRIP NILAI AKADEMIK';
+            document.getElementById('lblNIMLabel').innerText = 'NIM';
+            document.getElementById('lblNIM').innerText = nimMhs;
+            document.getElementById('lblSemesterLabel').innerText = 'Program Pendidikan';
+            document.getElementById('lblSemester').innerText = 'Strata - 1 (S1)';
+            labelIndeksText = 'IPK ( Indeks Prestasi Kumulatif )';
+        } else {
+            document.getElementById('judulDokumen').innerText = 'KARTU HASIL STUDI (KHS)';
+            document.getElementById('lblNIMLabel').innerText = 'NIM';
+            document.getElementById('lblNIM').innerText = nimMhs;
+            document.getElementById('lblSemesterLabel').innerText = 'Semester';
+            document.getElementById('lblSemester').innerText = jenisCetak;
+            labelIndeksText = 'IPS ( Indeks Prestasi Semester )';
+        }
+
+        document.getElementById('cetakArea').style.display = 'block';
+        
+        const theNameKey = Object.keys(mhsData).find(k => k.toLowerCase().includes('nama mahasiswa'));
+        document.getElementById('lblNama').innerText = mhsData[theNameKey] || document.getElementById('searchInput').value;
+        
+        const isASH = dataASH.find(row => {
+            const nKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
+            return nKey && row[nKey] && row[nKey].toString().trim().toLowerCase() === namaInput;
+        });
+        document.getElementById('lblProdi').innerText = isASH ? 'Ahwal Al-Syakhshiyyah (ASH)' : 'Pendidikan Bahasa Arab (PBA)';
+
+        const tbody = document.getElementById('khsBody');
+        tbody.innerHTML = '';
+        document.getElementById('printBtn').style.display = 'block';
+
+        let no = 1;
+        let totalSKS = 0;
+        let totalMutu = 0;
+
+        for (const [mkName, mkValue] of Object.entries(mhsData)) {
+            if (!isColumnExcludedKHS(mkName) && mkValue !== null && mkValue !== '' && !isNaN(parseFloat(mkValue))) {
+                
+                const nilaiValid = parseFloat(mkValue);
+                const normKey = normalizeMKKHS(mkName); 
+                
+                let sks = 2; 
+                let semesterMK = "0"; 
+                let kodeMK = "-";
+                
+                if (dataKurikulum.length > 0) {
+                    const matchMK = dataKurikulum.find(k => k['Mata Kuliah'] && normalizeMKKHS(k['Mata Kuliah']) === normKey);
+                    if (matchMK) {
+                        if (matchMK['SKS']) sks = parseInt(matchMK['SKS']);
+                        if (matchMK['Semester']) semesterMK = matchMK['Semester'].toString();
+                        if (matchMK['Kode MK']) kodeMK = matchMK['Kode MK'];
+                    }
+                }
+
+                if (jenisCetak !== 'all' && semesterMK !== jenisCetak) continue; 
+
+                const { huruf, bobot } = konversiNilaiKHS(nilaiValid);
+                const mutu = sks * bobot;
+
+                totalSKS += sks;
+                totalMutu += mutu;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center;">${no++}</td>
+                    <td style="text-align: center;">${kodeMK}</td>
+                    <td>${mkName.trim()}</td>
+                    <td style="text-align: center;">${formatKomaKHS(sks.toFixed(2))}</td>
+                    <td style="text-align: center;">${formatKomaKHS(nilaiValid.toFixed(1))}</td>
+                    <td style="text-align: center; font-weight:bold; color: ${huruf === 'E' || huruf === 'D' ? 'red' : 'black'};">${huruf}</td>
+                    <td style="text-align: center;">${formatKomaKHS(bobot.toFixed(2))}</td>
+                    <td style="text-align: center;">${formatKomaKHS(mutu.toFixed(2))}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        if (no === 1) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="8" style="text-align: center; font-style: italic; color: #7f8c8d;">Data nilai untuk semester ini tidak ditemukan atau belum diinput.</td>`;
+            tbody.appendChild(tr);
+        }
+
+        const ips = totalSKS > 0 ? (totalMutu / totalSKS).toFixed(2) : '0.00';
+        
+        tbody.innerHTML += `
+            <tr style="font-weight: bold; border-top: 2px solid #000;">
+                <td colspan="3" style="text-align: right; border-right: none;">Jumlah</td>
+                <td style="text-align: center; border-left: none;">${formatKomaKHS(totalSKS.toFixed(2))}</td>
+                <td colspan="3" style="border-right: none;"></td>
+                <td style="text-align: center; border-left: none;">${formatKomaKHS(totalMutu.toFixed(2))}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td colspan="7" style="text-align: right; border-right: none;">${labelIndeksText}</td>
+                <td style="text-align: center; border-left: none;">${formatKomaKHS(ips)}</td>
+            </tr>
+        `;
+    }
+
+    // ONLOAD TRIGGER
+    window.addEventListener('DOMContentLoaded', () => {
+        updateJam();
+        initDataKHS();
+        switchTab('khs'); // Set KHS sbg menu aktif default
+    });
+  </script>
+</body>
+</html>
