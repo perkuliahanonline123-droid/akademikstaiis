@@ -43,10 +43,10 @@
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
 
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
 
     /* ========================================================
-       DESAIN CETAKAN KHS & TRANSKRIP (DIPERTAHANKAN 100%)
+       DESAIN CETAKAN KHS & TRANSKRIP
        ======================================================== */
     #cetakArea { display: none; margin-top: 20px; background: #fff; padding: 40px; color: #000; border-radius: 1.5rem; }
     .judul-dokumen { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #000; }
@@ -114,10 +114,10 @@
         Evaluasi Akademik
       </button>
       
-      <!-- MENU BARU: HASIL STUDI KHS -->
+      <!-- MENU: HASIL STUDI KHS -->
       <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
-        Hasil Studi KHS
+        Hasil Studi Mahasiswa
       </button>
     </nav>
   </aside>
@@ -153,25 +153,28 @@
         <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mohon tunggu sebentar...</p>
       </div>
 
-      <!-- TAB 1-3: DASHBOARD (Struktur dipertahankan agar tidak error) -->
+      <!-- TAB 1-3: DASHBOARD -->
       <div id="tab-jurnal" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
       <div id="tab-presensi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
       <div id="tab-evaluasi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
 
-      <!-- ==============================================
-           TAB KHS: HASIL STUDI (FOKUS UTAMA DISINI) 
-           ============================================== -->
+      <!-- TAB KHS: HASIL STUDI -->
       <div id="tab-khs" class="space-y-6 animate-slide-up">
           
           <!-- Kontrol Pencarian (KHS-Controls) -->
           <div id="khs-controls" class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
               
-              <div class="flex-1 w-full bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
-                  <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
-                      <i class="fas fa-search text-base"></i>
+              <div class="flex-1 w-full relative z-50">
+                  <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
+                      <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                          <i class="fas fa-search text-base"></i>
+                      </div>
+                      <input type="text" id="searchInput" placeholder="Ketik Nama Mahasiswa (min. 3 huruf)" autocomplete="off" oninput="handleInputKHS(event)" onkeypress="handleEnterKHS(event)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
                   </div>
-                  <input type="text" id="searchInput" list="namaMahasiswaList" placeholder="Ketik Nama Mahasiswa (min. 3 huruf)" autocomplete="off" oninput="handleInputKHS(event)" onkeypress="handleEnterKHS(event)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
-                  <datalist id="namaMahasiswaList"></datalist>
+                  <!-- CUSTOM DROPDOWN -->
+                  <div id="customDropdown" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 max-h-[300px] overflow-y-auto hidden custom-scrollbar">
+                      <!-- Isi rekomendasi nama akan disuntikkan ke sini via JavaScript -->
+                  </div>
               </div>
 
               <select id="jenisCetak" onchange="if(document.getElementById('searchInput').value.trim() !== '') cariKHS()" class="w-full md:w-auto bg-white px-5 py-3.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:min-w-[280px]">
@@ -189,8 +192,8 @@
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
-          <!-- AREA YANG AKAN DICETAK (Persis seperti format PDF Anda) -->
-          <div id="cetakArea" class="shadow-soft border border-slate-100">
+          <!-- AREA YANG AKAN DICETAK -->
+          <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <div id="kopSurat">
                   <div style="text-align: center; line-height: 1.15;">
@@ -345,7 +348,7 @@
 
 
     /* ========================================================
-       LOGIKA DAN FUNGSI KHS (SESUAI REQUEST SEBELUMNYA)
+       LOGIKA DAN FUNGSI KHS
        ======================================================== */
     const SCRIPT_URL_KHS = 'https://script.google.com/macros/s/AKfycbxlS2O6Z0hEzUCYVnIyuZHg-v_bV12pRKF2mG-ujQE1TDEJeSmph5mnCqIX6bAS7rls0Q/exec'; 
     const CACHE_KEY_KHS = 'KHS_PRODI_CACHE_V3';
@@ -388,19 +391,57 @@
         if (e.key === 'Enter') cariKHS();
     }
 
+    // ==========================================
+    // LOGIKA CUSTOM DROPDOWN / AUTO-SUGGEST
+    // ==========================================
     function handleInputKHS(e) {
-        const val = e.target.value.trim();
-        if (val.length >= 3) {
-            e.target.setAttribute('list', 'namaMahasiswaList');
-        } else {
-            e.target.removeAttribute('list');
-        }
+        const val = e.target.value.trim().toLowerCase();
+        const dropdown = document.getElementById('customDropdown');
+        dropdown.innerHTML = '';
 
-        if (val.length > 0) {
-            const exactMatch = khsAllNames.find(n => n.toLowerCase() === val.toLowerCase());
-            if (exactMatch) cariKHS();
+        if (val.length >= 3) {
+            // Filter nama yang mengandung huruf yang diketik
+            const filteredNames = khsAllNames.filter(name => name.toLowerCase().includes(val));
+            
+            if (filteredNames.length > 0) {
+                filteredNames.forEach(name => {
+                    const div = document.createElement('div');
+                    div.className = 'px-5 py-3 hover:bg-brand-50 hover:text-brand-700 cursor-pointer transition-colors border-b border-slate-50 last:border-0 font-semibold text-slate-600 text-sm flex items-center gap-3';
+                    
+                    // Efek Highlight Text (Tebal & Hijau pada huruf yg cocok)
+                    const regex = new RegExp(`(${val})`, "gi");
+                    const highlightedName = name.replace(regex, "<span class='text-brand-600 font-black'>$1</span>");
+                    
+                    div.innerHTML = `<i class="fas fa-user-graduate text-slate-300"></i> <span>${highlightedName}</span>`;
+                    
+                    div.onclick = function() {
+                        document.getElementById('searchInput').value = name;
+                        dropdown.classList.add('hidden');
+                        cariKHS(); // Auto load data setelah nama diklik
+                    };
+                    dropdown.appendChild(div);
+                });
+                dropdown.classList.remove('hidden');
+            } else {
+                const div = document.createElement('div');
+                div.className = 'px-5 py-4 text-slate-400 italic text-sm text-center';
+                div.innerHTML = '<i class="fas fa-search-minus mb-2 block text-2xl opacity-50"></i>Nama tidak ditemukan di database';
+                dropdown.appendChild(div);
+                dropdown.classList.remove('hidden');
+            }
+        } else {
+            dropdown.classList.add('hidden');
         }
     }
+
+    // Menutup Custom Dropdown jika user klik di luar area pencarian
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchInput');
+        const dropdown = document.getElementById('customDropdown');
+        if (searchBox && dropdown && !searchBox.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
 
     function setStatusKHS(msg, type = 'normal') {
         const statusEl = document.getElementById('status-msg');
@@ -415,10 +456,9 @@
         }
     }
 
-    function populateDatalistKHS() {
+    // Hanya mengumpulkan daftar nama unik untuk auto-suggest
+    function prepareNamesList() {
         if (!khsGlobalData) return;
-        const datalist = document.getElementById('namaMahasiswaList');
-        datalist.innerHTML = '';
         const names = new Set();
         
         for (const sheetName in khsGlobalData) {
@@ -432,13 +472,8 @@
                 });
             }
         }
-        
-        khsAllNames = Array.from(names);
-        khsAllNames.forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            datalist.appendChild(option);
-        });
+        // Mengubah Set menjadi Array agar bisa di-filter
+        khsAllNames = Array.from(names).sort();
     }
 
     async function initDataKHS() {
@@ -449,7 +484,7 @@
             const parsedCache = JSON.parse(cachedItem);
             if (Date.now() - parsedCache.timestamp < CACHE_EXPIRY_KHS) {
                 khsGlobalData = parsedCache.data;
-                populateDatalistKHS();
+                prepareNamesList();
                 return true;
             }
         }
@@ -464,7 +499,7 @@
             khsGlobalData = json.data;
             localStorage.setItem(CACHE_KEY_KHS, JSON.stringify({ timestamp: Date.now(), data: khsGlobalData }));
             
-            populateDatalistKHS();
+            prepareNamesList();
             return true;
         } catch (error) {
             console.log("Gagal muat KHS: ", error);
@@ -473,6 +508,9 @@
     }
 
     async function cariKHS() {
+        // Tutup dropdown jika terbuka
+        document.getElementById('customDropdown').classList.add('hidden');
+
         const namaInput = document.getElementById('searchInput').value.trim().toLowerCase();
         const jenisCetak = document.getElementById('jenisCetak').value;
 
@@ -650,7 +688,7 @@
 
         if (no === 1) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td colspan="8" style="text-align: center; font-style: italic; color: #7f8c8d;">Data nilai untuk semester ini tidak ditemukan atau belum diinput.</td>`;
+            tr.innerHTML = `<td colspan="8" style="text-align: center; font-style: italic; color: #7f8c8d; padding: 20px;">Data nilai untuk semester ini belum diinput.</td>`;
             tbody.appendChild(tr);
         }
 
@@ -674,7 +712,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         updateJam();
         initDataKHS();
-        switchTab('khs'); // Set KHS sbg menu aktif default
+        switchTab('khs'); 
     });
   </script>
 </body>
