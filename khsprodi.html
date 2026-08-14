@@ -66,7 +66,7 @@
         body, html { background: #fff !important; padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; }
         
         /* SEMBUNYIKAN SEMUA ELEMEN DASHBOARD SAAT PRINT */
-        aside, header, nav, .md\:hidden, #khs-controls, #status-msg, #printBtn, #globalStats { display: none !important; }
+        aside, header, nav, .md\:hidden, #khs-controls, .search-box, #status-msg-khs, #printBtn, #globalStats { display: none !important; }
         
         main { display: block !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
         
@@ -101,22 +101,22 @@
     </div>
     
     <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto custom-scrollbar">
-      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
-        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
+      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-white text-sm"></i></div>
         Riwayat Jurnal
       </button>
-      <button onclick="switchTab('presensi')" id="btn-presensi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+      <button onclick="switchTab('presensi')" id="btn-presensi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
         Presensi Mahasiswa
       </button>
-      <button onclick="switchTab('evaluasi')" id="btn-evaluasi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+      <button onclick="switchTab('evaluasi')" id="btn-evaluasi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </button>
       
-      <!-- MENU BARU: HASIL STUDI -->
-      <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
+      <!-- MENU: HASIL STUDI -->
+      <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-graduation-cap text-sm text-white"></i></div>
         Hasil Studi
       </button>
     </nav>
@@ -140,7 +140,7 @@
       </div>
     </header>
 
-    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto print:p-0 print:max-w-none">
+    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto flex-grow print:p-0 print:max-w-none">
       
       <!-- LOADING INDIKATOR -->
       <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100 hidden">
@@ -153,31 +153,26 @@
         <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mohon tunggu sebentar...</p>
       </div>
 
-      <!-- TAB 1-3: DASHBOARD -->
-      <div id="tab-jurnal" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
-      <div id="tab-presensi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
-      <div id="tab-evaluasi" class="hidden space-y-6 animate-slide-up"><div class="bg-white p-10 text-center rounded-2xl shadow-soft text-slate-500">Fitur sedang dialihkan...</div></div>
-
       <!-- TAB KHS: HASIL STUDI -->
       <div id="tab-khs" class="space-y-6 animate-slide-up">
           
           <!-- Kontrol Pencarian (KHS-Controls) -->
-          <div id="khs-controls" class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div id="khs-controls" class="search-box bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
               
               <div class="flex-1 w-full relative z-50">
                   <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-400 transition-all">
                       <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
                           <i class="fas fa-search text-base"></i>
                       </div>
-                      <input type="text" id="searchInput" placeholder="Ketik Nama Mahasiswa (min. 3 huruf)" autocomplete="off" oninput="handleInputKHS(event)" onkeypress="handleEnterKHS(event)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
+                      <input type="text" id="searchKHSInput" placeholder="Ketik Nama Mahasiswa (min. 3 huruf)" autocomplete="off" oninput="handleInputKHS(event)" onkeypress="handleEnterKHS(event)" class="w-full bg-transparent outline-none font-bold text-slate-700 placeholder-slate-400 text-sm md:text-base">
                   </div>
                   <!-- CUSTOM DROPDOWN -->
-                  <div id="customDropdown" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 max-h-[300px] overflow-y-auto hidden custom-scrollbar">
+                  <div id="customDropdownKHS" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 max-h-[300px] overflow-y-auto hidden custom-scrollbar">
                       <!-- Isi rekomendasi nama akan disuntikkan ke sini via JavaScript -->
                   </div>
               </div>
 
-              <select id="jenisCetak" onchange="if(document.getElementById('searchInput').value.trim() !== '') cariKHS()" class="w-full md:w-auto bg-white px-5 py-3.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:min-w-[280px]">
+              <select id="jenisCetak" onchange="if(document.getElementById('searchKHSInput').value.trim() !== '') cariKHS()" class="w-full md:w-auto bg-white px-5 py-3.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:min-w-[280px]">
                   <option value="all">Transkrip Nilai (Semua Semester)</option>
                   <option value="1">KHS Semester 1</option>
                   <option value="2">KHS Semester 2</option>
@@ -190,7 +185,7 @@
               </select>
           </div>
           
-          <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
+          <div id="status-msg-khs" class="hidden"></div>
 
           <!-- AREA YANG AKAN DICETAK -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
@@ -256,15 +251,17 @@
               <i class="fas fa-print"></i> Cetak Dokumen (PDF / Printer)
           </button>
       </div>
-
     </div>
-
+    
+    <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
+      &copy; 2026 Dasbor Akademik
+    </footer>
   </main>
 
   <!-- NAVIGASI BOTTOM (HP) -->
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-    <button onclick="switchTab('jurnal')" id="btn-mob-jurnal" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
-      <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
+    <button onclick="switchTab('jurnal')" id="btn-mob-jurnal" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
     </button>
     <button onclick="switchTab('presensi')" id="btn-mob-presensi" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
@@ -275,8 +272,8 @@
       <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
     </button>
-    <button onclick="switchTab('khs')" id="btn-mob-khs" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-      <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-graduation-cap text-lg"></i></div>
+    <button onclick="switchTab('khs')" id="btn-mob-khs" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
+      <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-graduation-cap text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
     </button>
   </div>
@@ -297,53 +294,15 @@
     setInterval(updateJam, 1000);
 
     function switchTab(tab) {
-      document.getElementById('tab-jurnal').classList.toggle('hidden', tab !== 'jurnal');
-      document.getElementById('tab-presensi').classList.toggle('hidden', tab !== 'presensi');
-      document.getElementById('tab-evaluasi').classList.toggle('hidden', tab !== 'evaluasi');
-      document.getElementById('tab-khs').classList.toggle('hidden', tab !== 'khs');
-      
-      const act = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4';
-      const inact = 'w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group hover:bg-white/5';
-      const iconAct = 'w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm';
-      const iconInact = 'w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all';
-
-      document.getElementById('btn-jurnal').className = tab === 'jurnal' ? act : inact;
-      document.getElementById('btn-presensi').className = tab === 'presensi' ? act : inact;
-      document.getElementById('btn-evaluasi').className = tab === 'evaluasi' ? act : inact;
-      document.getElementById('btn-khs').className = tab === 'khs' ? act : inact;
-
-      document.querySelector('#btn-jurnal div').className = tab === 'jurnal' ? iconAct : iconInact;
-      document.querySelector('#btn-presensi div').className = tab === 'presensi' ? iconAct : iconInact;
-      document.querySelector('#btn-evaluasi div').className = tab === 'evaluasi' ? iconAct : iconInact;
-      document.querySelector('#btn-khs div').className = tab === 'khs' ? iconAct : iconInact;
-
-      // Mobile
-      const mobAct = 'flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300';
-      const mobInact = 'flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300';
-      const iconMobAct = 'bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm';
-      const iconMobInact = 'w-10 h-10 rounded-full flex items-center justify-center';
-
-      ['jurnal', 'presensi', 'evaluasi', 'khs'].forEach(t => {
-        let btn = document.getElementById('btn-mob-' + t);
-        if(btn) {
-           btn.className = tab === t ? mobAct : mobInact;
-           btn.querySelector('div').className = tab === t ? iconMobAct : iconMobInact;
-        }
-      });
-
-      if(tab === 'jurnal') {
-        document.getElementById('pageTitle').innerText = 'Riwayat Jurnal Perkuliahan Harian';
-        document.getElementById('pageSubtitle').innerText = 'Pantau laporan tatap muka dosen secara real-time';
-      } else if (tab === 'presensi') {
-        document.getElementById('pageTitle').innerText = 'Transparansi Data Presensi';
-        document.getElementById('pageSubtitle').innerText = 'Cari dan pantau tingkat kehadiran mahasiswa';
-      } else if (tab === 'evaluasi') {
-        document.getElementById('pageTitle').innerText = 'Evaluasi Akademik';
-        document.getElementById('pageSubtitle').innerText = 'Daftar rekap mahasiswa yang harus mengulang mata kuliah';
-      } else {
-        document.getElementById('pageTitle').innerText = 'Cetak KHS & Transkrip';
-        document.getElementById('pageSubtitle').innerText = 'Sistem Pencetakan Hasil Studi Mahasiswa';
+      // REDIRECT LOGIC: Jika bukan KHS, alihkan kembali ke Index (karena fitur lainnya ada di index.html)
+      if (tab !== 'khs') {
+        window.location.href = 'index.html';
+        return;
       }
+      
+      // Karena khsprodi.html ini halaman khusus KHS, kita hanya perlu merender judul KHS saja
+      document.getElementById('pageTitle').innerText = 'Cetak KHS & Transkrip';
+      document.getElementById('pageSubtitle').innerText = 'Sistem Pencetakan Hasil Studi Mahasiswa';
     }
 
 
@@ -396,11 +355,10 @@
     // ==========================================
     function handleInputKHS(e) {
         const val = e.target.value.trim().toLowerCase();
-        const dropdown = document.getElementById('customDropdown');
+        const dropdown = document.getElementById('customDropdownKHS');
         dropdown.innerHTML = '';
 
         if (val.length >= 3) {
-            // Filter nama yang mengandung huruf yang diketik
             const filteredNames = khsAllNames.filter(name => name.toLowerCase().includes(val));
             
             if (filteredNames.length > 0) {
@@ -408,16 +366,15 @@
                     const div = document.createElement('div');
                     div.className = 'px-5 py-3 hover:bg-brand-50 hover:text-brand-700 cursor-pointer transition-colors border-b border-slate-50 last:border-0 font-semibold text-slate-600 text-sm flex items-center gap-3';
                     
-                    // Efek Highlight Text (Tebal & Hijau pada huruf yg cocok)
                     const regex = new RegExp(`(${val})`, "gi");
                     const highlightedName = name.replace(regex, "<span class='text-brand-600 font-black'>$1</span>");
                     
                     div.innerHTML = `<i class="fas fa-user-graduate text-slate-300"></i> <span>${highlightedName}</span>`;
                     
                     div.onclick = function() {
-                        document.getElementById('searchInput').value = name;
+                        document.getElementById('searchKHSInput').value = name;
                         dropdown.classList.add('hidden');
-                        cariKHS(); // Auto load data setelah nama diklik
+                        cariKHS();
                     };
                     dropdown.appendChild(div);
                 });
@@ -436,27 +393,26 @@
 
     // Menutup Custom Dropdown jika user klik di luar area pencarian
     document.addEventListener('click', function(event) {
-        const searchBox = document.getElementById('searchInput');
-        const dropdown = document.getElementById('customDropdown');
+        const searchBox = document.getElementById('searchKHSInput');
+        const dropdown = document.getElementById('customDropdownKHS');
         if (searchBox && dropdown && !searchBox.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.classList.add('hidden');
         }
     });
 
     function setStatusKHS(msg, type = 'normal') {
-        const statusEl = document.getElementById('status-msg');
+        const statusEl = document.getElementById('status-msg-khs');
         if(msg === "") {
             statusEl.style.display = "none";
             statusEl.innerText = "";
         } else {
             statusEl.innerText = msg;
-            statusEl.className = 'text-center font-bold padding-4 rounded-xl border mt-4 ' + 
+            statusEl.className = 'text-center font-bold p-4 rounded-xl border mb-6 ' + 
                                  (type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-amber-50 text-amber-600 border-amber-200');
             statusEl.style.display = "block";
         }
     }
 
-    // Hanya mengumpulkan daftar nama unik untuk auto-suggest
     function prepareNamesList() {
         if (!khsGlobalData) return;
         const names = new Set();
@@ -472,7 +428,6 @@
                 });
             }
         }
-        // Mengubah Set menjadi Array agar bisa di-filter
         khsAllNames = Array.from(names).sort();
     }
 
@@ -509,9 +464,9 @@
 
     async function cariKHS() {
         // Tutup dropdown jika terbuka
-        document.getElementById('customDropdown').classList.add('hidden');
+        document.getElementById('customDropdownKHS').classList.add('hidden');
 
-        const namaInput = document.getElementById('searchInput').value.trim().toLowerCase();
+        const namaInput = document.getElementById('searchKHSInput').value.trim().toLowerCase();
         const jenisCetak = document.getElementById('jenisCetak').value;
 
         if (!namaInput) return;
@@ -560,7 +515,7 @@
         });
 
         if (mhsRows.length === 0) {
-            setStatusKHS(`❌ Mahasiswa bernama '${document.getElementById('searchInput').value}' tidak ditemukan.`, "error");
+            setStatusKHS(`❌ Mahasiswa bernama '${document.getElementById('searchKHSInput').value}' tidak ditemukan.`, "error");
             document.getElementById('cetakArea').style.display = 'none';
             document.getElementById('printBtn').style.display = 'none';
             return;
@@ -628,7 +583,7 @@
         document.getElementById('cetakArea').style.display = 'block';
         
         const theNameKey = Object.keys(mhsData).find(k => k.toLowerCase().includes('nama mahasiswa'));
-        document.getElementById('lblNama').innerText = mhsData[theNameKey] || document.getElementById('searchInput').value;
+        document.getElementById('lblNama').innerText = mhsData[theNameKey] || document.getElementById('searchKHSInput').value;
         
         const isASH = dataASH.find(row => {
             const nKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
