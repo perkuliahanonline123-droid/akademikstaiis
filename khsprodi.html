@@ -101,8 +101,8 @@
     </div>
     
     <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto custom-scrollbar">
-      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
+      <button onclick="switchTab('jurnal')" id="btn-jurnal" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
         Riwayat Jurnal
       </button>
       <button onclick="switchTab('presensi')" id="btn-presensi" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
@@ -114,12 +114,11 @@
         Evaluasi Akademik
       </button>
       
-      <!-- MENU: HASIL STUDI KHS -->
-      <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
-        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
+      <!-- MENU BARU: HASIL STUDI -->
+      <button onclick="switchTab('khs')" id="btn-khs" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
         Hasil Studi
       </button>
-    </nav>
   </aside>
 
   <!-- AREA KONTEN UTAMA -->
