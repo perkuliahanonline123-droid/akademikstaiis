@@ -187,8 +187,8 @@
             </table>
           </div>
         </div>
-
       </div>
+
     </div>
 
     <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
@@ -223,6 +223,7 @@
   <script>
     // URL API Backend Google Script
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
+    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
     // Variabel Global
     let globalDataJurnal = [];
@@ -242,49 +243,101 @@
     }
     setInterval(updateJam, 1000);
 
-    // Ambil Data saat halaman dimuat
-    window.onload = async function() {
-      updateJam();
-      try {
-        const response = await fetch(scriptUrlDash);
-        const result = await response.json();
+    // Render Data Berhasil
+    function handleDataSuccess(data) {
+        globalDataJurnal = data.jurnal || [];
+        globalDataMhs = data.mahasiswa || []; 
         
-        if (result.status === "success") { 
-          globalDataJurnal = result.data.jurnal || [];
-          globalDataMhs = result.data.mahasiswa || []; // Diperlukan untuk kelengkapan dropdown filter
-          
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('tab-jurnal').classList.remove('hidden');
-          
-          populateFilters();
-        } 
-      } catch (err) { 
-        console.error("Error Dashboard data:", err); 
-        document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
-      }
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('tab-jurnal').classList.remove('hidden');
+        
+        populateFilters();
+    }
+
+    // Ambil Data Latar Belakang (Sinkronisasi Background)
+    async function fetchDataLatarBelakang() {
+        try {
+            const response = await fetch(scriptUrlDash);
+            const result = await response.json();
+            
+            if (result.status === "success") { 
+                const newDataString = JSON.stringify(result.data);
+                const currentCache = localStorage.getItem(CACHE_KEY_DASH);
+                
+                // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
+                if (currentCache !== newDataString) {
+                    localStorage.setItem(CACHE_KEY_DASH, newDataString);
+                    handleDataSuccess(result.data);
+                }
+            } 
+        } catch (err) { 
+            console.error("Error Dashboard data:", err); 
+            // Munculkan peringatan hanya jika tidak ada cache sama sekali
+            if (!localStorage.getItem(CACHE_KEY_DASH)) {
+                document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
+            }
+        }
+    }
+
+    // Eksekusi saat Web Dibuka
+    window.onload = function() {
+        updateJam();
+        
+        // 1. Cek Cache Dulu (Muat super cepat)
+        const cachedData = localStorage.getItem(CACHE_KEY_DASH);
+        if (cachedData) {
+            try {
+                const parsedData = JSON.parse(cachedData);
+                handleDataSuccess(parsedData);
+            } catch(e) {
+                console.error("Gagal membaca cache:", e);
+            }
+        }
+        
+        // 2. Refresh diam-diam di background (Stale-while-revalidate)
+        fetchDataLatarBelakang();
     };
 
     // Fungsi Mengisi Dropdown Filter (Tahun & Matkul)
     function populateFilters() {
+      let selTahun = document.getElementById('globalTahunFilter');
+      let selMatkul = document.getElementById('globalMatkulFilter');
+      
+      // Simpan Pilihan User Saat Ini (Agar tidak reset saat auto-refresh dari cache)
+      let currentTahun = selTahun ? selTahun.value : "Semua";
+      let currentMatkul = selMatkul ? selMatkul.value : "Semua";
+
       let years = new Set();
       globalDataJurnal.forEach(j => years.add(j.tahun));
       globalDataMhs.forEach(m => years.add(m.tahun));
       let yearsArr = Array.from(years).filter(y => y && y !== "Semester Tidak Diketahui").sort().reverse();
 
-      let selTahun = document.getElementById('globalTahunFilter');
       let optTahun = '<option value="Semua">Tampilkan Semua Semester</option>';
       yearsArr.forEach(y => { optTahun += `<option value="${y}">${y}</option>`; });
-      if(selTahun) selTahun.innerHTML = optTahun;
+      
+      if(selTahun) {
+          selTahun.innerHTML = optTahun;
+          // Kembalikan pilihan user jika ada, kalau tidak default "Semua"
+          if(Array.from(selTahun.options).some(o => o.value === currentTahun)) {
+              selTahun.value = currentTahun;
+          }
+      }
 
       let matkuls = new Set();
       globalDataJurnal.forEach(j => matkuls.add(j.matkul));
       globalDataMhs.forEach(m => matkuls.add(m.matkul));
       let matkulsArr = Array.from(matkuls).sort();
 
-      let selMatkul = document.getElementById('globalMatkulFilter');
       let optMatkul = '<option value="Semua">Semua Mata Kuliah</option>';
       matkulsArr.forEach(mk => { optMatkul += `<option value="${mk}">${mk}</option>`; });
-      if(selMatkul) selMatkul.innerHTML = optMatkul;
+      
+      if(selMatkul) {
+          selMatkul.innerHTML = optMatkul;
+          // Kembalikan pilihan user
+          if(Array.from(selMatkul.options).some(o => o.value === currentMatkul)) {
+              selMatkul.value = currentMatkul;
+          }
+      }
 
       applyGlobalFilter();
     }
