@@ -515,11 +515,24 @@
       }
     }
 
-    // ==========================================
-    // INITIALIZATION (FETCH DATA DASHBOARD & KHS)
-    // ==========================================
-    window.onload = async function() {
-      updateJam();
+          // ==========================================
+      // INITIALIZATION (FETCH DATA DASHBOARD & KHS)
+      // ==========================================
+      
+      window.addEventListener('DOMContentLoaded', async (event) => {
+          // 1. Jalankan fungsi update jam
+          updateJam();
+      
+          // 2. Cek apakah ada hash di URL (misal: #evaluasi)
+          if (window.location.hash) {
+              let tabId = window.location.hash.substring(1); // mengambil kata setelah '#'
+              
+              // Menggunakan array .includes agar lebih rapi daripada banyak || (OR)
+              if (['evaluasi', 'khs', 'presensi'].includes(tabId)) {
+                  switchTab(tabId);
+              }
+          }
+      });
       
       // 1. INIT DATA DASHBOARD
       const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
