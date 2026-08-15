@@ -175,6 +175,7 @@
   <script>
     // URL API Backend Google Script
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
+    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1'; // Berbagi Cache yang sama dengan Index/Jurnal
     
     // Variabel Global
     let globalGagalHead = [];
@@ -194,26 +195,59 @@
     }
     setInterval(updateJam, 1000);
 
-    // Ambil Data saat halaman dimuat
-    window.onload = async function() {
-      updateJam();
-      try {
-        const response = await fetch(scriptUrlDash);
-        const result = await response.json();
+    // Render Data Berhasil
+    function handleDataSuccess(data) {
+        globalGagalHead = data.gagalHead || [];
+        globalGagalBody = data.gagalBody || [];
         
-        if (result.status === "success") { 
-          globalGagalHead = result.data.gagalHead || [];
-          globalGagalBody = result.data.gagalBody || [];
-          
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('tab-evaluasi').classList.remove('hidden');
-          
-          renderEvaluasi(); 
-        } 
-      } catch (err) { 
-        console.error("Error Dashboard data:", err); 
-        document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
-      }
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('tab-evaluasi').classList.remove('hidden');
+        
+        renderEvaluasi();
+    }
+
+    // Ambil Data Latar Belakang (Sinkronisasi Background)
+    async function fetchDataLatarBelakang() {
+        try {
+            const response = await fetch(scriptUrlDash);
+            const result = await response.json();
+            
+            if (result.status === "success") { 
+                const newDataString = JSON.stringify(result.data);
+                const currentCache = localStorage.getItem(CACHE_KEY_DASH);
+                
+                // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
+                if (currentCache !== newDataString) {
+                    localStorage.setItem(CACHE_KEY_DASH, newDataString);
+                    handleDataSuccess(result.data);
+                }
+            } 
+        } catch (err) { 
+            console.error("Error Dashboard data:", err); 
+            // Munculkan peringatan hanya jika tidak ada cache sama sekali
+            if (!localStorage.getItem(CACHE_KEY_DASH)) {
+                document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
+            }
+        }
+    }
+
+    // Eksekusi saat Web Dibuka
+    window.onload = function() {
+        updateJam();
+        
+        // 1. Cek Cache Dulu (Muat super cepat)
+        const cachedData = localStorage.getItem(CACHE_KEY_DASH);
+        if (cachedData) {
+            try {
+                const parsedData = JSON.parse(cachedData);
+                handleDataSuccess(parsedData);
+            } catch(e) {
+                console.error("Gagal membaca cache:", e);
+            }
+        }
+        
+        // 2. Refresh diam-diam di background (Stale-while-revalidate)
+        fetchDataLatarBelakang();
     };
 
     // Fungsi Render Tabel Evaluasi
