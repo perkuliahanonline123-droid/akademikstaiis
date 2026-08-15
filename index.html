@@ -518,19 +518,7 @@
     // INITIALIZATION (FETCH DATA DASHBOARD & KHS)
     window.onload = async function() {
       updateJam();
-      if (window.location.hash) {
-            // Memberikan sedikit jeda (timeout) agar transisi lebih mulus 
-            // dan memastikan DOM benar-benar sudah di-render oleh fetch data
-            setTimeout(() => {
-                let tabId = window.location.hash.substring(1); // ambil kata setelah '#'
-                
-                if (['evaluasi', 'khs', 'presensi'].includes(tabId)) {
-                    switchTab(tabId);
-                }
-            }, 300); // jeda 300 milidetik (0.3 detik)
-        }
-    };
-
+      
       // 1. INIT DATA DASHBOARD
       const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
       try {
