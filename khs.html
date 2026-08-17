@@ -495,11 +495,14 @@
             
             // Format rincian mata kuliah menjadi list dengan nomor kotak ala gambar referensi
             let listMKHTML = mkYangGagal.map((mk, index) => 
-                `<div class="flex items-center gap-3 py-2.5 border-b border-dashed border-red-200/60 last:border-0">
-                    <div class="w-6 h-6 rounded-md bg-red-400 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">
+                `<div class="flex items-start gap-3 py-2.5 border-b border-dashed border-red-200/60 last:border-0 w-full">
+                    <div class="w-6 h-6 rounded-md bg-red-400 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm mt-0.5">
                         ${index + 1}
                     </div>
-                    <span class="font-medium text-slate-700 text-sm">${mk}</span>
+                    <!-- Tambahkan flex-1 dan text-left di sini -->
+                    <div class="font-medium text-slate-700 text-sm flex-1 text-left leading-snug break-words">
+                        ${mk}
+                    </div>
                 </div>`
             ).join('');
 
