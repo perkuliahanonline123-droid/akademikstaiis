@@ -479,7 +479,21 @@
                 }
             }
             let teksMkGagal = mkYangGagal.length > 0 ? mkYangGagal.join(', ') : 'beberapa mata kuliah';
-            setStatusKHS(`❌ AKSES DITOLAK: Mahasiswa atas nama '${mhsGagal['Mahasiswa yang GAGAL']}' belum dapat mencetak dokumen karena terdapat mata kuliah yang belum lulus, yaitu: ${teksMkGagal}. Dokumen dapat dicetak setelah seluruh mata kuliah dinyatakan lulus.`, "error");
+            
+            // Buat pesan error HTML dengan tambahan tombol form
+            let errorMsg = `
+                <div class="mb-3 text-red-600 font-bold">
+                    ❌ AKSES DITOLAK: Mahasiswa atas nama '${mhsGagal['Mahasiswa yang GAGAL']}' belum dapat mencetak dokumen karena terdapat mata kuliah yang belum lulus, yaitu: <i>${teksMkGagal}</i>.
+                </div>
+                <div class="text-sm font-medium text-red-500 mb-4">
+                    Dokumen baru dapat dicetak setelah seluruh mata kuliah dinyatakan lulus. Silakan ajukan perbaikan nilai melalui tombol di bawah ini.
+                </div>
+                <a href="https://forms.gle/vhN8un9YLGqnkgTa9" target="_blank" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-sm cursor-pointer text-sm">
+                    <i class="fas fa-edit"></i> Ajukan Perbaikan Nilai
+                </a>
+            `;
+
+            setStatusKHS(errorMsg, "error");
             document.getElementById('cetakArea').style.display = 'none';
             document.getElementById('printBtn').style.display = 'none';
             return; 
