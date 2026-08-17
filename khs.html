@@ -486,7 +486,6 @@
         if (mhsGagal) {
             let mkYangGagal = [];
             for (const key in mhsGagal) {
-                // Kumpulkan semua mata kuliah yang gagal
                 if (key.includes('Mata Kuliah') && mhsGagal[key] && mhsGagal[key].toString().trim() !== '') {
                     mkYangGagal.push(mhsGagal[key].toString().trim());
                 }
@@ -494,66 +493,79 @@
             
             let jumlahMK = mkYangGagal.length;
             
-            // Format rincian mata kuliah menjadi bentuk "badge/label" agar rapi
-            let listMKHTML = mkYangGagal.map(mk => 
-                `<span class="inline-block bg-white text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold border border-red-100 shadow-sm m-1">${mk}</span>`
+            // Format rincian mata kuliah menjadi list dengan nomor kotak ala gambar referensi
+            let listMKHTML = mkYangGagal.map((mk, index) => 
+                `<div class="flex items-center gap-3 py-2.5 border-b border-dashed border-red-200/60 last:border-0">
+                    <div class="w-6 h-6 rounded-md bg-red-400 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">
+                        ${index + 1}
+                    </div>
+                    <span class="font-medium text-slate-700 text-sm">${mk}</span>
+                </div>`
             ).join('');
 
-            // Rancang HTML yang menyerupai Desain Gambar 2
+            // Desain Replikasi image_135a51.png
             let errorMsg = `
-                <!-- Ikon Melayang di Atas -->
-                <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg border-[6px] border-red-50 absolute -top-7 left-1/2 transform -translate-x-1/2">
+                <!-- Ikon Silang Melayang -->
+                <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg border-[5px] border-red-50 absolute -top-7 left-1/2 transform -translate-x-1/2 z-10">
                     <i class="fas fa-times"></i>
                 </div>
                 
-                <h2 class="text-2xl font-black text-red-600 mt-2 mb-3 tracking-tight">AKSES DITOLAK!</h2>
-                
-                <p class="text-slate-700 text-sm md:text-base font-medium mb-6 max-w-xl mx-auto leading-relaxed">
-                    Mahasiswa atas nama <b class="text-slate-900">'${mhsGagal['Mahasiswa yang GAGAL']}'</b> belum dapat mencetak dokumen karena terdapat <b class="text-red-600">mata kuliah yang belum lulus</b>.
-                </p>
+                <div class="pt-6 pb-2 text-center">
+                    <h2 class="text-[28px] font-black text-red-600 mb-2 tracking-tight">AKSES DITOLAK!</h2>
+                    <p class="text-slate-600 text-[15px] font-medium leading-relaxed max-w-2xl mx-auto">
+                        Mahasiswa atas nama <b class="text-red-700">'${mhsGagal['Mahasiswa yang GAGAL']}'</b> belum dapat mencetak dokumen<br class="hidden md:block">
+                        karena masih terdapat <b class="text-red-600">mata kuliah yang belum lulus</b>.
+                    </p>
+                </div>
 
-                <!-- Kartu Informasi Tengah -->
-                <div class="bg-white rounded-2xl shadow-sm border border-red-100 w-full max-w-lg mx-auto mb-6 overflow-hidden">
+                <!-- KARTU TENGAH: GRID 2 KOLOM -->
+                <div class="bg-white rounded-2xl shadow-sm border border-red-100 max-w-4xl mx-auto my-6 overflow-hidden flex flex-col md:flex-row">
                     
-                    <!-- Bagian Jumlah -->
-                    <div class="flex items-center divide-x divide-slate-100 p-4">
-                        <div class="flex-1 flex items-center justify-center gap-3 px-2">
-                            <div class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
-                                <i class="fas fa-exclamation text-lg"></i>
+                    <!-- Kolom Kiri: Jumlah MK -->
+                    <div class="md:w-1/3 p-6 flex flex-col items-center justify-center relative md:border-r border-dashed border-red-200 bg-red-50/30">
+                        <div class="flex items-center gap-3 mb-4 w-full justify-center">
+                            <div class="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-lg shrink-0">
+                                <i class="fas fa-file-contract"></i>
                             </div>
                             <div class="text-left">
-                                <div class="text-[11px] md:text-xs text-slate-500 font-medium">Jumlah Mata Kuliah</div>
-                                <div class="text-sm md:text-base font-black text-red-600 leading-tight">Belum Lulus</div>
+                                <div class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Jumlah Mata Kuliah</div>
+                                <div class="text-[15px] font-black text-red-600 leading-tight">Belum Lulus</div>
                             </div>
                         </div>
-                        <div class="flex-1 flex flex-col items-center justify-center px-2">
-                            <div class="text-3xl font-black text-slate-800 leading-none">${jumlahMK}</div>
-                            <div class="text-xs text-slate-500 mt-1 font-medium">mata kuliah</div>
-                        </div>
+                        
+                        <div class="text-[4rem] font-black text-red-700 leading-none drop-shadow-sm">${jumlahMK}</div>
+                        <div class="bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-full mt-2 shadow-sm">mata kuliah</div>
                     </div>
                     
-                    <!-- Bagian Rincian Mata Kuliah -->
-                    <div class="bg-slate-50 border-t border-dashed border-red-100 p-4">
-                        <div class="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Rincian Mata Kuliah:</div>
-                        <div class="flex flex-wrap justify-center items-center">
+                    <!-- Kolom Kanan: Rincian MK -->
+                    <div class="md:w-2/3 p-6 bg-white">
+                        <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-red-100">
+                            <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shrink-0">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            <div class="font-bold text-red-600 text-[15px]">Mata Kuliah yang Belum Lulus</div>
+                        </div>
+                        
+                        <!-- List Mata Kuliah -->
+                        <div class="flex flex-col">
                             ${listMKHTML}
                         </div>
                     </div>
                 </div>
 
-                <div class="w-full max-w-md mx-auto border-t border-dashed border-red-200 mb-5"></div>
+                <!-- Bagian Bawah: Info & Tombol -->
+                <div class="flex flex-col items-center justify-center bg-gradient-to-b from-transparent to-red-50/50 pb-4 pt-2 rounded-b-3xl">
+                    <div class="flex items-start md:items-center gap-3 max-w-2xl text-left md:text-center text-[13px] text-slate-600 mb-5 font-medium px-4">
+                        <i class="fas fa-info-circle text-red-500 text-lg mt-0.5 md:mt-0"></i>
+                        <p>Dokumen baru dapat dicetak setelah seluruh mata kuliah dinyatakan <b class="text-red-600">LULUS</b>.<br class="hidden md:block"> Silakan ajukan perbaikan nilai melalui tombol di bawah ini.</p>
+                    </div>
 
-                <p class="text-sm text-slate-500 mb-6 font-medium px-4">
-                    Dokumen baru dapat dicetak setelah seluruh mata kuliah dinyatakan lulus.<br class="hidden md:block">
-                    Silakan ajukan perbaikan nilai melalui tombol di bawah ini.
-                </p>
-
-                <a href="https://forms.gle/vhN8un9YLGqnkgTa9" target="_blank" class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                    <i class="fas fa-edit"></i> Ajukan Perbaikan Nilai
-                </a>
+                    <a href="https://forms.gle/vhN8un9YLGqnkgTa9" target="_blank" class="bg-[#b91c1c] hover:bg-red-800 text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-[0_4px_14px_0_rgba(185,28,28,0.39)] hover:shadow-[0_6px_20px_rgba(185,28,28,0.23)] hover:-translate-y-0.5 flex items-center gap-2.5 text-[15px]">
+                        <i class="fas fa-edit"></i> Ajukan Perbaikan Nilai
+                    </a>
+                </div>
             `;
 
-            // Gunakan parameter 'ditolak' agar desain css khusus teraplikasi
             setStatusKHS(errorMsg, "ditolak");
             document.getElementById('cetakArea').style.display = 'none';
             document.getElementById('printBtn').style.display = 'none';
