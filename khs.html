@@ -423,15 +423,15 @@
         try {
             setStatusKHS("Sedang menyinkronkan data mahasiswa...");
             
-            // Memaksa browser untuk selalu menarik data asli dan tidak menggunakan cache bawaan browser
-            const response = await fetch(SCRIPT_URL_KHS, { cache: 'no-store' });
+            // Cache Buster: Tambahkan timestamp unik di ujung URL agar Google Apps Script selalu memberikan data terbaru
+            const noCacheUrl = SCRIPT_URL_KHS + (SCRIPT_URL_KHS.includes('?') ? '&' : '?') + 't=' + Date.now();
+            const response = await fetch(noCacheUrl);
             
             if (!response.ok) throw new Error("Gagal terhubung ke server");
             
             const json = await response.json();
             if (json.status !== "success" || !json.data) throw new Error("Format data tidak valid.");
     
-            // Langsung simpan data ke memori tanpa menyimpannya ke localStorage
             khsGlobalData = json.data;
             
             populateDatalistKHS();
@@ -590,32 +590,35 @@
         });
 
         let nimMhs = "-";
-        
+
+        // Cari NIM di seluruh sheet tanpa membatasi nama sheet
         for (const sheetName in khsGlobalData) {
-            const nameUpper = sheetName.toUpperCase();
-            if (nameUpper.includes('NIM') || nameUpper.includes('MAHASISWA')) {
-                const sheetData = khsGlobalData[sheetName];
-                for (let i = 0; i < sheetData.length; i++) {
-                    const row = sheetData[i];
-                    const rowStr = JSON.stringify(row).toLowerCase();
-                    
-                    if (rowStr.includes(namaInput)) {
-                        for (const key in row) {
-                            if (key.trim().toUpperCase() === 'NIM' && row[key]) {
-                                nimMhs = row[key].toString().trim();
-                                break;
-                            }
-                        }
-                        
-                        if (nimMhs === "-" || nimMhs === "") {
-                            const match = rowStr.match(/\b\d{8}\b/);
-                            if (match) {
-                                nimMhs = match[0];
-                            }
+            const sheetData = khsGlobalData[sheetName];
+            if (!Array.isArray(sheetData)) continue;
+        
+            for (let i = 0; i < sheetData.length; i++) {
+                const row = sheetData[i];
+                const rowStr = JSON.stringify(row).toLowerCase();
+                
+                // Cek apakah baris ini berisi nama mahasiswa yang dicari
+                if (rowStr.includes(namaInput)) {
+                    // 1. Cari kolom yang mengandung kata 'nim'
+                    for (const key in row) {
+                        if (key.toLowerCase().includes('nim') && row[key]) {
+                            nimMhs = row[key].toString().trim();
+                            break;
                         }
                     }
-                    if (nimMhs !== "-") break;
+                    
+                    // 2. Fallback: Cari deretan angka (8-12 digit) dalam baris tersebut jika nama kolom bukan 'NIM'
+                    if (nimMhs === "-" || nimMhs === "") {
+                        const match = rowStr.match(/\b\d{8,12}\b/);
+                        if (match) {
+                            nimMhs = match[0];
+                        }
+                    }
                 }
+                if (nimMhs !== "-") break;
             }
             if (nimMhs !== "-") break;
         }
