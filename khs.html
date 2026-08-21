@@ -270,8 +270,6 @@
     // VARIABEL GLOBAL KHS
     // ==========================================
     const SCRIPT_URL_KHS = 'https://script.google.com/macros/s/AKfycbxlS2O6Z0hEzUCYVnIyuZHg-v_bV12pRKF2mG-ujQE1TDEJeSmph5mnCqIX6bAS7rls0Q/exec'; 
-    const CACHE_KEY_KHS = 'KHS_PRODI_CACHE_V3';
-    const CACHE_EXPIRY_KHS = 60 * 60 * 1000; 
     let khsGlobalData = null;
     let khsAllNames = []; 
 
@@ -421,27 +419,20 @@
 
     async function initDataKHS() {
         if (!SCRIPT_URL_KHS) return false;
-
-        const cachedItem = localStorage.getItem(CACHE_KEY_KHS);
-        if (cachedItem) {
-            const parsedCache = JSON.parse(cachedItem);
-            if (Date.now() - parsedCache.timestamp < CACHE_EXPIRY_KHS) {
-                khsGlobalData = parsedCache.data;
-                populateDatalistKHS();
-                return true;
-            }
-        }
-        
+    
         try {
             setStatusKHS("Sedang menyinkronkan data mahasiswa...");
-            const response = await fetch(SCRIPT_URL_KHS);
+            
+            // Memaksa browser untuk selalu menarik data asli dan tidak menggunakan cache bawaan browser
+            const response = await fetch(SCRIPT_URL_KHS, { cache: 'no-store' });
+            
             if (!response.ok) throw new Error("Gagal terhubung ke server");
             
             const json = await response.json();
             if (json.status !== "success" || !json.data) throw new Error("Format data tidak valid.");
-
+    
+            // Langsung simpan data ke memori tanpa menyimpannya ke localStorage
             khsGlobalData = json.data;
-            localStorage.setItem(CACHE_KEY_KHS, JSON.stringify({ timestamp: Date.now(), data: khsGlobalData }));
             
             populateDatalistKHS();
             setStatusKHS("");
