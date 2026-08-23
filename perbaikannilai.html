@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pernyataan Perbaikan Nilai Mata Kuliah - STAIIS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* === ADOPSI GAYA VISUAL UTAMA === */
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #333;
+            min-height: 100vh;
+            display: block; 
+        }
+
+        .main-content {
+            max-width: 1000px; 
+            margin: 0 auto;    
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: #ffffff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            border: 1px solid #edf2f7;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 48px; height: 48px; min-width: 48px; min-height: 48px;
+            flex-shrink: 0; 
+            background-color: #045844;
+            color: white;
+            border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 20px;
+        }
+
+        .header-title-text h2 {
+            font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 0;
+        }
+
+        .header-badge {
+            background-color: #f0fdf4;
+            padding: 8px 16px; border-radius: 20px;
+            font-size: 13px; font-weight: 600; color: #045844;
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid #bceadd;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            border: 1px solid #edf2f7;
+        }
+
+        .form-group label {
+            display: block; font-weight: 700; font-size: 14px; color: #045844; margin-bottom: 10px;
+        }
+
+        .search-wrapper { position: relative; width: 100%; }
+
+        .custom-search-box {
+            display: flex; align-items: center; background: #ffffff;
+            padding: 6px;  border-radius: 14px; border: 3px solid #f1f5f9; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); transition: all 0.3s ease;
+            width: 100%; position: relative; z-index: 20;
+        }
+
+        .custom-search-box:focus-within { border-color: #bceadd; }
+
+        .search-icon-bg {
+            width: 42px; height: 42px; background-color: #0ba97b; 
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: #ffffff; font-size: 16px; flex-shrink: 0;
+        }
+
+        .custom-search-box input {
+            flex: 1; border: none !important; background: transparent !important;
+            padding: 4px 16px; font-size: 15px; font-weight: 700; color: #2d3748;
+            width: 100%; outline: none !important; box-shadow: none !important;
+        }
+
+        .custom-search-box input::placeholder { color: #899ab0; font-weight: 600; }
+
+        .btn-main {
+            width: 100%; padding: 16px; background-color: #045844; color: white;
+            border: none; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 16px;
+            transition: all 0.2s; box-shadow: 0 8px 16px rgba(4, 88, 68, 0.2);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .btn-main:hover { background-color: #034233; transform: translateY(-2px); }
+        .btn-main:disabled { background-color: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none;}
+
+        @media (max-width: 768px) {
+            .header-bar { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .main-content { padding: 20px; }
+            .card { padding: 20px; }
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #overlay-loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 50;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        /* Custom Scrollbar untuk Dropdown */
+        #autocomplete-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        #autocomplete-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 8px;
+        }
+        #autocomplete-dropdown::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 8px;
+        }
+        #autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+
+        /* PENGATURAN CETAK (PRINT) */
+        @media print {
+            @page { size: A4 portrait; margin: 2cm; }
+            body { 
+                background: white !important; 
+                background-image: none !important;
+                -webkit-print-color-adjust: exact; 
+            }
+            .main-content, #overlay-loading, #autocomplete-dropdown { display: none !important; }
+            #print-container { display: block !important; }
+            
+            /* KODE TAMBAHAN UNTUK MEMAKSA TIMES NEW ROMAN PADA AREA CETAK */
+            #print-container, #print-container * {
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+            
+            thead { display: table-row-group; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay Awal -->
+    <div id="overlay-loading">
+        <div id="spinner" class="loader mb-3" style="width: 40px; height: 40px; border-width: 6px;"></div>
+        <p id="loading-text" class="text-gray-800 font-medium text-lg text-center px-4">Menghubungkan ke Database...</p>
+        <div id="error-action" class="hidden mt-4 text-center">
+            <p class="text-sm text-red-600 mb-3">Gagal memuat data. Koneksi lambat atau akses ke database terblokir.</p>
+            <button onclick="location.reload()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow">
+                Muat Ulang Halaman
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA (UI APLIKASI) -->
+    <main class="main-content">
+        
+        <!-- Header Bar -->
+        <div class="header-bar">
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <div class="header-title-text">
+                    <h2>Pernyataan Perbaikan Nilai Mata Kuliah</h2>
+                </div>
+            </div>
+            <div class="header-badge" id="realtimeClock">
+                <span class="status-dot"></span> Memuat waktu...
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card">
+            
+            <!-- BLOK KETENTUAN -->
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8 text-left" style="background-color: #f0fdf4; border-color: #bceadd;">
+                <h2 class="text-[17px] font-bold text-gray-800 mb-2" style="color: #045844;">Ketentuan:</h2>
+                <ol class="list-decimal pl-4 text-sm text-gray-700 space-y-1.5 leading-relaxed">
+                    <li>Mahasiswa yang <span class="font-bold text-gray-900">gagal pada salah satu mata kuliah</span>, wajib membuat pernyataan dan mengerjakan tugas untuk perbaikan nilai.</li>
+                    <li>Tugas berupa <span class="font-bold text-gray-900">meringkas materi mata kuliah yang gagal</span> secara sistematis dan jelas;</li>
+                    <li>Ringkasan dibuat berdasarkan sumber materi yang diberikan oleh dosen atau referensi lain yang relevan;</li>
+                    <li>Ringkasan harus <span class="font-bold text-gray-900 underline">ditulis tangan</span> pada kertas <span class="font-bold text-gray-900 underline">folio bergaris</span>;</li>
+                    <li>Panjang ringkasan minimal <span class="font-bold text-gray-900 underline">50 halaman</span>.</li>
+                </ol>
+            </div>
+
+            <form id="tugasForm" class="space-y-6">
+                <div id="alertBox" class="hidden p-4 rounded text-sm font-medium transition-all"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Nama Lengkap -->
+                    <div class="form-group mb-0 relative">
+                        <label><i class="fa-solid fa-user" style="margin-right: 6px;"></i> 1. Pilih Nama Anda:</label>
+                        <div class="search-wrapper">
+                            <div class="custom-search-box">
+                                <div class="search-icon-bg">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <input type="text" id="namaLengkap" name="namaLengkap" required autocomplete="off" placeholder="Ketik nama atau NIM...">
+                            </div>
+                            <!-- Custom Dropdown Container -->
+                            <div id="autocomplete-dropdown" class="absolute left-0 w-full bg-white border-2 border-gray-100 rounded-xl shadow-lg mt-2 hidden z-50 max-h-60 overflow-y-auto">
+                                <!-- Hasil pencarian akan muncul di sini -->
+                            </div>
+                            <p class="text-[11px] font-semibold text-gray-400 mt-2 ml-1">NIM dan Prodi otomatis terekam secara sembunyi.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tanggal Pengumpulan -->
+                    <div class="form-group mb-0">
+                        <label><i class="fa-solid fa-calendar-check" style="margin-right: 6px;"></i> 2. Tanggal Pengumpulan:</label>
+                        <div class="search-wrapper">
+                            <div class="custom-search-box">
+                                <div class="search-icon-bg" style="background-color: #10b981;">
+                                    <i class="fa-regular fa-calendar"></i>
+                                </div>
+                                <input type="date" id="tanggalPengumpulan" name="tanggalPengumpulan" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mata Kuliah (Ditambahkan Class 'hidden' agar tersembunyi di awal) -->
+                <div id="mataKuliahCard" class="form-group mt-6 hidden">
+                    <label><i class="fa-solid fa-book-open" style="margin-right: 6px;"></i> 3. Daftar Mata Kuliah Gagal:</label>
+                    <div class="flex flex-col md:flex-row border-2 border-[#f1f5f9] rounded-2xl bg-white shadow-sm overflow-hidden mt-2">
+                        
+                        <!-- Kolom Kiri: Ringkasan (Summary) -->
+                        <div class="w-full md:w-1/3 bg-[#f0fdf4] p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r-2 border-dashed border-[#bceadd]">
+                            <div class="w-12 h-12 bg-[#bceadd] text-[#045844] rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-file-circle-xmark text-xl"></i>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">Jumlah Mata Kuliah</p>
+                            <p class="text-sm font-bold text-[#0ba97b] mb-1">Belum Lulus</p>
+                            
+                            <!-- Angka Dinamis -->
+                            <h1 id="summary-count" class="text-7xl font-black text-[#045844] my-2 leading-none tracking-tighter">0</h1>
+                            
+                            <div class="bg-[#0ba97b] text-white text-[11px] font-bold px-4 py-1.5 rounded-full mt-2">
+                                mata kuliah
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Daftar Mata Kuliah -->
+                        <div class="w-full md:w-2/3 p-6 max-h-[28rem] overflow-y-auto">
+                            <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+                                <div class="w-5 h-5 rounded-full bg-[#0ba97b] text-white flex items-center justify-center text-[10px] font-bold">
+                                    <i class="fa-solid fa-exclamation"></i>
+                                </div>
+                                <h3 class="font-bold text-[#0ba97b] text-sm">Mata Kuliah yang Belum Lulus</h3>
+                            </div>
+                            
+                            <!-- Wadah List Mata Kuliah Dinamis -->
+                            <div id="course-list-container" class="space-y-1">
+                                <!-- Data akan dimuat disini -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="btnSubmit" class="btn-main mt-6">
+                    <i class="fa-solid fa-print"></i> Kirim & Cetak Surat Pernyataan
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- WADAH CETAK (HANYA MUNCUL SAAT DI-PRINT) -->
+    <div id="print-container" class="hidden bg-white text-gray-800" style="font-family: 'Times New Roman', Times, serif !important; font-size: 11pt; line-height: 1.3;">
+        <h1 class="text-center font-bold text-[13pt] mb-6">SURAT PERNYATAAN PERBAIKAN NILAI MATA KULIAH</h1>
+        
+        <p class="mb-2">Saya yang bertanda tangan di bawah ini:</p>
+        
+        <table class="mb-4 ml-6 border-none">
+            <tr><td class="w-32 align-top py-0.5">Nama</td><td class="align-top py-0.5">: <span id="p-nama"></span></td></tr>
+            <tr><td class="w-32 align-top py-0.5">NIM</td><td class="align-top py-0.5">: <span id="p-nim"></span></td></tr>
+            <tr><td class="w-32 align-top py-0.5">Program Studi</td><td class="align-top py-0.5">: <span id="p-prodi"></span></td></tr>
+            <tr><td class="w-32 align-top py-0.5">Perguruan Tinggi</td><td class="align-top py-0.5">: STAI Imam Syafi'i Cianjur</td></tr>
+        </table>
+        
+        <p class="mb-2 text-justify">Dengan ini menyatakan bahwa saya belum berhasil lulus pada mata kuliah berikut:</p>
+        
+        <table class="w-full mb-4 border-collapse border border-gray-300 text-center text-gray-600" style="font-size: 10pt;">
+            <thead>
+                <tr class="bg-gray-100 text-gray-800">
+                    <th class="border border-gray-300 py-1 px-2 w-[8%] text-center font-bold">No.</th>
+                    <th class="border border-gray-300 py-1 px-3 text-center font-bold">Mata Kuliah</th>
+                    <th class="border border-gray-300 py-1 px-2 w-[18%] text-center font-bold">Semester</th>
+                </tr>
+            </thead>
+            <tbody id="p-mk-table"></tbody>
+        </table>
+        
+        <p class="mb-2 text-justify text-gray-800">Sebagai bentuk tanggung jawab akademik dan upaya memperbaiki hasil belajar, saya bersedia menyelesaikan tugas perbaikan untuk setiap mata kuliah tersebut dengan ketentuan sebagai berikut:</p>
+        
+        <table class="w-full mb-4 border-collapse border border-gray-300 text-gray-600" style="font-size: 10pt;">
+            <thead>
+                <tr class="bg-gray-100 text-gray-800">
+                    <th class="border border-gray-300 py-1 px-2 w-[8%] text-center font-bold">No.</th>
+                    <th class="border border-gray-300 py-1 px-3 text-center font-bold">Ketentuan Tugas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">1</td><td class="border border-gray-300 py-1 px-3 text-justify">Membuat ringkasan materi mata kuliah secara sistematis, runtut, dan jelas.</td></tr>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">2</td><td class="border border-gray-300 py-1 px-3 text-justify">Ringkasan disusun berdasarkan materi perkuliahan dan/atau referensi lain yang relevan.</td></tr>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">3</td><td class="border border-gray-300 py-1 px-3 text-justify">Ringkasan wajib ditulis tangan pada kertas folio bergaris.</td></tr>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">4</td><td class="border border-gray-300 py-1 px-3 text-justify">Jumlah ringkasan minimal 50 halaman untuk setiap mata kuliah.</td></tr>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">5</td><td class="border border-gray-300 py-1 px-3 text-justify">Seluruh tugas wajib dikumpulkan paling lambat pada tanggal <span id="p-tgl" class="font-bold"></span>.</td></tr>
+                <tr><td class="border border-gray-300 py-1 px-2 text-center align-top">6</td><td class="border border-gray-300 py-1 px-3 text-justify">Tugas diserahkan kepada Abdul Hakim, S.H., M.A. melalui Kantor Bagian Administrasi Akademik STAI Imam Syafi'i Cianjur.</td></tr>
+            </tbody>
+        </table>
+        
+        <p class="mb-2 text-justify">Saya menyadari bahwa penyelesaian tugas tersebut merupakan bagian dari proses evaluasi dan menjadi salah satu pertimbangan dalam perbaikan hasil akademik. Saya menyatakan kesediaan untuk melaksanakan seluruh ketentuan tersebut sesuai dengan batas waktu yang telah ditetapkan.</p>
+        
+        <p class="mb-8 text-justify">Demikian surat pernyataan ini saya buat dengan penuh kesadaran dan tanpa paksaan dari pihak mana pun. Apabila saya tidak memenuhi ketentuan yang telah ditetapkan, saya bersedia menerima konsekuensi sesuai dengan ketentuan akademik yang berlaku.</p>
+        
+        <div class="flex justify-end mt-4">
+            <div class="text-left w-[5.5cm] relative">
+                <p>Cianjur, <span id="p-today"></span></p>
+                <p>Hormat saya,</p>
+                <p>Yang membuat pernyataan,</p>
+                
+                <div style="height: 1.8cm;"></div>
+                
+                <p class="font-bold underline"><span id="p-nama-ttd"></span></p>
+                <p>NIM: <span id="p-nim-ttd"></span></p>
+
+                <!-- KOTAK METERAI TERCETAK -->
+                <div class="absolute border-[1.5px] border-black flex flex-col justify-center items-center font-bold bg-white" 
+                     style="width: 1.5cm; height: 1cm; bottom: 1.5cm; left: -1.7cm; font-size: 8pt;">
+                    <span>Meterai</span>
+                    <span>10.000</span>
+                </div>
+            </div>
+        </div>
+
+    <!-- SCRIPT LOGIKA -->
+    <script>
+        function updateJam() {
+            try {
+                const now = new Date();
+                const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const el = document.getElementById("realtimeClock");
+                if(el) {
+                    el.innerHTML = `<span class="status-dot"></span> ${hari[now.getDay()]}, ${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()} - ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
+                }
+            } catch(e){}
+        }
+        setInterval(updateJam, 1000);
+        updateJam();
+
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxzu7qxk1R_0GFkj8YOo0l8Ri8j5fg2kpbMQLw8Ps2OABit6lixPizZZrbcQrdu6L6hkA/exec'; 
+        
+        let dataMahasiswa = [];
+        let masterFailedCourses = [];
+        let currentStudentCourses = []; 
+        let currentMhs = null;
+        
+        const setTodayDate = () => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('tanggalPengumpulan').value = `${yyyy}-${mm}-${dd}`;
+        };
+
+        const formatDateIndo = (dateStr) => {
+            if(!dateStr) return "";
+            const parts = dateStr.split('-');
+            if(parts.length !== 3) return dateStr;
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            return `${parts[2]} ${months[parseInt(parts[1])-1]} ${parts[0]}`;
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            setTodayDate(); 
+
+            try {
+                const [resFailed, resNIM] = await Promise.all([
+                    fetch(`${API_URL}?action=getFailedCourses`),
+                    fetch(`${API_URL}?action=getNIMs`)
+                ]);
+
+                if(!resFailed.ok || !resNIM.ok) throw new Error("Gagal API");
+
+                const dataFailed = await resFailed.json();
+                const dataNIM = await resNIM.json();
+
+                if (dataFailed.status === 'success') {
+                    masterFailedCourses = dataFailed.data;
+                }
+
+                if (dataNIM.status === 'success') {
+                    dataMahasiswa = dataNIM.data;
+                }
+
+                resetCourseContainer();
+                document.getElementById('overlay-loading').style.display = 'none'; 
+
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('spinner').classList.add('hidden');
+                document.getElementById('loading-text').innerText = "Koneksi Bermasalah!";
+                document.getElementById('loading-text').classList.replace('text-gray-800', 'text-red-600');
+                document.getElementById('error-action').classList.remove('hidden');
+            }
+        });
+
+        function resetCourseContainer() {
+            document.getElementById('mataKuliahCard').classList.add('hidden');
+            document.getElementById('course-list-container').innerHTML = '';
+            document.getElementById('summary-count').innerText = '0';
+            currentStudentCourses = []; 
+        }
+
+        function renderStudentCourses(namaMhs) {
+            document.getElementById('mataKuliahCard').classList.remove('hidden');
+            const courseContainer = document.getElementById('course-list-container');
+            const summaryCount = document.getElementById('summary-count');
+            courseContainer.innerHTML = '';
+
+            currentStudentCourses = masterFailedCourses.filter(f => f.nama.toLowerCase() === namaMhs.toLowerCase());
+
+            if (currentStudentCourses.length === 0) {
+                summaryCount.innerText = '0';
+                courseContainer.innerHTML = '<div class="text-center py-8"><i class="fa-solid fa-face-laugh-beam text-4xl text-[#bceadd] mb-2"></i><p class="text-sm text-[#0ba97b] font-bold">TIDAK ADA MATA KULIAH GAGAL 🎉</p></div>';
+                return;
+            }
+
+            summaryCount.innerText = currentStudentCourses.length;
+
+            currentStudentCourses.sort((a, b) => {
+                const smtA = parseInt(a.semester) || 0;
+                const smtB = parseInt(b.semester) || 0;
+                if (smtA !== smtB) return smtA - smtB;
+                return a.mk.localeCompare(b.mk);
+            });
+
+            currentStudentCourses.forEach((mkObj, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center py-2.5 border-b border-dashed border-gray-200 transition hover:bg-[#f0fdf4] px-2 rounded-lg group';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="w-7 h-7 flex-shrink-0 bg-[#bceadd] group-hover:bg-[#0ba97b] text-[#045844] group-hover:text-white transition-colors duration-200 text-[11px] font-black flex items-center justify-center rounded-md">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-1">
+                            <label class="font-bold text-gray-700 group-hover:text-[#0ba97b] transition-colors duration-200 block text-[13px]">
+                                ${mkObj.mk}
+                                <span class="text-[10px] text-gray-400 font-normal ml-1">(Semester ${mkObj.semester})</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+                courseContainer.appendChild(div);
+            });
+        }
+
+        // ==========================================
+        // LOGIKA DROPDOWN AUTOCOMPLETE KUSTOM
+        // ==========================================
+        const inputNama = document.getElementById('namaLengkap');
+        const dropdown = document.getElementById('autocomplete-dropdown');
+
+        inputNama.addEventListener('input', function(e) {
+            const inputVal = e.target.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+            currentMhs = null;
+            this.parentElement.style.borderColor = '#f1f5f9';
+            resetCourseContainer();
+
+            if (inputVal.length >= 2) { // Tampilkan saran jika minimal 2 karakter
+                // Filter berdasarkan Nama atau NIM
+                const matches = dataMahasiswa.filter(m => 
+                    m.nama.toLowerCase().includes(inputVal) || 
+                    (m.nim && m.nim.toString().toLowerCase().includes(inputVal))
+                );
+
+                if (matches.length > 0) {
+                    dropdown.classList.remove('hidden');
+                    
+                    matches.forEach(mhs => {
+                        const item = document.createElement('div');
+                        item.className = 'cursor-pointer p-3 hover:bg-[#f8fafc] border-b border-gray-100 flex items-center gap-3 transition-colors';
+                        item.innerHTML = `
+                            <i class="fa-solid fa-user text-[#94a3b8] text-sm"></i>
+                            <span class="text-sm font-semibold text-gray-700">${mhs.nim} - ${mhs.nama}</span>
+                        `;
+                        
+                        // Event saat item di klik
+                        item.addEventListener('click', () => {
+                            inputNama.value = mhs.nama;
+                            currentMhs = mhs;
+                            inputNama.parentElement.style.borderColor = '#0ba97b';
+                            renderStudentCourses(currentMhs.nama);
+                            dropdown.classList.add('hidden');
+                        });
+                        
+                        dropdown.appendChild(item);
+                    });
+                } else {
+                    dropdown.classList.remove('hidden');
+                    dropdown.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center italic">Tidak ada nama yang cocok</div>`;
+                }
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Sembunyikan dropdown saat klik di luar area
+        document.addEventListener('click', function(e) {
+            if (!inputNama.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // ==========================================
+        // SUBMIT FORM
+        // ==========================================
+        document.getElementById('tugasForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!currentMhs) {
+                showAlert('Nama tidak valid. Pastikan Anda memilih nama dari daftar!', 'error');
+                return;
+            }
+
+            if (currentStudentCourses.length === 0) {
+                showAlert('Tidak ada data mata kuliah yang gagal untuk mahasiswa ini.', 'error');
+                return;
+            }
+            
+            const selectedMKArray = currentStudentCourses.map(mk => ({
+                name: mk.mk,
+                semester: mk.semester
+            }));
+            
+            const selectedMKString = selectedMKArray.map(mk => mk.name).join(", ");
+            const tglPengumpulanRaw = document.getElementById('tanggalPengumpulan').value;
+            const tglPengumpulanIndo = formatDateIndo(tglPengumpulanRaw);
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan & Membuka Cetak...';
+            document.getElementById('alertBox').classList.add('hidden');
+
+            const payloadJSON = {
+                nim: currentMhs.nim,
+                namaLengkap: currentMhs.nama,
+                programStudi: currentMhs.prodi,
+                mataKuliah: selectedMKString,
+                tanggalPengumpulan: tglPengumpulanRaw
+            };
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payloadJSON)
+                });
+                
+                preparePrintLayout(currentMhs, selectedMKArray, tglPengumpulanIndo);
+                
+                showAlert('Data berhasil dikirim!', 'success');
+
+                setTimeout(() => {
+                    window.print();
+                    document.getElementById('tugasForm').reset();
+                    currentMhs = null;
+                    document.getElementById('namaLengkap').parentElement.style.borderColor = '#f1f5f9';
+                    resetCourseContainer();
+                    setTodayDate(); 
+                }, 500);
+                
+            } catch (error) {
+                showAlert('Gagal mengirim data. Coba cek koneksi internet Anda.', 'error');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-print"></i> Kirim & Cetak Surat Pernyataan';
+            }
+        });
+
+        function preparePrintLayout(mhs, mkArray, tglIndo) {
+            document.getElementById('p-nama').innerText = mhs.nama;
+            document.getElementById('p-nim').innerText = mhs.nim;
+            document.getElementById('p-prodi').innerText = mhs.prodi;
+            document.getElementById('p-tgl').innerText = tglIndo;
+            
+            const today = formatDateIndo(new Date().toISOString().split('T')[0]);
+            document.getElementById('p-today').innerText = today;
+            document.getElementById('p-nama-ttd').innerText = mhs.nama;
+            document.getElementById('p-nim-ttd').innerText = mhs.nim;
+
+            const tbody = document.getElementById('p-mk-table');
+            tbody.innerHTML = ''; 
+            
+            mkArray.forEach((mk, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="border border-gray-300 py-1 px-2 text-center">${index + 1}</td>
+                    <td class="border border-gray-300 py-1 px-3 text-left">${mk.name}</td>
+                    <td class="border border-gray-300 py-1 px-2 text-center">${mk.semester}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.title = `Pernyataan - ${mhs.nama}`;
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.classList.remove('hidden', 'bg-[#f0fdf4]', 'text-[#045844]', 'bg-red-100', 'text-red-800');
+            alertBox.classList.add(type === 'success' ? 'bg-[#f0fdf4]' : 'bg-red-100');
+            alertBox.classList.add(type === 'success' ? 'text-[#045844]' : 'text-red-800');
+            
+            if (type === 'success') {
+                 alertBox.style.border = "1px solid #bceadd";
+            } else {
+                 alertBox.style.border = "none";
+            }
+            alertBox.innerText = message;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
