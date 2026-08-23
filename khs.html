@@ -485,19 +485,13 @@
         });
 
         if (rowsGagal.length > 0) {
-            // Jika ditemukan riwayat Gagal/Keluar, kumpulkan mata kuliahnya
+            // Ambil nama mata kuliahnya saja tanpa teks tambahan
             let mkYangGagal = rowsGagal.map(row => {
-                const mkName = getSafeVal(row, 'mata kuliah') || "Tidak diketahui";
-                const status = getSafeVal(row, 'status').toUpperCase();
-                
-                // Beri warna berbeda: Gagal = Orange, Keluar = Merah
-                const badgeColor = status === 'GAGAL' ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-red-100 text-red-700 border border-red-200';
-                
-                return `${mkName} <span class="text-[10px] font-black px-2 py-0.5 rounded-md ml-2 ${badgeColor}">${status}</span>`;
+                return getSafeVal(row, 'mata kuliah') || "Tidak diketahui";
             });
             
             let jumlahMK = mkYangGagal.length;
-            const namaAsli = getSafeVal(rowsGagal[0], 'mahasiswa'); // Ambil huruf aslinya
+            const namaAsli = getSafeVal(rowsGagal[0], 'mahasiswa'); 
             
             // Format HTML untuk list Mata Kuliah
             let listMKHTML = mkYangGagal.map((mk, index) => 
@@ -505,13 +499,13 @@
                     <div class="w-6 h-6 rounded-md bg-red-400 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm mt-0.5">
                         ${index + 1}
                     </div>
-                    <div class="font-medium text-slate-700 text-sm flex-1 text-left leading-snug break-words flex items-center flex-wrap gap-1">
+                    <div class="font-medium text-slate-700 text-sm flex-1 text-left leading-snug break-words">
                         ${mk}
                     </div>
                 </div>`
             ).join('');
 
-            // Tampilkan Pesan Penolakan (Akses Ditolak)
+            // Tampilkan Pesan Penolakan (Akses Ditolak) - Desain persis Gambar 1
             let errorMsg = `
                 <div class="w-14 h-14 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg border-[5px] border-red-50 absolute -top-7 left-1/2 transform -translate-x-1/2 z-10">
                     <i class="fas fa-times"></i>
@@ -521,7 +515,7 @@
                     <h2 class="text-[28px] font-black text-red-600 mb-2 tracking-tight">AKSES DITOLAK!</h2>
                     <p class="text-slate-600 text-[15px] font-medium leading-relaxed max-w-2xl mx-auto">
                         Mahasiswa atas nama <b class="text-red-700">'${namaAsli}'</b> belum dapat mencetak dokumen<br class="hidden md:block">
-                        karena masih memiliki riwayat nilai <b class="text-red-600">GAGAL / KELUAR</b>.
+                        karena masih terdapat <b class="text-red-600">mata kuliah yang belum lulus</b>.
                     </p>
                 </div>
 
@@ -546,10 +540,10 @@
                             <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shrink-0">
                                 <i class="fas fa-exclamation"></i>
                             </div>
-                            <div class="font-bold text-red-600 text-[15px]">Rincian Mata Kuliah Belum Lulus</div>
+                            <div class="font-bold text-red-600 text-[15px]">Mata Kuliah yang Belum Lulus</div>
                         </div>
                         
-                        <div class="flex flex-col max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div class="flex flex-col">
                             ${listMKHTML}
                         </div>
                     </div>
@@ -558,10 +552,10 @@
                 <div class="flex flex-col items-center justify-center bg-gradient-to-b from-transparent to-red-50/50 pb-4 pt-2 rounded-b-3xl">
                     <div class="flex items-start md:items-center gap-3 max-w-2xl text-left md:text-center text-[13px] text-slate-600 mb-5 font-medium px-4">
                         <i class="fas fa-info-circle text-red-500 text-lg mt-0.5 md:mt-0"></i>
-                        <p>Dokumen KHS baru dapat dicetak setelah seluruh mata kuliah dinyatakan <b class="text-red-600">LULUS</b>.<br class="hidden md:block"> Silakan ajukan perbaikan nilai melalui portal akademik.</p>
+                        <p>Dokumen baru dapat dicetak setelah seluruh mata kuliah dinyatakan <b class="text-red-600">LULUS</b>.<br class="hidden md:block"> Silakan ajukan perbaikan nilai melalui tombol di bawah ini.</p>
                     </div>
 
-                    <a href="https://perkuliahanprodi.vercel.app/" target="_blank" class="bg-[#b91c1c] hover:bg-red-800 text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-[0_4px_14px_0_rgba(185,28,28,0.39)] hover:shadow-[0_6px_20px_rgba(185,28,28,0.23)] hover:-translate-y-0.5 flex items-center gap-2.5 text-[15px]">
+                    <a href="https://akademikstaiis.vercel.app/perbaikannilai.html" target="_blank" class="bg-[#b91c1c] hover:bg-red-800 text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-[0_4px_14px_0_rgba(185,28,28,0.39)] hover:shadow-[0_6px_20px_rgba(185,28,28,0.23)] hover:-translate-y-0.5 flex items-center gap-2.5 text-[15px]">
                         <i class="fas fa-edit"></i> Ajukan Perbaikan Nilai
                     </a>
                 </div>
@@ -572,6 +566,9 @@
             document.getElementById('printBtn').style.display = 'none';
             return; 
         }
+        // =======================================================
+        // AKHIR CEK STATUS GAGAL / KELUAR
+        // =======================================================
       
         const semuaNilai = [...dataASH, ...dataPBA];
         
