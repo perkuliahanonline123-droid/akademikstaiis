@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal Akademik - STAIIS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Animasi Kustom */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Efek Cahaya Latar (Glow) -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+
+    <!-- Header Portal -->
+    <header class="glass-header sticky top-0 z-50 w-full px-6 py-4 flex justify-center">
+        <div class="max-w-6xl w-full flex items-center gap-4">
+            <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-12 h-12 object-contain drop-shadow-sm">
+            <div>
+                <h1 class="font-extrabold text-[#045844] text-lg leading-tight tracking-tight">PORTAL AKADEMIK</h1>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em]">STAI Imam Syafi'i Cianjur</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-6xl mx-auto px-6 py-12 md:py-16">
+        
+        <!-- Judul Halaman -->
+        <div class="text-center max-w-2xl mx-auto mb-14 animate-fade-in-up">
+            <div class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-4">
+                <i class="fa-solid fa-bolt mr-2"></i> Akses Cepat
+            </div>
+            <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-4 tracking-tight">Selamat Datang di Portal Akademik</h2>
+            <p class="text-slate-500 font-medium text-sm md:text-base leading-relaxed">
+                Pilih salah satu menu di bawah ini untuk mengakses layanan administrasi, pengumpulan tugas, dan hasil evaluasi perkuliahan secara instan.
+            </p>
+        </div>
+
+        <!-- Grid Kartu Pintasan -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+
+            <!-- 1. Cetak KTM -->
+            <a href="https://administrasiakademik.vercel.app/ktm.html" target="_blank" class="group block bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_30px_-5px_rgba(4,88,68,0.15)] hover:-translate-y-2 transition-all duration-300 animate-fade-in-up delay-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl group-hover:bg-blue-100 transition-colors duration-500 -mr-10 -mt-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30 mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-regular fa-id-badge"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2 relative z-10 group-hover:text-blue-600 transition-colors">Cetak KTM</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed relative z-10">Sistem pencetakan Kartu Tanda Mahasiswa (KTM) elektronik resmi STAIIS.</p>
+                <div class="mt-6 flex items-center text-blue-600 text-sm font-bold opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 relative z-10">
+                    Buka Layanan <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- 2. Hasil Studi (KHS) -->
+            <a href="https://akademikstaiis.vercel.app/khs.html" target="_blank" class="group block bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_30px_-5px_rgba(4,88,68,0.15)] hover:-translate-y-2 transition-all duration-300 animate-fade-in-up delay-200 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl group-hover:bg-emerald-100 transition-colors duration-500 -mr-10 -mt-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2 relative z-10 group-hover:text-emerald-600 transition-colors">Hasil Studi (KHS)</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed relative z-10">Akses cepat untuk melihat, mencetak KHS, dan Transkrip Nilai Akademik.</p>
+                <div class="mt-6 flex items-center text-emerald-600 text-sm font-bold opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 relative z-10">
+                    Buka Layanan <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- 3. Tugas Remidi -->
+            <a href="https://perkuliahanprodi.vercel.app/remidi.html" target="_blank" class="group block bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_30px_-5px_rgba(4,88,68,0.15)] hover:-translate-y-2 transition-all duration-300 animate-fade-in-up delay-300 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-3xl group-hover:bg-rose-100 transition-colors duration-500 -mr-10 -mt-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-400 to-red-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30 mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2 relative z-10 group-hover:text-rose-600 transition-colors">Tugas Remedial</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed relative z-10">Kumpulkan berkas tugas perbaikan (resume) khusus bagi yang belum lulus.</p>
+                <div class="mt-6 flex items-center text-rose-600 text-sm font-bold opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 relative z-10">
+                    Buka Layanan <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- 4. Tugas Makalah dan PPT -->
+            <a href="https://perkuliahanprodi.vercel.app/tugas.html" target="_blank" class="group block bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_30px_-5px_rgba(4,88,68,0.15)] hover:-translate-y-2 transition-all duration-300 animate-fade-in-up delay-400 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl group-hover:bg-amber-100 transition-colors duration-500 -mr-10 -mt-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30 mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-file-powerpoint"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2 relative z-10 group-hover:text-amber-600 transition-colors">Tugas Makalah & PPT</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed relative z-10">Unggah berkas tugas presentasi dan makalah akademik mata kuliah Anda di sini.</p>
+                <div class="mt-6 flex items-center text-amber-600 text-sm font-bold opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 relative z-10">
+                    Buka Layanan <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+
+            <!-- 5. Perbaikan Nilai & Pernyataan -->
+            <a href="https://perkuliahanprodi.vercel.app/" target="_blank" class="group block bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_15px_30px_-5px_rgba(4,88,68,0.15)] hover:-translate-y-2 transition-all duration-300 animate-fade-in-up delay-500 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-[#045844]/5 rounded-full blur-3xl group-hover:bg-[#0ba97b]/10 transition-colors duration-500 -mr-10 -mt-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0ba97b] to-[#045844] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#045844]/30 mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2 relative z-10 group-hover:text-[#0ba97b] transition-colors">Pernyataan Perbaikan Nilai</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed relative z-10">Layanan untuk membuat dan mencetak Surat Pernyataan Resmi perbaikan nilai.</p>
+                <div class="mt-6 flex items-center text-[#0ba97b] text-sm font-bold opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300 relative z-10">
+                    Buka Layanan <i class="fa-solid fa-arrow-right ml-2"></i>
+                </div>
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-8 mt-auto text-slate-400 font-semibold text-xs tracking-wider">
+        &copy; 2026 Portal Akademik &bull; STAI Imam Syafi'i Cianjur
+    </footer>
+
+</body>
+</html>
