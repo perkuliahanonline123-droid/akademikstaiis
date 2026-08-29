@@ -9,9 +9,7 @@
         /* Gaya khusus saat dicetak menjadi PDF */
         @media print {
             body { background-color: white !important; }
-            /* Sembunyikan elemen yang tidak perlu di PDF */
             .no-print { display: none !important; }
-            /* Buat wadah full border agar rapi di kertas */
             .max-w-3xl { max-width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
             h2 { text-align: center; margin-bottom: 20px !important; }
             table { border-collapse: collapse !important; width: 100% !important; }
@@ -33,15 +31,9 @@
             </select>
         </div>
 
-        <!-- Kontrol Pencarian & Cetak PDF -->
-        <div id="controlsWrapper" class="hidden flex-col md:flex-row justify-between items-center mb-4 gap-4 no-print">
-            <!-- Input Pencarian -->
-            <div class="w-full md:w-1/2 relative">
-                <span class="absolute left-3 top-2.5 text-slate-400">🔍</span>
-                <input type="text" id="searchInput" onkeyup="cariNama()" placeholder="Cari nama mahasiswa..." class="w-full p-2 pl-9 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
-            </div>
-            <!-- Tombol Cetak PDF -->
-            <button onclick="window.print()" class="w-full md:w-auto bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2">
+        <!-- Kontrol Cetak PDF -->
+        <div id="controlsWrapper" class="hidden flex justify-end mb-4 no-print">
+            <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2">
                 🖨️ Cetak PDF
             </button>
         </div>
@@ -90,7 +82,7 @@
                     alert("Gagal memuat data: " + result.message);
                 }
             } catch (e) {
-                alert("Terjadi kesalahan jaringan.");
+                alert("Terjadi kesalahan jaringan saat memuat data.");
             }
         }
 
@@ -123,9 +115,6 @@
             const pesan = document.getElementById('pesanKosong');
             const btnSubmit = document.getElementById('btnSubmit'); 
             const controls = document.getElementById('controlsWrapper'); 
-            
-            // Reset pencarian setiap kali ganti mata kuliah
-            document.getElementById('searchInput').value = '';
 
             if (selectVal === "") {
                 table.classList.add('hidden');
@@ -171,38 +160,17 @@
             controls.classList.remove('hidden'); 
         }
 
-        // 5. Fitur Pencarian Nama Mahasiswa
-        function cariNama() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toUpperCase();
-            const barisMhs = document.querySelectorAll('.data-mhs');
-
-            barisMhs.forEach(row => {
-                let namaCell = row.querySelector('.nama-mhs');
-                if (namaCell) {
-                    let textValue = namaCell.textContent || namaCell.innerText;
-                    if (textValue.toUpperCase().indexOf(filter) > -1) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                }
-            });
-        }
-
-        // 6. Mengirim Data ke Apps Script
+        // 5. Mengirim Data ke Apps Script
         async function kirimAbsensi() {
             const btn = document.getElementById('btnSubmit');
             const selectVal = document.getElementById('selectMatkul').value;
             const course = globalData.kurikulum[selectVal];
             
-            // Konfirmasi pengiriman
             if (!confirm(`Kirim absensi untuk kelas ${course.label}?`)) return;
 
             btn.innerHTML = 'Sedang Mengirim...';
             btn.disabled = true;
 
-            // Kumpulkan data mahasiswa dan statusnya
             let rekapKehadiran = [];
             const barisMhs = document.querySelectorAll('.data-mhs');
             
@@ -212,7 +180,6 @@
                 rekapKehadiran.push({ nama: nama, status: status });
             });
 
-            // Susun data (Payload)
             const payload = {
                 mataKuliah: course.label,
                 prodi: course.prodi,
@@ -221,32 +188,36 @@
                 dataAbsen: rekapKehadiran
             };
 
-            // Kirim ke Google Apps Script (POST Request)
             try {
                 const response = await fetch(API_URL, {
+                    redirect: "follow",
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 
-                const result = await response.json();
+                const textResponse = await response.text();
                 
-                if (result.status === 'success') {
-                    alert('Absensi berhasil disimpan!');
-                    document.getElementById('selectMatkul').value = ""; // Reset dropdown
-                    renderMahasiswa(); // Reset tabel
-                } else {
-                    alert('Gagal menyimpan: ' + result.message);
+                try {
+                    const result = JSON.parse(textResponse);
+                    if (result.status === 'success') {
+                        alert('Absensi berhasil disimpan!');
+                        document.getElementById('selectMatkul').value = ""; 
+                        renderMahasiswa(); 
+                    } else {
+                        alert('Gagal menyimpan: ' + result.message);
+                    }
+                } catch (parseError) {
+                    alert('Akses Ditolak Google! Pastikan Anda sudah membuat NEW DEPLOYMENT dan set "Who has access: Anyone".');
                 }
+
             } catch (error) {
-                alert('Terjadi kesalahan saat mengirim data.');
+                alert('Terjadi kesalahan saat mengirim data. Pastikan koneksi internet stabil.');
             }
 
             btn.innerHTML = 'Kirim Absensi';
             btn.disabled = false;
         }
 
-        // Jalankan saat pertama kali dibuka
         window.onload = loadData;
     </script>
 </body>
