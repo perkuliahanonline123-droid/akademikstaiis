@@ -27,7 +27,7 @@
             </div>
             <div>
                 <label class="block font-semibold mb-2 text-sm text-slate-600">Metode Pembelajaran:</label>
-                <select id="metodePembelajaran" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                <select id="metodePembelajaran" onchange="toggleMetodeLainnya()" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
                     <option value="">-- Pilih Metode --</option>
                     <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
                     <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
@@ -37,6 +37,8 @@
                     <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
                     <option value="Lainnya">Lainnya</option>
                 </select>
+                <!-- Input teks yang akan muncul jika memilih "Lainnya" -->
+                <input type="text" id="metodeLainnya" placeholder="Ketik metode pembelajaran..." class="hidden mt-2 w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
             </div>
         </div>
 
@@ -109,7 +111,21 @@
             return `${smtGroup} ${prodi}`;
         }
 
-        // 4. Tampilkan Tabel Mahasiswa
+        // 4. Memunculkan atau menyembunyikan input "Lainnya"
+        function toggleMetodeLainnya() {
+            const select = document.getElementById('metodePembelajaran');
+            const inputLainnya = document.getElementById('metodeLainnya');
+            
+            if (select.value === 'Lainnya') {
+                inputLainnya.classList.remove('hidden');
+                inputLainnya.focus();
+            } else {
+                inputLainnya.classList.add('hidden');
+                inputLainnya.value = ''; // Hapus teks jika opsi diganti
+            }
+        }
+
+        // 5. Tampilkan Tabel Mahasiswa
         function renderMahasiswa() {
             const selectVal = document.getElementById('selectMatkul').value;
             const table = document.getElementById('tableAbsen');
@@ -162,24 +178,37 @@
             btnSubmit.classList.remove('hidden'); 
         }
 
-        // 5. Mengirim Data ke Apps Script
+        // 6. Mengirim Data ke Apps Script
         async function kirimAbsensi() {
             const btn = document.getElementById('btnSubmit');
             const selectVal = document.getElementById('selectMatkul').value;
             const course = globalData.kurikulum[selectVal];
             const tanggalInput = document.getElementById('tanggalKuliah').value;
-            const metodeInput = document.getElementById('metodePembelajaran').value;
+            let metodeInput = document.getElementById('metodePembelajaran').value;
 
-            // Validasi Data
+            // Validasi Data Tanggal
             if (!tanggalInput) {
                 alert("Harap isi Tanggal Perkuliahan terlebih dahulu!");
                 document.getElementById('tanggalKuliah').focus();
                 return;
             }
+            
+            // Validasi Data Metode
             if (!metodeInput) {
                 alert("Harap pilih Metode Pembelajaran terlebih dahulu!");
                 document.getElementById('metodePembelajaran').focus();
                 return;
+            }
+
+            // Jika memilih "Lainnya", ambil teks dari input yang diketik sendiri
+            if (metodeInput === 'Lainnya') {
+                const teksLainnya = document.getElementById('metodeLainnya').value.trim();
+                if (!teksLainnya) {
+                    alert("Harap tuliskan Metode Pembelajaran lainnya!");
+                    document.getElementById('metodeLainnya').focus();
+                    return;
+                }
+                metodeInput = teksLainnya; // Tumpuk nilai "Lainnya" dengan teks ketikan
             }
             
             btn.innerHTML = 'Sedang Mengirim... Mohon Tunggu';
@@ -217,9 +246,12 @@
                     const result = JSON.parse(textResponse);
                     if (result.status === 'success') {
                         alert('Absensi berhasil disimpan!');
+                        // Reset Form
                         document.getElementById('selectMatkul').value = ""; 
                         document.getElementById('tanggalKuliah').value = ""; 
                         document.getElementById('metodePembelajaran').value = ""; 
+                        document.getElementById('metodeLainnya').value = "";
+                        document.getElementById('metodeLainnya').classList.add('hidden');
                         renderMahasiswa(); 
                     } else {
                         alert('Gagal menyimpan: ' + result.message);
