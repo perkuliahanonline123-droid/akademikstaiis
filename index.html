@@ -35,14 +35,19 @@
             </table>
         </div>
         
+        <!-- TOMBOL KIRIM ABSENSI -->
+        <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg hidden transition duration-200 shadow-md">
+            Kirim Absensi
+        </button>
+
         <div id="pesanKosong" class="text-center text-slate-500 py-8 hidden">
             Data mahasiswa tidak ditemukan untuk kelas ini.
         </div>
     </div>
 
     <script>
-        // PASTE URL DEPLOY GOOGLE APPS SCRIPT DI SINI
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec'; 
+        // ⚠️ PASTE URL DEPLOY GOOGLE APPS SCRIPT DI SINI
+        const API_URL = 'URL_WEB_APP_ANDA_DISINI'; 
         let globalData = { kurikulum: [], mahasiswa: {} };
 
         // 1. Ambil data saat halaman dimuat
@@ -72,7 +77,7 @@
             });
         }
 
-        // 3. Konversi Semester & Prodi ke format Header di Sheet DATA MAHASISWA
+        // 3. Konversi Semester & Prodi
         function dapatkanNamaHeader(semester, prodi) {
             let smtGroup = "";
             if (semester <= 2) smtGroup = "Semester 1 & 2";
@@ -83,16 +88,18 @@
             return `${smtGroup} ${prodi}`;
         }
 
-        // 4. Tampilkan Tabel Mahasiswa saat Dropdown dipilih
+        // 4. Tampilkan Tabel Mahasiswa
         function renderMahasiswa() {
             const selectVal = document.getElementById('selectMatkul').value;
             const table = document.getElementById('tableAbsen');
             const tbody = document.getElementById('bodyMahasiswa');
             const pesan = document.getElementById('pesanKosong');
+            const btnSubmit = document.getElementById('btnSubmit'); // Ambil elemen tombol
             
             if (selectVal === "") {
                 table.classList.add('hidden');
                 pesan.classList.add('hidden');
+                btnSubmit.classList.add('hidden'); // Sembunyikan tombol jika kosong
                 return;
             }
 
@@ -102,17 +109,17 @@
 
             if (students.length === 0) {
                 table.classList.add('hidden');
+                btnSubmit.classList.add('hidden');
                 pesan.classList.remove('hidden');
                 return;
             }
 
-            // Tampilkan Mahasiswa dengan Default Centang "H"
             let html = "";
             students.forEach((nama, idx) => {
                 html += `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
                     <td class="p-3 text-center text-slate-500">${idx + 1}</td>
-                    <td class="p-3 font-medium text-sm text-slate-700">${nama}</td>
+                    <td class="p-3 font-medium text-sm text-slate-700 nama-mhs">${nama}</td>
                     <td class="p-3">
                         <div class="flex justify-center gap-3 text-sm font-semibold">
                             <label class="cursor-pointer text-emerald-600"><input type="radio" name="abs_${idx}" value="H" checked class="mr-1 accent-emerald-600">H</label>
@@ -127,6 +134,63 @@
             tbody.innerHTML = html;
             pesan.classList.add('hidden');
             table.classList.remove('hidden');
+            btnSubmit.classList.remove('hidden'); // Munculkan tombol kirim
+        }
+
+        // 5. FUNGSI BARU: Mengirim Data ke Apps Script
+        async function kirimAbsensi() {
+            const btn = document.getElementById('btnSubmit');
+            const selectVal = document.getElementById('selectMatkul').value;
+            const course = globalData.kurikulum[selectVal];
+            
+            // Konfirmasi pengiriman
+            if (!confirm(`Kirim absensi untuk kelas ${course.label}?`)) return;
+
+            btn.innerHTML = 'Sedang Mengirim...';
+            btn.disabled = true;
+
+            // Kumpulkan data mahasiswa dan statusnya
+            let rekapKehadiran = [];
+            const barisMhs = document.querySelectorAll('#bodyMahasiswa tr');
+            
+            barisMhs.forEach((row, idx) => {
+                let nama = row.querySelector('.nama-mhs').innerText;
+                let status = document.querySelector(`input[name="abs_${idx}"]:checked`).value;
+                rekapKehadiran.push({ nama: nama, status: status });
+            });
+
+            // Susun data (Payload)
+            const payload = {
+                mataKuliah: course.label,
+                prodi: course.prodi,
+                semester: course.semester,
+                waktu: new Date().toISOString(),
+                dataAbsen: rekapKehadiran
+            };
+
+            // Kirim ke Google Apps Script (POST Request)
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Wajib text/plain untuk GAS
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Absensi berhasil disimpan!');
+                    document.getElementById('selectMatkul').value = ""; // Reset dropdown
+                    renderMahasiswa(); // Reset tabel
+                } else {
+                    alert('Gagal menyimpan: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan saat mengirim data.');
+            }
+
+            btn.innerHTML = 'Kirim Absensi';
+            btn.disabled = false;
         }
 
         // Jalankan saat pertama kali dibuka
