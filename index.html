@@ -12,11 +12,32 @@
         <h2 class="text-2xl font-bold text-emerald-800 mb-6 border-b pb-3">Form Absensi Perkuliahan</h2>
         
         <!-- Dropdown Kurikulum -->
-        <div class="mb-6">
+        <div class="mb-4">
             <label class="block font-semibold mb-2 text-sm text-slate-600">Pilih Mata Kuliah & Kelas:</label>
             <select id="selectMatkul" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" onchange="renderMahasiswa()">
                 <option value="">Memuat data mata kuliah...</option>
             </select>
+        </div>
+
+        <!-- Wadah Tanggal & Metode Pembelajaran (Muncul setelah matkul dipilih) -->
+        <div id="formInformasiTambahan" class="hidden mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block font-semibold mb-2 text-sm text-slate-600">Tanggal Perkuliahan:</label>
+                <input type="date" id="tanggalKuliah" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+            </div>
+            <div>
+                <label class="block font-semibold mb-2 text-sm text-slate-600">Metode Pembelajaran:</label>
+                <select id="metodePembelajaran" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                    <option value="">-- Pilih Metode --</option>
+                    <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
+                    <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
+                    <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
+                    <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
+                    <option value="Studi Kasus (Case Study)">Studi Kasus (Case Study)</option>
+                    <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
         </div>
 
         <!-- Tabel Absensi -->
@@ -95,11 +116,13 @@
             const tbody = document.getElementById('bodyMahasiswa');
             const pesan = document.getElementById('pesanKosong');
             const btnSubmit = document.getElementById('btnSubmit'); 
+            const formInfoTambahan = document.getElementById('formInformasiTambahan');
 
             if (selectVal === "") {
                 table.classList.add('hidden');
                 pesan.classList.add('hidden');
                 btnSubmit.classList.add('hidden');
+                formInfoTambahan.classList.add('hidden');
                 return;
             }
 
@@ -110,6 +133,7 @@
             if (students.length === 0) {
                 table.classList.add('hidden');
                 btnSubmit.classList.add('hidden');
+                formInfoTambahan.classList.add('hidden');
                 pesan.classList.remove('hidden');
                 return;
             }
@@ -133,6 +157,7 @@
 
             tbody.innerHTML = html;
             pesan.classList.add('hidden');
+            formInfoTambahan.classList.remove('hidden');
             table.classList.remove('hidden');
             btnSubmit.classList.remove('hidden'); 
         }
@@ -142,6 +167,20 @@
             const btn = document.getElementById('btnSubmit');
             const selectVal = document.getElementById('selectMatkul').value;
             const course = globalData.kurikulum[selectVal];
+            const tanggalInput = document.getElementById('tanggalKuliah').value;
+            const metodeInput = document.getElementById('metodePembelajaran').value;
+
+            // Validasi Data
+            if (!tanggalInput) {
+                alert("Harap isi Tanggal Perkuliahan terlebih dahulu!");
+                document.getElementById('tanggalKuliah').focus();
+                return;
+            }
+            if (!metodeInput) {
+                alert("Harap pilih Metode Pembelajaran terlebih dahulu!");
+                document.getElementById('metodePembelajaran').focus();
+                return;
+            }
             
             btn.innerHTML = 'Sedang Mengirim... Mohon Tunggu';
             btn.disabled = true;
@@ -159,6 +198,8 @@
                 mataKuliah: course.label,
                 prodi: course.prodi,
                 semester: course.semester,
+                tanggal: tanggalInput,
+                metode: metodeInput,
                 waktu: new Date().toISOString(),
                 dataAbsen: rekapKehadiran
             };
@@ -177,6 +218,8 @@
                     if (result.status === 'success') {
                         alert('Absensi berhasil disimpan!');
                         document.getElementById('selectMatkul').value = ""; 
+                        document.getElementById('tanggalKuliah').value = ""; 
+                        document.getElementById('metodePembelajaran').value = ""; 
                         renderMahasiswa(); 
                     } else {
                         alert('Gagal menyimpan: ' + result.message);
