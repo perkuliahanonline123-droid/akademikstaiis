@@ -5,18 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Absensi Mahasiswa</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Gaya khusus saat dicetak menjadi PDF */
-        @media print {
-            body { background-color: white !important; }
-            .no-print { display: none !important; }
-            .max-w-3xl { max-width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-            h2 { text-align: center; margin-bottom: 20px !important; }
-            table { border-collapse: collapse !important; width: 100% !important; }
-            th, td { border: 1px solid #cbd5e1 !important; padding: 10px !important; }
-            th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-    </style>
 </head>
 <body class="bg-slate-50 p-6 font-sans text-slate-800">
 
@@ -24,18 +12,11 @@
         <h2 class="text-2xl font-bold text-emerald-800 mb-6 border-b pb-3">Form Absensi Perkuliahan</h2>
         
         <!-- Dropdown Kurikulum -->
-        <div class="mb-6 no-print">
+        <div class="mb-6">
             <label class="block font-semibold mb-2 text-sm text-slate-600">Pilih Mata Kuliah & Kelas:</label>
             <select id="selectMatkul" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" onchange="renderMahasiswa()">
                 <option value="">Memuat data mata kuliah...</option>
             </select>
-        </div>
-
-        <!-- Kontrol Cetak PDF -->
-        <div id="controlsWrapper" class="hidden flex justify-end mb-4 no-print">
-            <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition duration-200 flex items-center justify-center gap-2">
-                🖨️ Cetak PDF
-            </button>
         </div>
 
         <!-- Tabel Absensi -->
@@ -55,11 +36,11 @@
         </div>
         
         <!-- TOMBOL KIRIM ABSENSI -->
-        <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg hidden transition duration-200 shadow-md no-print">
+        <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg hidden transition duration-200 shadow-md">
             Kirim Absensi
         </button>
 
-        <div id="pesanKosong" class="text-center text-slate-500 py-8 hidden no-print">
+        <div id="pesanKosong" class="text-center text-slate-500 py-8 hidden">
             Data mahasiswa tidak ditemukan untuk kelas ini.
         </div>
     </div>
@@ -114,13 +95,11 @@
             const tbody = document.getElementById('bodyMahasiswa');
             const pesan = document.getElementById('pesanKosong');
             const btnSubmit = document.getElementById('btnSubmit'); 
-            const controls = document.getElementById('controlsWrapper'); 
 
             if (selectVal === "") {
                 table.classList.add('hidden');
                 pesan.classList.add('hidden');
                 btnSubmit.classList.add('hidden');
-                controls.classList.add('hidden');
                 return;
             }
 
@@ -131,7 +110,6 @@
             if (students.length === 0) {
                 table.classList.add('hidden');
                 btnSubmit.classList.add('hidden');
-                controls.classList.add('hidden');
                 pesan.classList.remove('hidden');
                 return;
             }
@@ -157,7 +135,6 @@
             pesan.classList.add('hidden');
             table.classList.remove('hidden');
             btnSubmit.classList.remove('hidden'); 
-            controls.classList.remove('hidden'); 
         }
 
         // 5. Mengirim Data ke Apps Script
@@ -166,9 +143,7 @@
             const selectVal = document.getElementById('selectMatkul').value;
             const course = globalData.kurikulum[selectVal];
             
-            if (!confirm(`Kirim absensi untuk kelas ${course.label}?`)) return;
-
-            btn.innerHTML = 'Sedang Mengirim...';
+            btn.innerHTML = 'Sedang Mengirim... Mohon Tunggu';
             btn.disabled = true;
 
             let rekapKehadiran = [];
@@ -207,11 +182,11 @@
                         alert('Gagal menyimpan: ' + result.message);
                     }
                 } catch (parseError) {
-                    alert('Akses Ditolak Google! Pastikan Anda sudah membuat NEW DEPLOYMENT dan set "Who has access: Anyone".');
+                    alert('Akses Ditolak Google! Pastikan Anda sudah membuat NEW DEPLOYMENT dan set "Who has access: Anyone" pada file Apps Script Anda.');
                 }
 
             } catch (error) {
-                alert('Terjadi kesalahan saat mengirim data. Pastikan koneksi internet stabil.');
+                alert('Terjadi kesalahan jaringan atau perangkat tidak terhubung ke internet.');
             }
 
             btn.innerHTML = 'Kirim Absensi';
