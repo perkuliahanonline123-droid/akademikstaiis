@@ -3,78 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Absensi Mahasiswa</title>
+    <title>Presensi Mahasiswa - Dasbor Akademik Premium</title>
+    <meta name="theme-color" content="#064e3b">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: { 
+                        brand: { 900: '#064e3b', 800: '#065f46', 600: '#059669', 500: '#10b981', 100: '#d1fae5', 50: '#ecfdf5' } 
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'up': '0 -4px 20px rgba(0,0,0,0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f3f4f6; background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
+        .tab-inactive { color: #94a3b8; background: transparent; }
+        .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        
+        /* Custom Table Styling */
+        table { border-collapse: separate; border-spacing: 0; }
+        th { border-bottom: 2px solid #f1f5f9; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        td { border-bottom: 1px solid #f8fafc; }
+    </style>
 </head>
-<body class="bg-slate-50 p-6 font-sans text-slate-800">
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
-    <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-2xl font-bold text-emerald-800 mb-6 border-b pb-3">Form Absensi Perkuliahan</h2>
-        
-        <!-- Dropdown Kurikulum -->
-        <div class="mb-4">
-            <label class="block font-semibold mb-2 text-sm text-slate-600">Pilih Mata Kuliah & Kelas:</label>
-            <select id="selectMatkul" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" onchange="renderMahasiswa()">
-                <option value="">Memuat data mata kuliah...</option>
-            </select>
-        </div>
+    <!-- SIDEBAR DESKTOP -->
+    <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
 
-        <!-- Wadah Tanggal & Metode Pembelajaran (Muncul setelah matkul dipilih) -->
-        <div id="formInformasiTambahan" class="hidden mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block font-semibold mb-2 text-sm text-slate-600">Tanggal Perkuliahan:</label>
-                <input type="date" id="tanggalKuliah" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+        <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
+            <div class="relative flex-shrink-0">
+                <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+                <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
             </div>
-            <div>
-                <label class="block font-semibold mb-2 text-sm text-slate-600">Metode Pembelajaran:</label>
-                <select id="metodePembelajaran" onchange="toggleMetodeLainnya()" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
-                    <option value="">-- Pilih Metode --</option>
-                    <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
-                    <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
-                    <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
-                    <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
-                    <option value="Studi Kasus (Case Study)">Studi Kasus (Case Study)</option>
-                    <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-                <!-- Input teks yang akan muncul jika memilih "Lainnya" -->
-                <input type="text" id="metodeLainnya" placeholder="Ketik metode pembelajaran..." class="hidden mt-2 w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+            <div class="text-left flex flex-col justify-center">
+                <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
+                <div class="flex items-center gap-1.5 mt-1.5">
+                    <div class="relative flex h-1.5 w-1.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                    </div>
+                    <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
+                </div>
             </div>
         </div>
-
-        <!-- Tabel Absensi -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse hidden" id="tableAbsen">
-                <thead>
-                    <tr class="bg-slate-100 text-sm">
-                        <th class="p-3 border-b border-slate-200 w-12 text-center">No</th>
-                        <th class="p-3 border-b border-slate-200">Nama Mahasiswa</th>
-                        <th class="p-3 border-b border-slate-200 text-center w-48">Kehadiran</th>
-                    </tr>
-                </thead>
-                <tbody id="bodyMahasiswa">
-                    <!-- Baris mahasiswa akan muncul di sini -->
-                </tbody>
-            </table>
-        </div>
         
-        <!-- TOMBOL KIRIM ABSENSI -->
-        <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg hidden transition duration-200 shadow-md">
-            Kirim Absensi
-        </button>
+        <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
+            <a href="index.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
+                Riwayat Jurnal
+            </a>
+            <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
+                Evaluasi Akademik
+            </a>
+            <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
+                Hasil Studi
+            </a>
+        </nav>
+    </aside>
 
-        <div id="pesanKosong" class="text-center text-slate-500 py-8 hidden">
-            Data mahasiswa tidak ditemukan untuk kelas ini.
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0">
+        
+        <!-- HEADER TOP -->
+        <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
+            <div>
+                <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Form Presensi Perkuliahan</h2>
+                <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Input kehadiran mahasiswa dan laporan metode ajar</p>
+            </div>
+            
+            <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+                <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+                <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+                <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+            </div>
+        </header>
+
+        <!-- KONTEN UTAMA FORM ABSENSI -->
+        <div class="p-4 md:p-8 lg:p-10 w-full max-w-5xl mx-auto animate-slide-up">
+            <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-6 md:p-8 lg:p-10">
+                
+                <!-- Dropdown Kurikulum -->
+                <div class="mb-6">
+                    <label class="block font-bold mb-2 text-sm text-slate-700">Pilih Mata Kuliah & Kelas</label>
+                    <select id="selectMatkul" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all" onchange="renderMahasiswa()">
+                        <option value="">Memuat data mata kuliah...</option>
+                    </select>
+                </div>
+
+                <!-- Wadah Tanggal & Metode Pembelajaran -->
+                <div id="formInformasiTambahan" class="hidden mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block font-bold mb-2 text-sm text-slate-700">Tanggal Perkuliahan</label>
+                        <input type="date" id="tanggalKuliah" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-2 text-sm text-slate-700">Metode Pembelajaran</label>
+                        <select id="metodePembelajaran" onchange="toggleMetodeLainnya()" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                            <option value="">-- Pilih Metode --</option>
+                            <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
+                            <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
+                            <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
+                            <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
+                            <option value="Studi Kasus (Case Study)">Studi Kasus (Case Study)</option>
+                            <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                        <input type="text" id="metodeLainnya" placeholder="Ketik metode pembelajaran..." class="hidden mt-3 w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                    </div>
+                </div>
+
+                <!-- Tabel Absensi -->
+                <div class="overflow-x-auto rounded-xl border border-slate-100">
+                    <table class="w-full text-left hidden" id="tableAbsen">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500">
+                                <th class="p-4 w-12 text-center font-black">No</th>
+                                <th class="p-4 font-black">Nama Mahasiswa</th>
+                                <th class="p-4 text-center w-64 font-black">Status Kehadiran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyMahasiswa">
+                            <!-- Baris mahasiswa akan muncul di sini -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- TOMBOL KIRIM ABSENSI -->
+                <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-8 w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-800 hover:to-brand-600 text-white font-black py-4 px-6 rounded-xl hidden transition-all duration-300 shadow-soft transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Kirim Laporan Absensi
+                </button>
+
+                <div id="pesanKosong" class="text-center text-slate-400 font-medium py-12 hidden flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl mb-2"><i class="fas fa-folder-open"></i></div>
+                    Data mahasiswa tidak ditemukan untuk kelas ini.
+                </div>
+            </div>
         </div>
+
+        <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
+            &copy; 2026 Dasbor Akademik
+        </footer>
+    </main>
+
+    <!-- NAVIGASI BOTTOM (HP) -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+        <a href="index.html" class="flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-brand-500 transition-all duration-300">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
+            <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
+        </a>
+        <a href="evaluasi.html" class="flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-brand-500 transition-all duration-300">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
+            <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
+        </a>
+        <a href="khs.html" class="flex flex-col items-center gap-1 w-1/3 text-slate-400 hover:text-brand-500 transition-all duration-300">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-graduation-cap text-lg"></i></div>
+            <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
+        </a>
     </div>
 
+    <!-- LOGIK JAVASCRIPT -->
     <script>
+        // Jam Real-time
+        function updateJam() {
+            try {
+                const now = new Date();
+                const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const el = document.getElementById("realtimeClock");
+                if(el) {
+                    el.innerText = hari[now.getDay()] + ", " + now.getDate() + " " + bulan[now.getMonth()] + " " + now.getFullYear() + " • " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + " WIB";
+                }
+            } catch(e){}
+        }
+        setInterval(updateJam, 1000);
+
         // ⚠️ PASTE URL DEPLOY GOOGLE APPS SCRIPT DI SINI
         const API_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec'; 
         let globalData = { kurikulum: [], mahasiswa: {} };
 
         // 1. Ambil data saat halaman dimuat
         async function loadData() {
+            updateJam();
             try {
                 const response = await fetch(API_URL);
                 const result = await response.json();
@@ -121,7 +255,7 @@
                 inputLainnya.focus();
             } else {
                 inputLainnya.classList.add('hidden');
-                inputLainnya.value = ''; // Hapus teks jika opsi diganti
+                inputLainnya.value = ''; 
             }
         }
 
@@ -157,15 +291,15 @@
             let html = "";
             students.forEach((nama, idx) => {
                 html += `
-                <tr class="border-b border-slate-100 hover:bg-slate-50 data-mhs">
-                    <td class="p-3 text-center text-slate-500">${idx + 1}</td>
-                    <td class="p-3 font-medium text-sm text-slate-700 nama-mhs">${nama}</td>
-                    <td class="p-3">
-                        <div class="flex justify-center gap-3 text-sm font-semibold">
-                            <label class="cursor-pointer text-emerald-600"><input type="radio" name="abs_${idx}" value="H" checked class="mr-1 accent-emerald-600">H</label>
-                            <label class="cursor-pointer text-amber-500"><input type="radio" name="abs_${idx}" value="I" class="mr-1 accent-amber-500">I</label>
-                            <label class="cursor-pointer text-blue-500"><input type="radio" name="abs_${idx}" value="S" class="mr-1 accent-blue-500">S</label>
-                            <label class="cursor-pointer text-red-500"><input type="radio" name="abs_${idx}" value="A" class="mr-1 accent-red-500">A</label>
+                <tr class="hover:bg-slate-50/70 transition-colors data-mhs group">
+                    <td class="p-4 text-center text-slate-400 font-bold">${idx + 1}</td>
+                    <td class="p-4 font-bold text-slate-700 nama-mhs group-hover:text-brand-700 transition-colors">${nama}</td>
+                    <td class="p-4">
+                        <div class="flex justify-center gap-4 text-sm font-bold bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-100 w-fit mx-auto">
+                            <label class="cursor-pointer text-brand-600 flex items-center gap-1.5 hover:scale-110 transition-transform"><input type="radio" name="abs_${idx}" value="H" checked class="w-4 h-4 accent-brand-600">H</label>
+                            <label class="cursor-pointer text-amber-500 flex items-center gap-1.5 hover:scale-110 transition-transform"><input type="radio" name="abs_${idx}" value="I" class="w-4 h-4 accent-amber-500">I</label>
+                            <label class="cursor-pointer text-blue-500 flex items-center gap-1.5 hover:scale-110 transition-transform"><input type="radio" name="abs_${idx}" value="S" class="w-4 h-4 accent-blue-500">S</label>
+                            <label class="cursor-pointer text-rose-500 flex items-center gap-1.5 hover:scale-110 transition-transform"><input type="radio" name="abs_${idx}" value="A" class="w-4 h-4 accent-rose-500">A</label>
                         </div>
                     </td>
                 </tr>`;
@@ -186,21 +320,18 @@
             const tanggalInput = document.getElementById('tanggalKuliah').value;
             let metodeInput = document.getElementById('metodePembelajaran').value;
 
-            // Validasi Data Tanggal
             if (!tanggalInput) {
                 alert("Harap isi Tanggal Perkuliahan terlebih dahulu!");
                 document.getElementById('tanggalKuliah').focus();
                 return;
             }
             
-            // Validasi Data Metode
             if (!metodeInput) {
                 alert("Harap pilih Metode Pembelajaran terlebih dahulu!");
                 document.getElementById('metodePembelajaran').focus();
                 return;
             }
 
-            // Jika memilih "Lainnya", ambil teks dari input yang diketik sendiri
             if (metodeInput === 'Lainnya') {
                 const teksLainnya = document.getElementById('metodeLainnya').value.trim();
                 if (!teksLainnya) {
@@ -208,10 +339,10 @@
                     document.getElementById('metodeLainnya').focus();
                     return;
                 }
-                metodeInput = teksLainnya; // Tumpuk nilai "Lainnya" dengan teks ketikan
+                metodeInput = teksLainnya; 
             }
             
-            btn.innerHTML = 'Sedang Mengirim... Mohon Tunggu';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Laporan...';
             btn.disabled = true;
 
             let rekapKehadiran = [];
@@ -245,8 +376,7 @@
                 try {
                     const result = JSON.parse(textResponse);
                     if (result.status === 'success') {
-                        alert('Absensi berhasil disimpan!');
-                        // Reset Form
+                        alert('Laporan Absensi berhasil disimpan!');
                         document.getElementById('selectMatkul').value = ""; 
                         document.getElementById('tanggalKuliah').value = ""; 
                         document.getElementById('metodePembelajaran').value = ""; 
@@ -264,7 +394,7 @@
                 alert('Terjadi kesalahan jaringan atau perangkat tidak terhubung ke internet.');
             }
 
-            btn.innerHTML = 'Kirim Absensi';
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Laporan Absensi';
             btn.disabled = false;
         }
 
