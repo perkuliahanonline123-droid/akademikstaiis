@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Absensi Mahasiswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6 font-sans text-slate-800">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-2xl font-bold text-emerald-800 mb-6 border-b pb-3">Form Absensi Perkuliahan</h2>
+        
+        <!-- Dropdown Kurikulum -->
+        <div class="mb-6">
+            <label class="block font-semibold mb-2 text-sm text-slate-600">Pilih Mata Kuliah & Kelas:</label>
+            <select id="selectMatkul" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" onchange="renderMahasiswa()">
+                <option value="">Memuat data mata kuliah...</option>
+            </select>
+        </div>
+
+        <!-- Tabel Absensi -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse hidden" id="tableAbsen">
+                <thead>
+                    <tr class="bg-slate-100 text-sm">
+                        <th class="p-3 border-b border-slate-200 w-12 text-center">No</th>
+                        <th class="p-3 border-b border-slate-200">Nama Mahasiswa</th>
+                        <th class="p-3 border-b border-slate-200 text-center w-48">Kehadiran</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyMahasiswa">
+                    <!-- Baris mahasiswa akan muncul di sini -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="pesanKosong" class="text-center text-slate-500 py-8 hidden">
+            Data mahasiswa tidak ditemukan untuk kelas ini.
+        </div>
+    </div>
+
+    <script>
+        // PASTE URL DEPLOY GOOGLE APPS SCRIPT DI SINI
+        const API_URL = 'URL_WEB_APP_ANDA_DISINI'; 
+        let globalData = { kurikulum: [], mahasiswa: {} };
+
+        // 1. Ambil data saat halaman dimuat
+        async function loadData() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    globalData = result;
+                    populateDropdown();
+                } else {
+                    alert("Gagal memuat data: " + result.message);
+                }
+            } catch (e) {
+                alert("Terjadi kesalahan jaringan.");
+            }
+        }
+
+        // 2. Isi Dropdown Mata Kuliah
+        function populateDropdown() {
+            const select = document.getElementById('selectMatkul');
+            select.innerHTML = '<option value="">-- Silakan Pilih Mata Kuliah --</option>';
+            
+            globalData.kurikulum.forEach((item, index) => {
+                select.innerHTML += `<option value="${index}">${item.label}</option>`;
+            });
+        }
+
+        // 3. Konversi Semester & Prodi ke format Header di Sheet DATA MAHASISWA
+        function dapatkanNamaHeader(semester, prodi) {
+            let smtGroup = "";
+            if (semester <= 2) smtGroup = "Semester 1 & 2";
+            else if (semester <= 4) smtGroup = "Semester 3 & 4";
+            else if (semester <= 6) smtGroup = "Semester 5 & 6";
+            else smtGroup = "Semester 7 & 8";
+            
+            return `${smtGroup} ${prodi}`;
+        }
+
+        // 4. Tampilkan Tabel Mahasiswa saat Dropdown dipilih
+        function renderMahasiswa() {
+            const selectVal = document.getElementById('selectMatkul').value;
+            const table = document.getElementById('tableAbsen');
+            const tbody = document.getElementById('bodyMahasiswa');
+            const pesan = document.getElementById('pesanKosong');
+            
+            if (selectVal === "") {
+                table.classList.add('hidden');
+                pesan.classList.add('hidden');
+                return;
+            }
+
+            const course = globalData.kurikulum[selectVal];
+            const headerName = dapatkanNamaHeader(course.semester, course.prodi);
+            const students = globalData.mahasiswa[headerName] || [];
+
+            if (students.length === 0) {
+                table.classList.add('hidden');
+                pesan.classList.remove('hidden');
+                return;
+            }
+
+            // Tampilkan Mahasiswa dengan Default Centang "H"
+            let html = "";
+            students.forEach((nama, idx) => {
+                html += `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+                    <td class="p-3 font-medium text-sm text-slate-700">${nama}</td>
+                    <td class="p-3">
+                        <div class="flex justify-center gap-3 text-sm font-semibold">
+                            <label class="cursor-pointer text-emerald-600"><input type="radio" name="abs_${idx}" value="H" checked class="mr-1 accent-emerald-600">H</label>
+                            <label class="cursor-pointer text-amber-500"><input type="radio" name="abs_${idx}" value="I" class="mr-1 accent-amber-500">I</label>
+                            <label class="cursor-pointer text-blue-500"><input type="radio" name="abs_${idx}" value="S" class="mr-1 accent-blue-500">S</label>
+                            <label class="cursor-pointer text-red-500"><input type="radio" name="abs_${idx}" value="A" class="mr-1 accent-red-500">A</label>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+            pesan.classList.add('hidden');
+            table.classList.remove('hidden');
+        }
+
+        // Jalankan saat pertama kali dibuka
+        window.onload = loadData;
+    </script>
+</body>
+</html>
