@@ -225,90 +225,76 @@
             <div class="flex-1 overflow-auto custom-scrollbar bg-gray-200 p-4">
                 <div class="preview-container">
                     
-                    <!-- Area Kertas Pratinjau: Fix 297x210mm dengan overflow hidden -->
-                    <div class="bg-white shadow-md font-formal relative" id="pdfPrintArea" style="width: 297mm; height: 210mm; padding: 10mm 15mm; box-sizing: border-box; color: black; background: white;">
+                    <!-- Area Kertas Pratinjau: Fix 297x210mm -->
+                    <div class="bg-white shadow-md font-formal relative flex flex-col" id="pdfPrintArea" style="width: 297mm; height: 210mm; padding: 8mm 12mm; box-sizing: border-box; color: black; background: white; overflow: hidden;">
                         
-                        <!-- Header Institusi -->
-                        <div class="text-center mb-5 font-formal text-black">
-                            <h1 class="text-[16px] font-bold leading-tight">SEKOLAH TINGGI ILMU AGAMA ISLAM</h1>
-                            <h1 class="text-[16px] font-bold leading-tight">IMAM SYAFI'I CIANJUR</h1>
-                            <p class="text-[12px] leading-tight mt-1">Jl. Sarongge No. 16, Desa Ciputri, Kecamatan Pacet, Kabupaten Cianjur 43253</p>
-                            
-                            <h2 class="text-[14px] font-bold mt-5 mb-3">DAFTAR HADIR PERKULIAHAN</h2>
+                        <div>
+                            <!-- Header Institusi (Margin Dirapatkan) -->
+                            <div class="text-center mb-2 font-formal text-black">
+                                <h1 class="text-[15px] font-bold leading-tight">SEKOLAH TINGGI ILMU AGAMA ISLAM</h1>
+                                <h1 class="text-[15px] font-bold leading-tight">IMAM SYAFI'I CIANJUR</h1>
+                                <p class="text-[11px] leading-tight mt-0.5">Jl. Sarongge No. 16, Desa Ciputri, Kecamatan Pacet, Kabupaten Cianjur 43253</p>
+                                
+                                <h2 class="text-[13px] font-bold mt-3 mb-2">DAFTAR HADIR PERKULIAHAN</h2>
+                            </div>
+
+                            <!-- Info Mata Kuliah (Padding Dirapatkan) -->
+                            <table class="w-full text-[11px] mb-2 border-collapse border border-black font-formal text-left text-black">
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-black py-0.5 px-2 w-[16%]">Program Studi</td>
+                                        <td class="border border-black py-0.5 px-2 w-[44%]" id="previewProdi"></td>
+                                        <td class="border border-black py-0.5 px-2 w-[12%]">Kode MK</td>
+                                        <td class="border border-black py-0.5 px-2 w-[28%]" id="previewKodeMK"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-black py-0.5 px-2">Mata Kuliah</td>
+                                        <td class="border border-black py-0.5 px-2" id="previewMatkulDetail"></td>
+                                        <td class="border border-black py-0.5 px-2">Semester</td>
+                                        <td class="border border-black py-0.5 px-2" id="previewSemester"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-black py-0.5 px-2">Dosen</td>
+                                        <td class="border border-black py-0.5 px-2" id="previewDosenHeader"></td>
+                                        <td class="border border-black py-0.5 px-2">Kelas</td>
+                                        <td class="border border-black py-0.5 px-2" id="previewKelas"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Tabel Utama (Padding teks lebih kecil) -->
+                            <table class="text-[10.5px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
+                                <colgroup>
+                                    <col style="width: 3.5%;">
+                                    <col style="width: 26.5%;">
+                                    <col style="width: 3.5%;" span="16">
+                                    <col style="width: 3.5%;" span="4">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" class="border border-black py-1 px-1">No.</th>
+                                        <th rowspan="2" class="border border-black text-left py-1 px-2">Nama Mahasiswa</th>
+                                        <th colspan="16" class="border border-black py-1 px-1">Pertemuan</th>
+                                        <th colspan="4" class="border border-black py-1 px-1">Keterangan</th>
+                                    </tr>
+                                    <tr>
+                                        <!-- Angka 1-16 -->
+                                        <th class="border border-black py-0.5 px-0.5">1</th><th class="border border-black py-0.5 px-0.5">2</th><th class="border border-black py-0.5 px-0.5">3</th><th class="border border-black py-0.5 px-0.5">4</th><th class="border border-black py-0.5 px-0.5">5</th><th class="border border-black py-0.5 px-0.5">6</th><th class="border border-black py-0.5 px-0.5">7</th><th class="border border-black py-0.5 px-0.5">8</th><th class="border border-black py-0.5 px-0.5">9</th><th class="border border-black py-0.5 px-0.5">10</th><th class="border border-black py-0.5 px-0.5">11</th><th class="border border-black py-0.5 px-0.5">12</th><th class="border border-black py-0.5 px-0.5">13</th><th class="border border-black py-0.5 px-0.5">14</th><th class="border border-black py-0.5 px-0.5">15</th><th class="border border-black py-0.5 px-0.5">16</th>
+                                        <!-- HAIS -->
+                                        <th class="border border-black font-bold py-0.5 px-0.5">H</th><th class="border border-black font-bold py-0.5 px-0.5">A</th><th class="border border-black font-bold py-0.5 px-0.5">I</th><th class="border border-black font-bold py-0.5 px-0.5">S</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody">
+                                    <!-- Data diisi dari JS -->
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Info Mata Kuliah (Tabel Kotak) -->
-                        <table class="w-full text-[11.5px] mb-4 border-collapse border border-black font-formal text-left text-black">
-                            <tbody>
-                                <tr>
-                                    <td class="border border-black py-1 px-2 w-[16%]">Program Studi</td>
-                                    <td class="border border-black py-1 px-2 w-[44%]" id="previewProdi"></td>
-                                    <td class="border border-black py-1 px-2 w-[12%]">Kode MK</td>
-                                    <td class="border border-black py-1 px-2 w-[28%]" id="previewKodeMK"></td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-black py-1 px-2">Mata Kuliah</td>
-                                    <td class="border border-black py-1 px-2" id="previewMatkulDetail"></td>
-                                    <td class="border border-black py-1 px-2">Semester</td>
-                                    <td class="border border-black py-1 px-2" id="previewSemester"></td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-black py-1 px-2">Dosen</td>
-                                    <td class="border border-black py-1 px-2" id="previewDosenHeader"></td>
-                                    <td class="border border-black py-1 px-2">Kelas</td>
-                                    <td class="border border-black py-1 px-2" id="previewKelas"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Tabel Utama -->
-                        <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
-                            <colgroup>
-                                <col style="width: 4%;">
-                                <col style="width: 26%;">
-                                <col style="width: 3.5%;" span="16">
-                                <col style="width: 3.5%;" span="4">
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" class="border border-black py-1 px-1">No.</th>
-                                    <th rowspan="2" class="border border-black text-left py-1 px-2">Nama Mahasiswa</th>
-                                    <th colspan="16" class="border border-black py-1 px-1">Pertemuan</th>
-                                    <th colspan="4" class="border border-black py-1 px-1">Keterangan</th>
-                                </tr>
-                                <tr>
-                                    <th class="border border-black py-0.5 px-0.5">1</th>
-                                    <th class="border border-black py-0.5 px-0.5">2</th>
-                                    <th class="border border-black py-0.5 px-0.5">3</th>
-                                    <th class="border border-black py-0.5 px-0.5">4</th>
-                                    <th class="border border-black py-0.5 px-0.5">5</th>
-                                    <th class="border border-black py-0.5 px-0.5">6</th>
-                                    <th class="border border-black py-0.5 px-0.5">7</th>
-                                    <th class="border border-black py-0.5 px-0.5">8</th>
-                                    <th class="border border-black py-0.5 px-0.5">9</th>
-                                    <th class="border border-black py-0.5 px-0.5">10</th>
-                                    <th class="border border-black py-0.5 px-0.5">11</th>
-                                    <th class="border border-black py-0.5 px-0.5">12</th>
-                                    <th class="border border-black py-0.5 px-0.5">13</th>
-                                    <th class="border border-black py-0.5 px-0.5">14</th>
-                                    <th class="border border-black py-0.5 px-0.5">15</th>
-                                    <th class="border border-black py-0.5 px-0.5">16</th>
-                                    <th class="border border-black font-bold py-0.5 px-0.5">H</th>
-                                    <th class="border border-black font-bold py-0.5 px-0.5">A</th>
-                                    <th class="border border-black font-bold py-0.5 px-0.5">I</th>
-                                    <th class="border border-black font-bold py-0.5 px-0.5">S</th>
-                                </tr>
-                            </thead>
-                            <tbody id="previewTableBody">
-                                <!-- Data diisi dari JS -->
-                            </tbody>
-                        </table>
-
-                        <!-- Footer TTD -->
-                        <div class="mt-3 flex justify-end">
-                            <div class="text-[12px] text-left w-56">
+                        <!-- Footer TTD (Didorong ke bawah) -->
+                        <div class="mt-auto pt-3 flex justify-end shrink-0">
+                            <div class="text-[11.5px] text-left w-56">
                                 <p>Cianjur, 31 Desember 2026</p>
-                                <p>Dosen,</p>
+                                <p>Dosen Pengampu,</p>
                                 <br><br>
                                 <p class="font-bold border-b border-black inline-block min-w-[150px]" id="previewDosenSignature"></p>
                             </div>
@@ -405,10 +391,20 @@
             
             previewMatkul.innerText = firstMhsData.matkul || "-";
             
-            // Tangkap Nama Dosen Pengampu
-            let namaDosen = firstMhsData.nama_dosen_pengampu || firstMhsData.namadosenpengampu || firstMhsData['Nama Dosen Pengampu'] || firstMhsData.dosen || "-";
+            // Tangkap Nama Dosen Pengampu (Mencakup semua variasi penamaan kolom Google Sheets)
+            let namaDosen = firstMhsData.nama_dosen_pengampu || 
+                            firstMhsData.namadosenpengampu || 
+                            firstMhsData['Nama Dosen Pengampu'] || 
+                            firstMhsData.dosen_pengampu ||
+                            firstMhsData.dosenpengampu ||
+                            firstMhsData.nama_dosen ||
+                            firstMhsData.namadosen ||
+                            firstMhsData.dosen || 
+                            firstMhsData.Dosen || 
+                            "-";
+                            
             previewDosenHeader.innerText = namaDosen;
-            previewDosenSig.innerHTML = namaDosen; 
+            previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
 
             previewKode.innerText = firstMhsData.kode || "-";
             
