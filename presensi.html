@@ -376,13 +376,13 @@
 
         if (firstMhsData) {
             previewMatkul.innerText = firstMhsData.matkul || "-";
-            previewKode.innerText = firstMhsData.kode || "-"; // Memasukkan Kode MK
+            previewKode.innerText = firstMhsData.kode || "-";
             previewSemester.innerText = firstMhsData.kelas || "-";
             previewTahun.innerText = firstMhsData.tahun || "2026/2027";
             
-            // Deteksi nama dosen, jika tidak ada satupun akan memunculkan teks peringatan
-            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || firstMhsData.pengampu || "(Nama Dosen Tidak Ditemukan)";
-            previewDosenSig.innerText = namaDosen;
+            // Mengubah peringatan error menjadi string kosong "" agar garis ttd tetap bersih
+            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || firstMhsData.pengampu || "";
+            previewDosenSig.innerHTML = namaDosen;
         }
         
         let html = '';
@@ -429,7 +429,8 @@
         });
 
         // Maksimal baris diset 18 agar pas 1 halaman terkunci
-        let sisaBaris = 18 - mhsList.length;
+        // Maksimal baris diset 20 agar pas 1 halaman terkunci
+        let sisaBaris = 20 - mhsList.length;
         if (sisaBaris > 0) {
             for(let r=0; r<sisaBaris; r++) {
                 let cellKosong = '';
