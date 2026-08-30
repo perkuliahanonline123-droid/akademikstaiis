@@ -261,15 +261,15 @@
             const result = await response.json();
             
             if (result.status === "success") { 
-                const newDataString = JSON.stringify(result.data);
+                // Hapus '.data' karena GS mengirimkan key secara langsung di root object
+                const newDataString = JSON.stringify(result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
-                // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
                 if (currentCache !== newDataString) {
                     localStorage.setItem(CACHE_KEY_DASH, newDataString);
-                    handleDataSuccess(result.data);
+                    handleDataSuccess(result); // Pastikan ini juga diubah
                 }
-            } 
+            }
         } catch (err) { 
             console.error("Error Dashboard data:", err); 
             // Munculkan peringatan hanya jika tidak ada cache sama sekali
@@ -406,7 +406,7 @@
             </td>
             <td class="p-4 md:p-6 align-middle text-center">
               <div class="inline-flex items-center justify-center w-10 h-10 md:w-14 h-14 rounded-full bg-white shadow-md border-2 border-brand-100 text-brand-600 group-hover:bg-brand-500 group-hover:border-brand-500 group-hover:text-white transition-all duration-300">
-                <span class="text-lg md:text-2xl font-black">${j.sesi}</span>
+                <span class="text-lg md:text-2xl font-black">${j.sesiKe}</span>
               </div>
             </td>
             <td class="p-4 md:p-6 align-middle">
