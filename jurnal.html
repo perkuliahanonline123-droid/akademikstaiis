@@ -19,7 +19,8 @@
           },
           boxShadow: {
             'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
-            'up': '0 -4px 20px rgba(0,0,0,0.05)'
+            'up': '0 -4px 20px rgba(0,0,0,0.05)',
+            'card': '0 8px 30px rgba(0,0,0,0.04)' /* Bayangan lembut untuk card jurnal */
           }
         }
       }
@@ -40,13 +41,11 @@
     .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
     .tab-inactive { color: #94a3b8; background: transparent; }
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
-    
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
+  <!-- SIDEBAR DESKTOP -->
   <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
     <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
     <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
@@ -69,7 +68,7 @@
     </div>
     
     <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
-      <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4 group">
+      <a href="index.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
         Riwayat Jurnal
       </a>
@@ -78,12 +77,10 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
         Presensi Mahasiswa
       </a>
-      
       <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </a>
-      
       <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
         Hasil Studi
@@ -169,9 +166,9 @@
           </div>
         </div>
 
-        <!-- WADAH CARD JURNAL (MENGGANTIKAN TABEL) -->
-        <div id="body-jurnal" class="space-y-4">
-          <!-- Card List Akan Dimuat Disini -->
+        <!-- WADAH CARD JURNAL MENGGANTIKAN TABEL -->
+        <div id="body-jurnal" class="space-y-4 md:space-y-5">
+          <!-- Card List Dimuat Melalui JS -->
         </div>
 
       </div>
@@ -185,7 +182,7 @@
   </main>
 
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-    <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
+    <a href="index.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
     </a>
@@ -205,11 +202,13 @@
   </div>
 
   <script>
+    // ⚠️ PASTE URL API Backend Google Script DI SINI
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
     let globalDataJurnal = [];
 
+    // Format Tanggal Aman
     function formatTanggalIndo(tanggalIso) {
       if (!tanggalIso) return { hariTgl: "-", bulanTahun: "" };
       try {
@@ -299,7 +298,6 @@
 
       let optTahun = '<option value="Semua">Tampilkan Semua Semester</option>';
       yearsArr.forEach(y => { optTahun += `<option value="${y}">${y}</option>`; });
-      
       if(selTahun) {
           selTahun.innerHTML = optTahun;
           if(Array.from(selTahun.options).some(o => o.value === currentTahun)) selTahun.value = currentTahun;
@@ -311,7 +309,6 @@
 
       let optMatkul = '<option value="Semua">Semua Mata Kuliah</option>';
       matkulsArr.forEach(mk => { optMatkul += `<option value="${mk}">${mk}</option>`; });
-      
       if(selMatkul) {
           selMatkul.innerHTML = optMatkul;
           if(Array.from(selMatkul.options).some(o => o.value === currentMatkul)) selMatkul.value = currentMatkul;
@@ -343,7 +340,7 @@
       document.getElementById('statTotalDosen').innerText = uniqueDosen;
     }
 
-    // DESAIN CARD JURNAL BARU (Sesuai Referensi Gambar 1)
+    // DESAIN CARD JURNAL PREMIUM SESUAI GAMBAR 2
     function renderJurnal() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -360,26 +357,26 @@
           let tglInfo = formatTanggalIndo(j.tanggal);
 
           htmlJurnal += `
-          <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100/80 shadow-soft hover:shadow-lg transition-all duration-300 p-4 md:p-6 lg:px-8 lg:py-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 group">
+          <div class="bg-white rounded-3xl shadow-card border border-slate-100 hover:border-brand-200 transition-all duration-300 p-5 md:p-6 lg:px-8 lg:py-6 flex flex-col md:flex-row md:items-center gap-5 md:gap-8 group">
             
             <!-- Tanggal (Kiri) -->
-            <div class="flex items-center justify-center shrink-0 w-16 md:w-24">
-                <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-200/60 px-4 py-2.5 md:py-3.5 rounded-2xl shadow-sm transition-all group-hover:border-brand-200 group-hover:bg-brand-50 w-full">
-                    <span class="text-xl md:text-3xl font-black text-slate-800 leading-none mb-1 group-hover:text-brand-700">${tglInfo.hariTgl}</span>
-                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-brand-500">${tglInfo.bulanTahun}</span>
+            <div class="flex items-center shrink-0 w-[70px] md:w-20">
+                <div class="flex flex-col items-center justify-center bg-slate-50/80 px-2 py-3 md:py-4 rounded-[1.2rem] transition-colors w-full border border-slate-200/60 group-hover:bg-brand-50 group-hover:border-brand-100">
+                    <span class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 group-hover:text-brand-700">${tglInfo.hariTgl}</span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-500">${tglInfo.bulanTahun}</span>
                 </div>
             </div>
 
-            <!-- Informasi Kelas & Dosen (Tengah) -->
-            <div class="flex-1 min-w-0 flex flex-col justify-center">
-                <div class="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
-                    <h3 class="font-black text-slate-800 text-base md:text-lg lg:text-xl truncate">${j.matkul}</h3>
-                    <span class="text-[9px] md:text-[10px] text-emerald-700 font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-emerald-50 border border-emerald-100 tracking-wider shrink-0">${j.kode}</span>
+            <!-- Informasi Matkul & Dosen (Tengah Kiri) -->
+            <div class="flex-1 min-w-0 flex flex-col">
+                <div class="flex flex-wrap items-center gap-2.5 mb-1.5 md:mb-2">
+                    <h3 class="font-black text-slate-800 text-base md:text-lg lg:text-xl truncate leading-tight">${j.matkul}</h3>
+                    <span class="text-[9px] md:text-[10px] text-brand-700 font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg bg-brand-50 border border-brand-100 tracking-wider shrink-0">${j.kode}</span>
                 </div>
                 
                 <div class="flex flex-col gap-1 md:gap-1.5 mt-1">
-                    <div class="text-xs md:text-sm text-slate-600 font-semibold flex items-center gap-1.5 truncate">
-                        <i class="fas fa-check-circle text-emerald-500 shrink-0"></i> 
+                    <div class="text-xs md:text-sm text-slate-600 font-bold flex items-center gap-1.5 truncate">
+                        <i class="fas fa-check-circle text-brand-500 shrink-0"></i> 
                         <span class="truncate">${j.dosen}</span>
                     </div>
                     <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 md:pl-5 whitespace-normal leading-tight">
@@ -388,22 +385,15 @@
                 </div>
             </div>
 
-            <!-- Sesi (Lingkaran) -->
-            <div class="flex items-center justify-center shrink-0 mx-2 md:mx-4 hidden md:flex">
-                <div class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white text-emerald-500 border-2 border-emerald-100 flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white transition-all duration-300">
-                    <span class="text-lg md:text-2xl font-black">${j.sesiKe}</span>
-                </div>
+            <!-- Sesi (Lingkaran Tengah Kanan) -->
+            <div class="flex items-center justify-center shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-full bg-brand-500 text-white shadow-md shadow-brand-500/30 group-hover:scale-105 transition-transform duration-300 md:ml-4">
+                <span class="text-xl md:text-2xl font-black">${j.sesiKe}</span>
             </div>
 
-            <!-- Pokok Bahasan (Kanan) -->
-            <div class="w-full md:w-1/3 lg:w-[40%] shrink-0">
-                <div class="bg-slate-50/50 border border-slate-100 px-5 py-4 md:py-5 rounded-2xl text-xs md:text-sm font-medium text-slate-600 relative overflow-hidden group-hover:bg-emerald-50/30 transition-colors h-full flex flex-col justify-center">
-                    <!-- Sesi HP Only -->
-                    <div class="absolute top-2 right-3 md:hidden font-black text-emerald-200/50 text-4xl">#${j.sesiKe}</div>
-                    
-                    <span class="text-[9px] md:text-[10px] text-emerald-600 font-black tracking-wider uppercase mb-1.5 block relative z-10">Materi Silabus / Info:</span>
-                    <p class="whitespace-normal leading-relaxed relative z-10 break-words">${j.topik}</p>
-                </div>
+            <!-- Silabus / Pokok Bahasan (Kanan) -->
+            <div class="w-full md:w-1/3 lg:w-[45%] shrink-0 pl-0 md:pl-6 md:border-l border-slate-100">
+                <span class="text-[9px] md:text-[10px] text-brand-600 font-black tracking-widest uppercase mb-1.5 md:mb-2 block">Materi Silabus / Info:</span>
+                <p class="text-xs md:text-sm font-medium text-slate-600 whitespace-normal leading-relaxed break-words">${j.topik}</p>
             </div>
 
           </div>`;
