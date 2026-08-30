@@ -124,6 +124,7 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </a>
+      <!-- MENU BARU UNTUK NILAI MAHASISWA (AKTIF) -->
       <a href="nilaimaba.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-file-invoice text-white text-sm"></i></div>
         Daftar Nilai Kelas
@@ -171,18 +172,18 @@
           <div id="kontrol-cetak" class="bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-5 relative z-50">
               
               <div class="w-full md:w-1/3">
-                  <label class="font-bold text-slate-700 text-xs md:text-sm mb-2.5 uppercase tracking-wider block">Tahun Akademik</label>
-                  <select id="selectTA" onchange="renderNilaiMatkul()" class="w-full bg-slate-50 px-4 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 shadow-sm cursor-pointer transition-all appearance-none">
+                  <label class="font-bold text-slate-600 text-xs md:text-sm mb-2.5 uppercase tracking-widest block">Tahun Akademik</label>
+                  <select id="selectTA" onchange="renderNilaiMatkul()" class="w-full bg-slate-50 px-4 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm cursor-pointer transition-all appearance-none">
                       <option value="">-- Pilih TA --</option>
                   </select>
               </div>
 
               <div class="w-full md:w-2/3 relative">
-                  <label class="font-bold text-slate-700 text-xs md:text-sm mb-2.5 uppercase tracking-wider block">Mata Kuliah & Semester</label>
-                  <input type="text" id="searchMatkulInput" oninput="handleInputMatkul(event)" placeholder="Ketik minimal 3 huruf..." autocomplete="off" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm transition-all placeholder-slate-400">
+                  <label class="font-bold text-slate-600 text-xs md:text-sm mb-2.5 uppercase tracking-widest block">Mata Kuliah & Semester</label>
+                  <input type="text" id="searchMatkulInput" oninput="handleInputMatkul(event)" placeholder="Ketik minimal 3 huruf..." autocomplete="off" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border-2 border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 shadow-sm transition-all placeholder-slate-400">
                   
                   <!-- DROPDOWN AUTOCOMPLETE -->
-                  <div id="customDropdownMatkul" class="absolute left-0 right-0 top-full mt-2 bg-white border border-brand-500 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] hidden max-h-[250px] overflow-y-auto custom-scrollbar overflow-hidden z-50">
+                  <div id="customDropdownMatkul" class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] hidden max-h-[250px] overflow-y-auto custom-scrollbar z-50">
                   </div>
               </div>
 
@@ -190,7 +191,7 @@
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
-          <!-- AREA YANG AKAN DICETAK -->
+          <!-- AREA YANG AKAN DICETAK (DESAIN RESMI) -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <!-- HEADER DOKUMEN -->
@@ -347,7 +348,7 @@
       document.getElementById('lblTanggal').innerText = `Cianjur, ${d.getDate()} ${bulanArr[d.getMonth()]} ${d.getFullYear()}`;
     };
 
-    // Fungsi Klik di luar dropdown untuk menutup autocomplete
+    // Menutup Autocomplete jika klik di luar
     document.addEventListener('click', function(event) {
         const searchBox = document.getElementById('searchMatkulInput');
         const dropdown = document.getElementById('customDropdownMatkul');
@@ -428,15 +429,18 @@
         const val = e.target.value.toLowerCase().trim();
         const dropdown = document.getElementById('customDropdownMatkul');
         dropdown.innerHTML = '';
-        selectedMatkulIndex = -1; // Reset selection
+        selectedMatkulIndex = -1; // Reset selection jika mengetik ulang
 
         if(val.length >= 3) {
             let matches = [];
             kurikulumList.forEach((mk, idx) => {
                 if(!mk['Mata Kuliah'] || mk['Mata Kuliah'] === 'Mata Kuliah' || mk['Mata Kuliah'] === '') return;
                 
-                const prodiStr = mk['Prodi'] ? (mk['Prodi'].toLowerCase().includes('ahwal') ? 'Ahwal Al-Syakhshiyyah' : 'Pendidikan Bahasa Arab') : '';
-                const label = `${mk['Mata Kuliah']} - ${prodiStr} (Semester ${mk['Semester']})`;
+                // MENGAMBIL NAMA PRODI LANGSUNG DARI SHEET KURIKULUM (KOLOM H)
+                const prodiStr = mk['Program Studi'] || mk['Prodi'] || '';
+                const semesterStr = mk['Semester'] || '-';
+                
+                const label = `${mk['Mata Kuliah']} - ${prodiStr} (Semester ${semesterStr})`;
                 
                 if(label.toLowerCase().includes(val)) {
                     matches.push({label: label, index: idx});
@@ -446,7 +450,7 @@
             if(matches.length > 0) {
                 matches.forEach(m => {
                     let div = document.createElement('div');
-                    div.className = 'px-5 py-3.5 hover:bg-slate-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0 cursor-pointer text-[13px] md:text-sm font-semibold text-slate-600';
+                    div.className = 'px-5 py-3 hover:bg-slate-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0 cursor-pointer text-[13.5px] font-medium text-slate-700';
                     
                     const regex = new RegExp(`(${val})`, "gi");
                     div.innerHTML = m.label.replace(regex, "<span class='text-brand-600 font-black'>$1</span>");
@@ -512,7 +516,7 @@
         
         const mkInfo = kurikulumList[selectedMatkulIndex];
         const mkNameAsli = mkInfo['Mata Kuliah'];
-        const prodiAsli = mkInfo['Prodi'] || "";
+        const prodiAsli = mkInfo['Program Studi'] || mkInfo['Prodi'] || "";
         const sks = parseInt(mkInfo['SKS']) || 2;
         
         // Deteksi NUPTK
@@ -535,7 +539,7 @@
         document.getElementById('lblDosenTtd').innerText = mkInfo['Nama Dosen'] || '___________________';
         document.getElementById('lblNuptk').innerText = nuptkDosen;
         
-        // Update Label TA dari filter Dropdown (Sesuai Gambar Referensi)
+        // Update Label TA dari filter Dropdown
         document.getElementById('lblTaSmt').innerText = "TAHUN AKADEMIK " + targetTA.toUpperCase();
 
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
