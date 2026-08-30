@@ -44,14 +44,21 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
 
-    /* CSS UNTUK MODE CETAK PDF */
+    /* CSS UNTUK MODE CETAK PDF - DIUBAH KE LANDSCAPE */
     @media print {
+      @page { size: A4 landscape; margin: 10mm; }
       body * { visibility: hidden; }
       #pdfPrintArea, #pdfPrintArea * { visibility: visible; }
       #pdfPrintArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
       #pdfModal { background: white !important; }
       .no-print { display: none !important; }
+      
+      /* Pemaksaan warna background (kuning/merah) di PDF */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
+
+    /* Font spesifik untuk format laporan */
+    .font-formal { font-family: 'Times New Roman', Times, serif; }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
@@ -84,7 +91,6 @@
         Riwayat Jurnal
       </a>
       
-      <!-- MENU AKTIF -->
       <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-shield text-white text-sm"></i></div>
         Presensi Mahasiswa
@@ -216,9 +222,10 @@
       &copy; 2026 Dasbor Akademik
     </footer>
     
-    <!-- MODAL PREVIEW PDF -->
+    <!-- MODAL PREVIEW PDF (FORMAT GAMBAR 2) -->
     <div id="pdfModal" class="fixed inset-0 z-[100] hidden bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
+        <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
+            
             <div class="px-6 py-4 md:px-8 md:py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 no-print">
                 <h3 class="font-black text-slate-800 text-lg md:text-xl">Pratinjau Daftar Hadir</h3>
                 <button onclick="closePDFModal()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all shadow-sm">
@@ -226,35 +233,90 @@
                 </button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-gray-50">
-                <!-- Area Kertas A4 Pratinjau -->
-                <div class="bg-white p-8 md:p-12 shadow-md max-w-[210mm] min-h-[297mm] mx-auto text-slate-800" id="pdfPrintArea">
-                    <div class="text-center mb-8 border-b-2 border-slate-800 pb-6">
-                        <h2 class="text-xl md:text-2xl font-black uppercase tracking-wide">Daftar Hadir Mahasiswa</h2>
-                        <p class="text-xs md:text-sm font-bold text-slate-600 mt-2 uppercase tracking-widest" id="previewMatkulName"></p>
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-gray-200">
+                <!-- Area Kertas A4 Pratinjau (Landscape) -->
+                <div class="bg-white p-8 md:p-10 shadow-md max-w-[297mm] min-h-[210mm] mx-auto text-black font-formal relative" id="pdfPrintArea">
+                    
+                    <div class="text-center mb-6">
+                        <h3 class="text-sm tracking-wide uppercase">Daftar Hadir Perkuliahan</h3>
+                        <h1 class="text-3xl font-bold mt-1">STAI Imam Syafi'i Cianjur</h1>
+                        <p class="text-sm mt-1">Tahun Ajaran <span id="previewTahunName">2024-2025</span></p>
                     </div>
-                    <table class="w-full text-left text-xs md:text-sm border-collapse border border-slate-300">
-                        <thead>
-                            <tr class="bg-slate-100">
-                                <th class="border border-slate-300 p-2 text-center w-10">No</th>
-                                <th class="border border-slate-300 p-2">Nama Mahasiswa</th>
-                                <th class="border border-slate-300 p-2 text-center">Hadir</th>
-                                <th class="border border-slate-300 p-2 text-center">Izin</th>
-                                <th class="border border-slate-300 p-2 text-center">Sakit</th>
-                                <th class="border border-slate-300 p-2 text-center">Alpa</th>
-                            </tr>
-                        </thead>
-                        <tbody id="previewTableBody">
-                            <!-- Data diisi dari JS -->
-                        </tbody>
+
+                    <!-- Tabel Info Mata Kuliah -->
+                    <table class="w-[45%] text-xs md:text-sm border-collapse border border-black mb-4">
+                        <tr>
+                            <td class="border border-black px-2 py-1 w-32">Mata Kuliah</td>
+                            <td class="border border-black px-2 py-1" id="previewMatkulDetail"></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-black px-2 py-1">Bobot (SKS)</td>
+                            <td class="border border-black px-2 py-1">2</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-black px-2 py-1">Semester</td>
+                            <td class="border border-black px-2 py-1" id="previewSemesterDetail"></td>
+                        </tr>
                     </table>
+
+                    <!-- Tabel Utama -->
+                    <div class="overflow-x-auto overflow-y-hidden">
+                        <table class="w-full text-[10px] md:text-[11px] border-collapse border border-black text-center whitespace-nowrap table-fixed">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="border border-black w-8 p-1">No.</th>
+                                    <th rowspan="2" class="border border-black w-48 text-left px-2 p-1">Nama Mahasiswa</th>
+                                    <th colspan="16" class="border border-black p-1">Pertemuan</th>
+                                    <th colspan="4" class="border border-black p-1">Keterangan</th>
+                                </tr>
+                                <tr>
+                                    <!-- 1 to 16 -->
+                                    <th class="border border-black w-5 p-1">1</th>
+                                    <th class="border border-black w-5 p-1">2</th>
+                                    <th class="border border-black w-5 p-1">3</th>
+                                    <th class="border border-black w-5 p-1">4</th>
+                                    <th class="border border-black w-5 p-1">5</th>
+                                    <th class="border border-black w-5 p-1">6</th>
+                                    <th class="border border-black w-5 p-1">7</th>
+                                    <th class="border border-black w-5 p-1">8</th>
+                                    <th class="border border-black w-5 p-1">9</th>
+                                    <th class="border border-black w-5 p-1">10</th>
+                                    <th class="border border-black w-5 p-1">11</th>
+                                    <th class="border border-black w-5 p-1">12</th>
+                                    <th class="border border-black w-5 p-1">13</th>
+                                    <th class="border border-black w-5 p-1">14</th>
+                                    <th class="border border-black w-5 p-1">15</th>
+                                    <th class="border border-black w-5 p-1">16</th>
+                                    <!-- H, A, I, S -->
+                                    <th class="border border-black w-6 font-bold p-1">H</th>
+                                    <th class="border border-black w-6 font-bold p-1">A</th>
+                                    <th class="border border-black w-6 font-bold p-1">I</th>
+                                    <th class="border border-black w-6 font-bold p-1">S</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                                <!-- Data diisi dari JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer TTD -->
+                    <div class="mt-8 flex justify-end">
+                        <div class="text-xs md:text-sm text-left w-56">
+                            <p>Cianjur, 31 Desember 2024</p>
+                            <p>Dosen,</p>
+                            <br><br><br><br>
+                            <p class="font-bold border-b border-black inline-block min-w-full">Zaki Saiful Alam, S.H.I., M.H.</p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             
             <div class="px-6 py-4 md:px-8 md:py-5 border-t border-slate-100 flex justify-end gap-3 bg-white no-print">
                 <button onclick="closePDFModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
                 <button onclick="window.print()" class="px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center gap-2 transition-all">
-                    <i class="fas fa-download"></i> Simpan ke PDF
+                    <i class="fas fa-print"></i> Cetak Dokumen
                 </button>
             </div>
         </div>
@@ -269,7 +331,6 @@
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
     </a>
     
-    <!-- MENU AKTIF -->
     <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-user-shield text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
@@ -286,14 +347,11 @@
   </div>
 
   <script>
-    // ⚠️ PASTE URL API Backend Google Script DI SINI
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
-    // Variabel Global
     let globalDataMhs = [];
 
-    // Jam Real-time
     function updateJam() {
       try {
         const now = new Date();
@@ -307,17 +365,13 @@
     }
     setInterval(updateJam, 1000);
 
-    // Render Data Berhasil
     function handleDataSuccess(data) {
         globalDataMhs = data.rekap_presensi || []; 
-        
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('tab-presensi').classList.remove('hidden');
-        
         populateFilters();
     }
 
-    // Ambil Data Latar Belakang
     async function fetchDataLatarBelakang() {
         try {
             const response = await fetch(scriptUrlDash);
@@ -340,37 +394,71 @@
         }
     }
 
-    // Fungsi Membuka Modal Pratinjau PDF
+    // Fungsi Preview Diperbarui untuk Layout Landscape Gambar 2
     window.previewPDF = function(mkName) {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
-        const previewMatkul = document.getElementById('previewMatkulName');
+        const previewMatkul = document.getElementById('previewMatkulDetail');
+        const previewSemester = document.getElementById('previewSemesterDetail');
+        const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
         
-        // Filter data mahasiswa berdasarkan mata kuliah yang dipilih
+        let firstMhsData = null;
         const mhsList = globalDataMhs.filter(m => {
             const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
+            if (groupName === mkName && !firstMhsData) firstMhsData = m;
             return groupName === mkName;
         });
 
-        previewMatkul.innerText = mkName;
+        if (firstMhsData) {
+            previewMatkul.innerText = firstMhsData.matkul;
+            previewSemester.innerText = firstMhsData.kelas;
+            previewTahun.innerText = firstMhsData.tahun || "2024-2025";
+        } else {
+            previewMatkul.innerText = mkName;
+            previewSemester.innerText = "-";
+        }
         
-        // Render tabel pratinjau
         let html = '';
         mhsList.forEach((m, index) => {
+            let emptyMeetingCells = '';
+            // Generate 16 kolom pertemuan kosong
+            for(let i=1; i<=16; i++) {
+                emptyMeetingCells += `<td class="border border-black p-1 text-center"></td>`;
+            }
+
+            // Warna Merah untuk Alpa sesuai Gambar 2, Kuning untuk Izin/Sakit
+            let bgAlpa = m.alpa > 0 ? "bg-red-600 text-white font-bold" : "";
+            
             html += `
             <tr class="hover:bg-slate-50">
-                <td class="border border-slate-300 p-2 text-center font-medium">${index + 1}</td>
-                <td class="border border-slate-300 p-2 font-bold text-slate-700">${m.nama}</td>
-                <td class="border border-slate-300 p-2 text-center">${m.hadir}</td>
-                <td class="border border-slate-300 p-2 text-center">${m.izin}</td>
-                <td class="border border-slate-300 p-2 text-center">${m.sakit}</td>
-                <td class="border border-slate-300 p-2 text-center ${m.alpa >= 4 ? 'text-rose-600 font-bold' : ''}">${m.alpa}</td>
+                <td class="border border-black p-1 text-center">${index + 1}</td>
+                <td class="border border-black p-1 text-left px-2 truncate max-w-[180px]">${m.nama}</td>
+                ${emptyMeetingCells}
+                <td class="border border-black p-1 text-center">${m.hadir}</td>
+                <td class="border border-black p-1 text-center ${bgAlpa}">${m.alpa}</td>
+                <td class="border border-black p-1 text-center">${m.izin}</td>
+                <td class="border border-black p-1 text-center">${m.sakit}</td>
             </tr>`;
         });
+
+        // Tambah baris kosong agar tabel tetap terlihat padat jika jumlah mahasiswa sedikit
+        let sisaBaris = 17 - mhsList.length;
+        if (sisaBaris > 0) {
+            for(let r=0; r<sisaBaris; r++) {
+                let cellKosong = '';
+                for(let i=1; i<=16; i++) { cellKosong += `<td class="border border-black p-1"></td>`; }
+                html += `<tr>
+                    <td class="border border-black p-1 text-center text-transparent">.</td>
+                    <td class="border border-black p-1"></td>
+                    ${cellKosong}
+                    <td class="border border-black p-1"></td><td class="border border-black p-1"></td><td class="border border-black p-1"></td><td class="border border-black p-1"></td>
+                </tr>`;
+            }
+        }
+
         previewTable.innerHTML = html;
 
-        // Animasi Tampil
         modal.classList.remove('hidden');
         setTimeout(() => {
             modal.classList.remove('opacity-0');
@@ -378,12 +466,10 @@
         }, 10);
     };
 
-    // Fungsi Menutup Modal
     window.closePDFModal = function() {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
         
-        // Animasi Tutup
         modal.classList.add('opacity-0');
         modalContent.classList.add('scale-95');
         
@@ -392,7 +478,6 @@
         }, 300);
     };
 
-    // Eksekusi saat Web Dibuka
     window.onload = function() {
         updateJam();
         
@@ -401,15 +486,12 @@
             try {
                 const parsedResult = JSON.parse(cachedData);
                 handleDataSuccess(parsedResult);
-            } catch(e) {
-                console.error("Gagal membaca cache:", e);
-            }
+            } catch(e) {}
         }
         
         fetchDataLatarBelakang();
     };
 
-    // Fungsi Mengisi Dropdown Filter
     function populateFilters() {
       let selTahun = document.getElementById('globalTahunFilter');
       let selMatkul = document.getElementById('globalMatkulFilter');
@@ -444,17 +526,14 @@
               selMatkul.value = currentMatkul;
           }
       }
-
       applyGlobalFilter();
     }
 
-    // Fungsi Memicu Render
     function applyGlobalFilter() {
       renderPeringatan();
       renderPresensi();
     }
 
-    // Fungsi Render Peringatan (Terblokir Ujian - Alpa >= 4)
     function renderPeringatan() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -497,7 +576,6 @@
       }
     }
 
-    // Fungsi Render Tabel Utama Presensi 
     function renderPresensi() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -516,7 +594,6 @@
         return;
       }
 
-      // Grouping berdasarkan Mata Kuliah & Kelas
       const groups = {};
       filtered.forEach(m => {
         const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
@@ -535,7 +612,6 @@
                    ${mk}
                  </div>
                  
-                 <!-- TOMBOL PDF BARU -->
                  <button onclick="previewPDF('${mk.replace(/'/g, "\\'")}')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-[10px] md:text-xs px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 shadow-sm shadow-brand-500/30 transition-all shrink-0">
                     <i class="fas fa-file-pdf"></i> PDF
                  </button>
