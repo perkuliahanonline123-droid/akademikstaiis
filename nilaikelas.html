@@ -41,8 +41,11 @@
     .tab-inactive { color: #94a3b8; background: transparent; }
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
 
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
+
     /* ==============================================================
-       CSS KHUSUS UNTUK CETAK DAFTAR NILAI (SESUAI GAMBAR REFERENSI 2)
+       CSS KHUSUS UNTUK CETAK DAFTAR NILAI
        ============================================================== */
     #cetakArea { 
         display: none; 
@@ -65,19 +68,11 @@
     .info-table-right td { padding: 4px 0; vertical-align: top; }
     .info-table-right td:first-child { width: 80px; }
 
-    /* Tabel Data Nilai: Garis horizontal saja tebal-tipis */
     .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center; }
-    .data-table th { 
-        border-top: 2px solid #000; 
-        border-bottom: 2px solid #000; 
-        padding: 10px 4px; 
-        font-weight: bold; 
-    }
+    .data-table th { border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 10px 4px; font-weight: bold; }
     .data-table td { padding: 8px 4px; border: none; }
-    /* Garis bawah penutup tabel */
     .data-table tbody tr:last-child td { border-bottom: 2px solid #000; padding-bottom: 12px; }
     
-    /* Footer Keterangan & TTD */
     .footer-area { display: flex; justify-content: space-between; margin-top: 50px; font-size: 11.5px; }
     .tabel-ket { width: 120px; border-collapse: collapse; margin-top: 8px;}
     .tabel-ket td { padding: 3px 0; }
@@ -85,14 +80,9 @@
     @media print {
         @page { size: A4 portrait; margin: 15mm; }
         body, html { background: #fff !important; padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; }
-        
-        /* SEMBUNYIKAN SEMUA ELEMEN DASHBOARD SAAT PRINT */
         aside, header, nav, .md\:hidden, #kontrol-cetak, #status-msg, #printBtn, #loading, footer { display: none !important; }
-        
         main { display: block !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
-        
         #cetakArea { display: block !important; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: none !important;}
-        
         thead { display: table-row-group; }
     }
   </style>
@@ -134,7 +124,6 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </a>
-      <!-- MENU BARU UNTUK NILAI MAHASISWA (AKTIF) -->
       <a href="nilaimaba.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-file-invoice text-white text-sm"></i></div>
         Daftar Nilai Kelas
@@ -178,24 +167,37 @@
 
       <div id="tab-nilai" class="space-y-6 animate-slide-up hidden">
           
-          <!-- KONTROL PENCARIAN MATKUL -->
-          <div id="kontrol-cetak" class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col gap-4">
-              <label class="font-bold text-slate-700 text-sm">Pilih Mata Kuliah untuk Dicetak:</label>
-              <select id="selectMatkulTarget" onchange="renderNilaiMatkul()" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer hover:bg-slate-100 transition-all appearance-none">
-                  <option value="">-- Memuat data Mata Kuliah... --</option>
-              </select>
+          <!-- KONTROL PENCARIAN & FILTER TA -->
+          <div id="kontrol-cetak" class="bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 flex flex-col md:flex-row gap-5 relative z-50">
+              
+              <div class="w-full md:w-1/3">
+                  <label class="font-bold text-slate-700 text-xs md:text-sm mb-2.5 uppercase tracking-wider block">Tahun Akademik</label>
+                  <select id="selectTA" onchange="renderNilaiMatkul()" class="w-full bg-slate-50 px-4 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 shadow-sm cursor-pointer transition-all appearance-none">
+                      <option value="">-- Pilih TA --</option>
+                  </select>
+              </div>
+
+              <div class="w-full md:w-2/3 relative">
+                  <label class="font-bold text-slate-700 text-xs md:text-sm mb-2.5 uppercase tracking-wider block">Mata Kuliah & Semester</label>
+                  <input type="text" id="searchMatkulInput" oninput="handleInputMatkul(event)" placeholder="Ketik minimal 3 huruf..." autocomplete="off" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm transition-all placeholder-slate-400">
+                  
+                  <!-- DROPDOWN AUTOCOMPLETE -->
+                  <div id="customDropdownMatkul" class="absolute left-0 right-0 top-full mt-2 bg-white border border-brand-500 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] hidden max-h-[250px] overflow-y-auto custom-scrollbar overflow-hidden z-50">
+                  </div>
+              </div>
+
           </div>
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
-          <!-- AREA YANG AKAN DICETAK (DESAIN RESMI SESUAI GAMBAR 2) -->
+          <!-- AREA YANG AKAN DICETAK -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <!-- HEADER DOKUMEN -->
               <div class="judul-dokumen">
                   SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR<br>
                   DAFTAR NILAI AKHIR MAHASISWA<br>
-                  <span id="lblTaSmt">SEMESTER GENAP 2025/2026</span>
+                  <span id="lblTaSmt">TAHUN AKADEMIK -</span>
               </div>
 
               <!-- INFO KELAS (2 KOLOM - RAPI) -->
@@ -302,7 +304,6 @@
       <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
     </a>
-    <!-- MENU AKTIF HP -->
     <a href="nilaimaba.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-file-invoice text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Nilai</span>
@@ -314,12 +315,15 @@
   </div>
 
   <script>
-    // URL Backend Google Apps Script (Menggunakan URL KHS Anda)
+    // URL Backend Google Apps Script 
     const SCRIPT_URL_DB = 'https://script.google.com/macros/s/AKfycbxlS2O6Z0hEzUCYVnIyuZHg-v_bV12pRKF2mG-ujQE1TDEJeSmph5mnCqIX6bAS7rls0Q/exec'; 
     let globalDB = null;
     let kurikulumList = [];
     let dataASH = [];
     let dataPBA = [];
+    
+    // Variabel untuk menyimpan index matkul yang dipilih dari autocomplete
+    let selectedMatkulIndex = -1;
 
     function updateJam() {
       try {
@@ -338,11 +342,19 @@
       updateJam();
       initDataNilai();
       
-      // Setup Tanggal Cetak Otomatis di Footer
       const d = new Date();
       const bulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       document.getElementById('lblTanggal').innerText = `Cianjur, ${d.getDate()} ${bulanArr[d.getMonth()]} ${d.getFullYear()}`;
     };
+
+    // Fungsi Klik di luar dropdown untuk menutup autocomplete
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchMatkulInput');
+        const dropdown = document.getElementById('customDropdownMatkul');
+        if (searchBox && dropdown && !searchBox.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
 
     function setStatus(msg, type = 'normal') {
         const statusEl = document.getElementById('status-msg');
@@ -371,7 +383,6 @@
     
             globalDB = json.data;
             
-            // Pemisahan Sheet Data
             for (const sheetName in globalDB) {
                 const nameUpper = sheetName.toUpperCase();
                 if (nameUpper.includes('ASH')) dataASH = globalDB[sheetName];
@@ -381,7 +392,8 @@
 
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('tab-nilai').classList.remove('hidden');
-            populateDropdownMatkul();
+            
+            populateTADropdown();
 
         } catch (error) {
             console.log("Error:", error);
@@ -390,17 +402,70 @@
         }
     }
 
-    function populateDropdownMatkul() {
-        const select = document.getElementById('selectMatkulTarget');
-        select.innerHTML = '<option value="">-- Pilih Mata Kuliah & Kelas untuk Dicetak --</option>';
+    // Mengambil Tahun Akademik dari Kolom TA di KHS ASH & PBA
+    function populateTADropdown() {
+        const selTA = document.getElementById('selectTA');
+        let taSet = new Set();
         
-        kurikulumList.forEach((mk, index) => {
-            if(!mk['Mata Kuliah'] || mk['Mata Kuliah'] === 'Mata Kuliah' || mk['Mata Kuliah'] === '') return;
-            const prodiStr = mk['Prodi'] ? (mk['Prodi'].toLowerCase().includes('ahwal') ? 'ASH' : 'PBA') : '';
-            const label = `${mk['Mata Kuliah']} - Smt ${mk['Semester']} (${prodiStr})`;
-            
-            select.innerHTML += `<option value="${index}">${label}</option>`;
+        const allGrades = [...dataASH, ...dataPBA];
+        allGrades.forEach(row => {
+            const taKey = Object.keys(row).find(k => k.toLowerCase().trim() === 'ta');
+            if (taKey && row[taKey] && row[taKey].toString().trim() !== '') {
+                taSet.add(row[taKey].toString().trim());
+            }
         });
+        
+        let taArray = Array.from(taSet).sort().reverse(); 
+        
+        selTA.innerHTML = '<option value="">-- Pilih TA --</option>';
+        taArray.forEach(ta => {
+            selTA.innerHTML += `<option value="${ta}">${ta}</option>`;
+        });
+    }
+
+    // Fungsi Autocomplete Pencarian Mata Kuliah
+    function handleInputMatkul(e) {
+        const val = e.target.value.toLowerCase().trim();
+        const dropdown = document.getElementById('customDropdownMatkul');
+        dropdown.innerHTML = '';
+        selectedMatkulIndex = -1; // Reset selection
+
+        if(val.length >= 3) {
+            let matches = [];
+            kurikulumList.forEach((mk, idx) => {
+                if(!mk['Mata Kuliah'] || mk['Mata Kuliah'] === 'Mata Kuliah' || mk['Mata Kuliah'] === '') return;
+                
+                const prodiStr = mk['Prodi'] ? (mk['Prodi'].toLowerCase().includes('ahwal') ? 'Ahwal Al-Syakhshiyyah' : 'Pendidikan Bahasa Arab') : '';
+                const label = `${mk['Mata Kuliah']} - ${prodiStr} (Semester ${mk['Semester']})`;
+                
+                if(label.toLowerCase().includes(val)) {
+                    matches.push({label: label, index: idx});
+                }
+            });
+
+            if(matches.length > 0) {
+                matches.forEach(m => {
+                    let div = document.createElement('div');
+                    div.className = 'px-5 py-3.5 hover:bg-slate-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0 cursor-pointer text-[13px] md:text-sm font-semibold text-slate-600';
+                    
+                    const regex = new RegExp(`(${val})`, "gi");
+                    div.innerHTML = m.label.replace(regex, "<span class='text-brand-600 font-black'>$1</span>");
+                    
+                    div.onclick = () => {
+                        document.getElementById('searchMatkulInput').value = m.label;
+                        selectedMatkulIndex = m.index;
+                        dropdown.classList.add('hidden');
+                        renderNilaiMatkul(); // Otomatis proses saat diklik
+                    };
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.innerHTML = '<div class="px-5 py-4 text-slate-400 italic text-sm">Mata Kuliah tidak ditemukan</div>';
+            }
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.classList.add('hidden');
+        }
     }
 
     function konversiNilai(nilai) {
@@ -428,11 +493,16 @@
     }
 
     function renderNilaiMatkul() {
-        const val = document.getElementById('selectMatkulTarget').value;
+        const targetTA = document.getElementById('selectTA').value;
         const cetakArea = document.getElementById('cetakArea');
         const printBtn = document.getElementById('printBtn');
         
-        if (val === "") {
+        // Validasi
+        if (selectedMatkulIndex === -1) {
+            return; // Belum milih matkul dari dropdown
+        }
+        if (!targetTA) {
+            setStatus("Harap pilih Tahun Akademik terlebih dahulu.", "error");
             cetakArea.style.display = 'none';
             printBtn.style.display = 'none';
             return;
@@ -440,13 +510,12 @@
 
         setStatus("Memproses rekapitulasi data nilai...");
         
-        // AMBIL INFO DARI DATA KURIKULUM
-        const mkInfo = kurikulumList[val];
+        const mkInfo = kurikulumList[selectedMatkulIndex];
         const mkNameAsli = mkInfo['Mata Kuliah'];
         const prodiAsli = mkInfo['Prodi'] || "";
         const sks = parseInt(mkInfo['SKS']) || 2;
         
-        // Deteksi NUPTK dari sheet Kurikulum (mencari kolom yg mengandung kata NUPTK/NIDN/NIP)
+        // Deteksi NUPTK
         let nuptkDosen = "-";
         for (let key in mkInfo) {
             if (key.toLowerCase().includes('nuptk') || key.toLowerCase().includes('nidn') || key.toLowerCase().includes('nip')) {
@@ -455,7 +524,7 @@
             }
         }
         
-        // Update Label Header Cetak
+        // Update Label Header
         document.getElementById('lblMatkul').innerText = mkNameAsli;
         document.getElementById('lblDosen').innerText = mkInfo['Nama Dosen'] || '-';
         document.getElementById('lblProdi').innerText = prodiAsli;
@@ -463,15 +532,12 @@
         document.getElementById('lblSks').innerText = sks;
         document.getElementById('lblSemester').innerText = mkInfo['Semester'] || '-';
         
-        // Update Footer Tanda Tangan
         document.getElementById('lblDosenTtd').innerText = mkInfo['Nama Dosen'] || '___________________';
         document.getElementById('lblNuptk').innerText = nuptkDosen;
         
-        // Tahun Akademik
-        const taStr = mkInfo['Tahun Akademik'] || 'Ganjil Tahun Akademik 2026/2027';
-        document.getElementById('lblTaSmt').innerText = taStr.toUpperCase();
+        // Update Label TA dari filter Dropdown (Sesuai Gambar Referensi)
+        document.getElementById('lblTaSmt').innerText = "TAHUN AKADEMIK " + targetTA.toUpperCase();
 
-        // 1. Tentukan sumber data berdasarkan prodi matkul
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
         const targetDataMhs = isASH ? dataASH : dataPBA;
 
@@ -482,7 +548,6 @@
             return;
         }
 
-        // 2. Cari kunci/nama kolom di sheet Mahasiswa yang pas dengan Matkul ini
         const normTarget = normalizeMatkul(mkNameAsli);
         const headersSheetMhs = Object.keys(targetDataMhs[0]);
         let exactColumnKey = null;
@@ -504,19 +569,21 @@
             return;
         }
 
-        // 3. Proses dan Render Data (Hitung Nilai)
         let no = 1;
         let adaData = false;
 
         targetDataMhs.forEach(row => {
+            // Filter berdasarkan Tahun Akademik yang dipilih
+            const rowTaKey = Object.keys(row).find(k => k.toLowerCase().trim() === 'ta');
+            if (!rowTaKey || row[rowTaKey].toString().trim() !== targetTA) {
+                return; // Skip jika TA tidak cocok
+            }
+
             const valNilaiRaw = row[exactColumnKey];
-            
-            // Cek jika kolom nilai terisi dan berupa angka valid
             if (valNilaiRaw !== null && valNilaiRaw !== '' && !isNaN(parseFloat(valNilaiRaw))) {
                 adaData = true;
                 const nilaiAngka = parseFloat(valNilaiRaw);
                 
-                // Cari NIM dan Nama secara dinamis dari kolom sheet
                 const nimKey = Object.keys(row).find(k => k.toLowerCase().includes('nim'));
                 const namaKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
                 
@@ -541,7 +608,7 @@
         });
 
         if (!adaData) {
-            tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; font-style: italic; color: #555;">Belum ada dosen/admin yang memasukkan nilai untuk Mata Kuliah ini.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; font-style: italic; color: #555;">Belum ada dosen/admin yang memasukkan nilai untuk Mata Kuliah ini pada Tahun Akademik yang dipilih.</td></tr>`;
         }
 
         cetakArea.style.display = 'block';
