@@ -221,36 +221,29 @@
                         <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                     </div>
 
-                    <!-- Tabel 2: Info Mata Kuliah (Menggunakan trik 100% width dengan kolom dummy agar sejajar sempurna) -->
-                    <table class="text-[12px] border-collapse mb-3 table-fixed-layout" style="width: 100%;">
+                    <!-- Tabel 2: Info Mata Kuliah (Melebar penuh 100%) -->
+                    <table class="text-[12px] border-collapse border border-black mb-3 table-fixed-layout" style="width: 100%;">
                         <colgroup>
-                            <!-- Total kolom terisi = 30% -->
-                            <col style="width: 9%;">  <!-- Label -->
-                            <col style="width: 21%;"> <!-- Value -->
-                            <!-- Kolom Kosong = 70% -->
-                            <col style="width: 70%;"> 
+                            <col style="width: 15%;">
+                            <col style="width: 85%;">
                         </colgroup>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Mata Kuliah</td>
-                            <td class="border border-black px-2 py-0.5 truncate max-w-0" id="previewMatkulDetail"></td>
-                            <td class="border-none"></td> <!-- Kolom transparan -->
+                            <td class="border border-black px-2 py-0.5" id="previewMatkulDetail"></td>
                         </tr>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Bobot (SKS)</td>
                             <td class="border border-black px-2 py-0.5">2</td>
-                            <td class="border-none"></td>
                         </tr>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Semester</td>
-                            <td class="border border-black px-2 py-0.5 truncate max-w-0" id="previewSemesterDetail"></td>
-                            <td class="border-none"></td>
+                            <td class="border border-black px-2 py-0.5" id="previewSemesterDetail"></td>
                         </tr>
                     </table>
 
                     <!-- Tabel Utama -->
                     <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
                         <colgroup>
-                            <!-- Kiri (No + Nama) Total = 30% (Persis sama dengan 9% + 21% dari tabel atas) -->
                             <col style="width: 4%;">
                             <col style="width: 26%;">
                             <!-- Tengah (Pertemuan) = 16 Kolom x 3.5% = 56% -->
@@ -301,7 +294,8 @@
                             <p>Cianjur, 31 Desember 2026</p>
                             <p>Dosen,</p>
                             <br><br><br>
-                            <p class="font-bold border-b border-black inline-block min-w-full">Zaki Saiful Alam, S.H.I., M.H.</p>
+                            <!-- inline-block memastikan garis bawah hanya sebatas teks -->
+                            <p class="font-bold border-b border-black inline-block" id="previewDosenSignature">-</p>
                         </div>
                     </div>
 
@@ -366,7 +360,6 @@
         return items; 
     }
 
-    // FUNGSI PREVIEW DOKUMEN HTML
     window.previewPDF = function(mkName) {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
@@ -374,6 +367,7 @@
         const previewSemester = document.getElementById('previewSemesterDetail');
         const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
+        const previewDosenSig = document.getElementById('previewDosenSignature'); // Elemen ttd dosen
         
         let firstMhsData = null;
         const mhsList = globalDataMhs.filter(m => {
@@ -386,6 +380,9 @@
             previewMatkul.innerText = firstMhsData.matkul;
             previewSemester.innerText = firstMhsData.kelas;
             previewTahun.innerText = firstMhsData.tahun || "2026/2027";
+            
+            // Mengambil nama dosen dari data sheet. Jika kosong, tampilkan default teks
+            previewDosenSig.innerText = firstMhsData.dosen || firstMhsData.nama_dosen || "-";
         }
         
         let html = '';
@@ -422,7 +419,6 @@
             html += `
             <tr>
                 <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
-                <!-- max-w-[1px] dan truncate mencegah teks panjang merusak tabel fixed layout -->
                 <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
                 ${meetingCellsHtml}
                 <td class="border border-black py-0.5 px-1 text-center">${h}</td>
