@@ -175,10 +175,9 @@
   <script>
     // URL API Backend Google Script
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
-    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1'; // Berbagi Cache yang sama dengan Index/Jurnal
+    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
-    // Variabel Global
-    let globalGagalHead = [];
+    // Variabel Global (Disesuaikan tanpa gagalHead)
     let globalGagalBody = [];
 
     // Jam Real-time
@@ -197,7 +196,6 @@
 
     // Render Data Berhasil
     function handleDataSuccess(data) {
-        globalGagalHead = data.gagalHead || [];
         globalGagalBody = data.gagalBody || [];
         
         document.getElementById('loading').classList.add('hidden');
@@ -213,19 +211,17 @@
             const result = await response.json();
             
             if (result.status === "success") { 
-                // PERBAIKAN: Mengubah result.data menjadi result
                 const newDataString = JSON.stringify(result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
                 // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
                 if (currentCache !== newDataString) {
                     localStorage.setItem(CACHE_KEY_DASH, newDataString);
-                    handleDataSuccess(result); // PERBAIKAN: Mengubah result.data menjadi result
+                    handleDataSuccess(result); 
                 }
             } 
         } catch (err) { 
             console.error("Error Dashboard data:", err); 
-            // Munculkan peringatan hanya jika tidak ada cache sama sekali
             if (!localStorage.getItem(CACHE_KEY_DASH)) {
                 document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
             }
@@ -247,7 +243,7 @@
             }
         }
         
-        // 2. Refresh diam-diam di background (Stale-while-revalidate)
+        // 2. Refresh diam-diam di background
         fetchDataLatarBelakang();
     };
 
@@ -257,14 +253,14 @@
       const tbody = document.getElementById('body-evaluasi');
       const thead = document.getElementById('head-evaluasi');
 
-      // Cek apakah data tersedia
-      if (!globalGagalHead || globalGagalHead.length === 0 || globalGagalBody.length === 0) {
+      // Cek apakah data tersedia (Kondisi diperbaiki tanpa gagalHead)
+      if (!globalGagalBody || globalGagalBody.length === 0) {
         thead.innerHTML = '';
         tbody.innerHTML = '<tr><td class="p-10 md:p-16 text-center text-slate-400 font-medium text-sm md:text-base whitespace-normal">Sheet "MAHASISWA GAGAL" belum ada atau data masih kosong.</td></tr>';
         return;
       }
 
-      // Bangun Header
+      // Bangun Header secara statis karena data di-slice(1) dari backend
       thead.innerHTML = `
         <tr>
           <th class="py-4 md:py-6 pl-6 md:pl-8 pr-4 md:pr-6 text-left">Mahasiswa yang Gagal</th>
