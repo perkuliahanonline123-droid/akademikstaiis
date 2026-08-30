@@ -106,6 +106,7 @@
           <select id="globalTahunFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none">
             <option value="Semua">Tampilkan Semua Semester</option>
           </select>
+
           <select id="globalMatkulFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none md:max-w-[220px] truncate">
             <option value="Semua">Semua Mata Kuliah</option>
           </select>
@@ -128,7 +129,7 @@
       <div id="tab-jurnal" class="hidden animate-slide-up">
         
         <!-- WIDGET STATISTIK -->
-        <div id="globalStats" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+        <div id="globalStats" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:bg-emerald-100 transition-colors duration-500"></div>
             <div class="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl md:text-2xl transition-all duration-300 shadow-sm z-10 shrink-0">
@@ -163,7 +164,7 @@
           </div>
         </div>
 
-        <!-- CONTAINER UNTUK JURNAL CARD (Desain Gambar 2) -->
+        <!-- WADAH CARD JURNAL MENGGANTIKAN TABEL -->
         <div id="container-jurnal"></div>
 
       </div>
@@ -178,7 +179,7 @@
 
   <!-- NAVIGASI BOTTOM (HP) -->
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-    <a href="index.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
+    <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
     </a>
@@ -352,7 +353,7 @@
       let htmlJurnal = '';
       if(filteredJurnal.length > 0) {
         
-        // 1. Header Mengambang di Atas (Sesuai Gambar 2)
+        // Header Mengambang di Atas (Sesuai Gambar)
         htmlJurnal += `
         <div class="hidden md:flex items-center text-slate-400 uppercase text-[10px] md:text-[11px] font-black tracking-widest px-6 md:px-10 mb-4 mt-2">
           <div class="w-20 md:w-28 text-center md:text-left">Jadwal Sesi</div>
@@ -365,26 +366,26 @@
         <div class="space-y-4 md:space-y-5">
         `;
         
-        // 2. Looping Kartu Jurnal
+        // Looping Kartu Jurnal
         filteredJurnal.forEach(j => {
           let tglInfo = formatTanggalIndo(j.tanggal);
 
           htmlJurnal += `
           <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-card border border-transparent hover:border-brand-200 transition-all duration-300 p-4 md:p-6 lg:px-8 lg:py-6 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 group">
             
-            <!-- TANGGAL (Kotak Abu-Abu Lembut) -->
+            <!-- TANGGAL -->
             <div class="flex items-center justify-start md:justify-center shrink-0 w-auto md:w-20">
-                <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100 px-4 py-3 rounded-2xl w-16 md:w-20 transition-colors group-hover:bg-brand-50 group-hover:border-brand-100">
+                <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-100 px-4 py-3 rounded-[1.2rem] w-16 md:w-20 transition-colors group-hover:bg-brand-50 group-hover:border-brand-100">
                     <span class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 group-hover:text-brand-700">${tglInfo.hariTgl}</span>
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-500">${tglInfo.bulanTahun}</span>
+                    <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest group-hover:text-brand-500">${tglInfo.bulanTahun}</span>
                 </div>
             </div>
 
             <!-- MATKUL & DOSEN -->
             <div class="flex-1 min-w-0 flex flex-col">
                 <div class="flex flex-wrap items-center gap-2.5 mb-1.5 md:mb-2">
-                    <h3 class="font-black text-slate-800 text-base md:text-lg leading-tight transition-colors group-hover:text-brand-700">${j.matkul}</h3>
-                    <span class="text-[9px] text-brand-700 font-bold px-2 py-0.5 rounded-md bg-brand-50 border border-brand-100 tracking-wider shrink-0">${j.kode}</span>
+                    <h3 class="font-black text-slate-800 text-base md:text-lg lg:text-xl leading-tight transition-colors group-hover:text-brand-700">${j.matkul}</h3>
+                    <span class="text-[9px] md:text-[10px] text-brand-700 font-bold px-2 py-0.5 rounded-md bg-brand-50 border border-brand-100 tracking-wider shrink-0">${j.kode}</span>
                 </div>
                 <div class="flex flex-col gap-1 mt-1">
                     <div class="text-xs md:text-sm text-slate-600 font-bold flex items-center gap-1.5">
@@ -397,14 +398,14 @@
                 </div>
             </div>
 
-            <!-- SESI (Lingkaran Hijau Selalu Menyala, Skala Membesar Saat Hover) -->
+            <!-- SESI (Hijau Secara Default) -->
             <div class="flex items-center justify-start md:justify-center shrink-0 w-auto md:w-20 mt-2 md:mt-0">
                 <div class="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-500 text-white shadow-md shadow-brand-500/20 transition-transform duration-300 group-hover:scale-110">
                     <span class="text-xl font-black">${j.sesiKe}</span>
                 </div>
             </div>
 
-            <!-- SILABUS (Kotak Outline, Latar Belakang Berubah Saat Hover) -->
+            <!-- SILABUS (Kotak Outline Secara Default, Berubah Saat Hover) -->
             <div class="w-full md:w-[35%] lg:w-[40%] shrink-0 mt-3 md:mt-0">
                 <div class="bg-transparent border border-slate-200 px-5 py-4 rounded-[1.2rem] text-xs md:text-sm font-medium text-slate-600 leading-relaxed whitespace-normal transition-colors duration-300 group-hover:bg-slate-50 group-hover:border-slate-300">
                     ${j.topik}
@@ -414,7 +415,7 @@
           </div>`;
         });
         
-        htmlJurnal += `</div>`; // Tutup space-y-4
+        htmlJurnal += `</div>`;
         
       } else {
         htmlJurnal = '<div class="p-10 text-center text-slate-400 font-bold text-sm md:text-base bg-white rounded-[2rem] border border-slate-100 shadow-sm">Tidak ada data untuk filter yang dipilih.</div>';
