@@ -260,25 +260,6 @@
                                 </tr>
                             </tbody>
                         </table>
-                      
-                            <!-- Kolom Kanan -->
-                            <table class="text-left mr-10">
-                                <tbody>
-                                    <tr>
-                                        <td class="font-bold pr-4 pb-1">Kode MK</td>
-                                        <td class="pb-1">: <span id="previewKodeMK"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-bold pr-4 pb-1">Semester</td>
-                                        <td class="pb-1">: <span id="previewSemester"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-bold pr-4 pb-1">Kelas</td>
-                                        <td class="pb-1">: <span id="previewKelas"></span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
 
                         <!-- Tabel Utama -->
                         <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
@@ -404,7 +385,6 @@
         const previewKode = document.getElementById('previewKodeMK');
         const previewSemester = document.getElementById('previewSemester');
         const previewKelas = document.getElementById('previewKelas');
-        const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
         const previewDosenSig = document.getElementById('previewDosenSignature');
         
@@ -436,9 +416,6 @@
             let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
             previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
             previewKelas.innerText = kelasFull;
-            
-            // Error sebelumnya ada di blok ini (kurung penutup berlebih)
-            if(previewTahun) previewTahun.innerText = firstMhsData.tahun || "2026/2027";
         }
         
         let html = '';
@@ -506,7 +483,7 @@
             modalContent.classList.remove('scale-95');
         }, 10);
     };
-    
+
     window.closePDFModal = function() {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
