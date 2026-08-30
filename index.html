@@ -44,6 +44,9 @@
         table { border-collapse: separate; border-spacing: 0; }
         th { border-bottom: 2px solid #f1f5f9; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
         td { border-bottom: 1px solid #f8fafc; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans relative">
@@ -82,8 +85,9 @@
                     Riwayat Jurnal
                 </a>
                 
-                <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
+                <!-- MENU AKTIF -->
+                <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-user-shield text-white text-sm"></i></div>
                     Presensi Mahasiswa
                 </a>
                 
@@ -125,6 +129,30 @@
                         <select id="selectMatkul" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all" onchange="renderMahasiswa()">
                             <option value="">Memuat data mata kuliah...</option>
                         </select>
+                    </div>
+
+                    <!-- RIWAYAT INPUT (Hanya muncul jika belum memilih matkul) -->
+                    <div id="riwayatContainer" class="mt-8 transition-all duration-300">
+                        <h3 class="text-sm font-black text-slate-700 mb-3 flex items-center gap-2 tracking-wide uppercase"><i class="fas fa-history text-brand-500"></i> Riwayat Input Terakhir</h3>
+                        <div class="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden shadow-inner">
+                            <div class="overflow-x-auto custom-scrollbar max-h-[250px]">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="text-slate-400 uppercase text-[10px] font-black tracking-widest sticky top-0 bg-slate-100/90 backdrop-blur-sm border-b border-slate-200 shadow-sm z-10">
+                                        <tr>
+                                            <th class="p-3 pl-5 md:pl-6 text-center w-10">No</th>
+                                            <th class="p-3">Tanggal</th>
+                                            <th class="p-3">Mata Kuliah & Kelas</th>
+                                            <th class="p-3 text-center">Sesi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyRiwayat" class="divide-y divide-slate-200/60">
+                                        <tr>
+                                            <td colspan="4" class="p-8 text-center text-slate-400 italic">Memuat riwayat...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Wadah Tanggal & Metode Pembelajaran -->
@@ -188,8 +216,8 @@
                 <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
                 <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
             </a>
-            <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
+            <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
+                <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-user-shield text-lg"></i></div>
                 <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
             </a>
             <a href="evaluasi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
@@ -214,7 +242,6 @@
             let colorClass = '';
             let title = '';
 
-            // Menyesuaikan tampilan berdasarkan tipe notifikasi
             if (type === 'success') {
                 icon = 'fa-check-circle';
                 colorClass = 'text-emerald-500 bg-emerald-50 border-emerald-200';
@@ -229,7 +256,6 @@
                 title = 'Peringatan';
             }
 
-            // Struktur HTML Toast (Animasi dari atas)
             toast.className = `flex items-start gap-4 p-4 rounded-2xl shadow-2xl border bg-white transform transition-all duration-300 -translate-y-10 scale-95 opacity-0 max-w-sm w-full pointer-events-auto`;
             toast.innerHTML = `
                 <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}">
@@ -246,13 +272,11 @@
 
             container.appendChild(toast);
 
-            // Animasi masuk (muncul dari atas)
             setTimeout(() => {
                 toast.classList.remove('-translate-y-10', 'scale-95', 'opacity-0');
                 toast.classList.add('translate-y-0', 'scale-100', 'opacity-100');
             }, 10);
 
-            // Otomatis hilang setelah 4 detik (naik ke atas lagi)
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
                 toast.classList.add('-translate-y-10', 'scale-95', 'opacity-0');
@@ -260,7 +284,6 @@
             }, 4000);
         }
 
-        // Jam Real-time
         function updateJam() {
             try {
                 const now = new Date();
@@ -276,7 +299,7 @@
 
         // API Setup
         const API_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec'; 
-        let globalData = { kurikulum: [], mahasiswa: {} };
+        let globalData = { kurikulum: [], mahasiswa: {}, jurnal: [] };
 
         // 1. Ambil data
         async function loadData() {
@@ -288,11 +311,13 @@
                 if(result.status === 'success') {
                     globalData = result;
                     populateDropdown();
+                    renderRiwayat(); // Menampilkan riwayat input saat pertama load
                 } else {
                     showToast('error', "Gagal memuat data: " + result.message);
                 }
             } catch (e) {
                 showToast('error', "Terjadi kesalahan jaringan saat memuat data.");
+                document.getElementById('bodyRiwayat').innerHTML = '<tr><td colspan="4" class="p-6 text-center text-rose-500 italic">Gagal mengambil data riwayat.</td></tr>';
             }
         }
 
@@ -306,7 +331,51 @@
             });
         }
 
-        // 3. Konversi Semester & Prodi
+        // 3. Render Riwayat Input (Terbaru ke Terlama)
+        function renderRiwayat() {
+            const tbody = document.getElementById('bodyRiwayat');
+            const riwayatData = globalData.jurnal || [];
+
+            if (riwayatData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic font-medium">Belum ada riwayat presensi yang di-input.</td></tr>';
+                return;
+            }
+
+            // Ambil 10 data terakhir agar tidak terlalu panjang
+            const recentData = riwayatData.slice(0, 10);
+            let html = '';
+
+            recentData.forEach((item, idx) => {
+                // Format tanggal jadi lebih ramah baca
+                let tglDisplay = item.tanggal;
+                try {
+                    let d = new Date(item.tanggal);
+                    if (!isNaN(d.getTime())) {
+                        tglDisplay = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    } else if (typeof item.tanggal === 'string') {
+                        d = new Date(item.tanggal.split(" ")[0]);
+                        if (!isNaN(d.getTime())) tglDisplay = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    }
+                } catch(e) {}
+
+                html += `
+                <tr class="hover:bg-white transition-colors duration-200">
+                    <td class="p-3 pl-5 md:pl-6 text-center text-slate-400 font-bold">${idx + 1}</td>
+                    <td class="p-3 font-semibold text-slate-700">${tglDisplay}</td>
+                    <td class="p-3">
+                        <div class="font-bold text-slate-800">${item.matkul}</div>
+                        <div class="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">KLS: ${item.kelas} • ${item.prodi}</div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="inline-flex w-7 h-7 md:w-8 md:h-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 font-black text-xs md:text-sm border border-emerald-100">${item.sesiKe}</span>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // 4. Konversi Semester & Prodi
         function dapatkanNamaHeader(semester, prodi) {
             let smtGroup = "";
             if (semester <= 2) smtGroup = "Semester 1 & 2";
@@ -317,7 +386,7 @@
             return `${smtGroup} ${prodi}`;
         }
 
-        // 4. Input Lainnya
+        // 5. Input Lainnya
         function toggleMetodeLainnya() {
             const select = document.getElementById('metodePembelajaran');
             const inputLainnya = document.getElementById('metodeLainnya');
@@ -331,7 +400,7 @@
             }
         }
 
-        // 5. Tabel Mahasiswa
+        // 6. Tabel Mahasiswa
         function renderMahasiswa() {
             const selectVal = document.getElementById('selectMatkul').value;
             const table = document.getElementById('tableAbsen');
@@ -339,14 +408,21 @@
             const pesan = document.getElementById('pesanKosong');
             const btnSubmit = document.getElementById('btnSubmit'); 
             const formInfoTambahan = document.getElementById('formInformasiTambahan');
+            const riwayatContainer = document.getElementById('riwayatContainer');
 
+            // JIKA KOSONG (Belum Pilih Matkul)
             if (selectVal === "") {
                 table.classList.add('hidden');
                 pesan.classList.add('hidden');
                 btnSubmit.classList.add('hidden');
                 formInfoTambahan.classList.add('hidden');
+                // Tampilkan riwayat
+                riwayatContainer.classList.remove('hidden');
                 return;
             }
+
+            // JIKA SUDAH PILIH MATKUL -> Sembunyikan Riwayat
+            riwayatContainer.classList.add('hidden');
 
             const course = globalData.kurikulum[selectVal];
             const headerName = dapatkanNamaHeader(course.semester, course.prodi);
@@ -384,7 +460,7 @@
             btnSubmit.classList.remove('hidden'); 
         }
 
-        // 6. Submit Data
+        // 7. Submit Data
         async function kirimAbsensi() {
             const btn = document.getElementById('btnSubmit');
             const selectVal = document.getElementById('selectMatkul').value;
@@ -456,6 +532,9 @@
                         document.getElementById('metodePembelajaran').value = ""; 
                         document.getElementById('metodeLainnya').value = "";
                         document.getElementById('metodeLainnya').classList.add('hidden');
+                        
+                        // Muat ulang data latar belakang agar tabel riwayat terupdate
+                        await loadData();
                         renderMahasiswa(); 
                     } else {
                         showToast('error', 'Gagal menyimpan: ' + result.message);
@@ -471,7 +550,6 @@
             btn.disabled = false;
         }
         
-        // Memuat data secara otomatis saat halaman dibuka
         window.onload = function() {
             loadData();
         };
