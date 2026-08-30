@@ -221,21 +221,27 @@
                         <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                     </div>
 
-                    <!-- Info Mata Kuliah (Format Teks Tanpa Tabel) -->
-                    <div class="text-[12px] mb-4 space-y-1">
-                        <div class="flex">
-                            <div class="w-28 font-bold">Mata Kuliah</div>
-                            <div>: <span id="previewMatkulDetail"></span></div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-28 font-bold">Bobot (SKS)</div>
-                            <div>: 2</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-28 font-bold">Semester</div>
-                            <div>: <span id="previewSemesterDetail"></span></div>
-                        </div>
-                    </div>
+                    <!-- Info Mata Kuliah (Tabel Tanpa Garis agar Rapat dan Sejajar) -->
+                    <table class="text-[12px] mb-3 text-left">
+                        <tbody>
+                            <tr>
+                                <td class="font-bold pr-4 pb-0.5">Mata Kuliah</td>
+                                <td class="pb-0.5">: <span id="previewMatkulDetail"></span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold pr-4 pb-0.5">Kode MK</td>
+                                <td class="pb-0.5">: <span id="previewKodeMK"></span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold pr-4 pb-0.5">Bobot (SKS)</td>
+                                <td class="pb-0.5">: 2</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold pr-4 pb-0.5">Semester</td>
+                                <td class="pb-0.5">: <span id="previewSemesterDetail"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <!-- Tabel Utama -->
                     <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
@@ -360,10 +366,11 @@
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
         const previewMatkul = document.getElementById('previewMatkulDetail');
+        const previewKode = document.getElementById('previewKodeMK'); // Elemen baru Kode MK
         const previewSemester = document.getElementById('previewSemesterDetail');
         const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
-        const previewDosenSig = document.getElementById('previewDosenSignature'); // Elemen ttd dosen
+        const previewDosenSig = document.getElementById('previewDosenSignature');
         
         let firstMhsData = null;
         const mhsList = globalDataMhs.filter(m => {
@@ -373,12 +380,13 @@
         });
 
         if (firstMhsData) {
-            previewMatkul.innerText = firstMhsData.matkul;
-            previewSemester.innerText = firstMhsData.kelas;
+            previewMatkul.innerText = firstMhsData.matkul || "-";
+            previewKode.innerText = firstMhsData.kode || "-"; // Memasukkan Kode MK
+            previewSemester.innerText = firstMhsData.kelas || "-";
             previewTahun.innerText = firstMhsData.tahun || "2026/2027";
             
-            // Deteksi otomatis berbagai kemungkinan nama kolom/header Dosen di Sheet Anda
-            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || "-";
+            // Deteksi nama dosen, jika tidak ada satupun akan memunculkan teks peringatan
+            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || firstMhsData.pengampu || "(Nama Dosen Tidak Ditemukan)";
             previewDosenSig.innerText = namaDosen;
         }
         
