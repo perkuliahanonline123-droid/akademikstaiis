@@ -124,7 +124,6 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </a>
-      <!-- MENU BARU UNTUK NILAI MAHASISWA (AKTIF) -->
       <a href="nilaimaba.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-file-invoice text-white text-sm"></i></div>
         Daftar Nilai Kelas
@@ -180,10 +179,10 @@
 
               <div class="w-full md:w-2/3 relative">
                   <label class="font-bold text-slate-600 text-xs md:text-sm mb-2.5 uppercase tracking-widest block">Mata Kuliah & Semester</label>
-                  <input type="text" id="searchMatkulInput" oninput="handleInputMatkul(event)" placeholder="Ketik minimal 3 huruf..." autocomplete="off" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border-2 border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 shadow-sm transition-all placeholder-slate-400">
+                  <input type="text" id="searchMatkulInput" oninput="handleInputMatkul(event)" placeholder="Ketik minimal 3 huruf..." autocomplete="off" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm transition-all placeholder-slate-400">
                   
                   <!-- DROPDOWN AUTOCOMPLETE -->
-                  <div id="customDropdownMatkul" class="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] hidden max-h-[250px] overflow-y-auto custom-scrollbar z-50">
+                  <div id="customDropdownMatkul" class="absolute left-0 right-0 top-full mt-2 bg-white border border-brand-500 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] hidden max-h-[250px] overflow-y-auto custom-scrollbar overflow-hidden z-50">
                   </div>
               </div>
 
@@ -191,7 +190,7 @@
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
-          <!-- AREA YANG AKAN DICETAK (DESAIN RESMI) -->
+          <!-- AREA YANG AKAN DICETAK -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <!-- HEADER DOKUMEN -->
@@ -201,7 +200,7 @@
                   <span id="lblTaSmt">TAHUN AKADEMIK -</span>
               </div>
 
-              <!-- INFO KELAS (2 KOLOM - RAPI) -->
+              <!-- INFO KELAS -->
               <div class="info-container">
                   <table class="info-table">
                       <tr>
@@ -273,10 +272,8 @@
                   <div style="text-align: center; width: 250px;">
                       <div id="lblTanggal" style="margin-bottom: 6px;">Cianjur, 30 Agustus 2026</div>
                       <div style="margin-bottom: 70px;">Dosen Mata Kuliah,</div>
-                      <!-- Nama Dosen -->
-                      <div style="font-weight: bold; border-bottom: 1px solid black; padding-bottom: 2px; margin-bottom: 3px; display: inline-block; min-width: 180px;" id="lblDosenTtd">-</div>
-                      <!-- NUPTK -->
-                      <div>NUPTK/NIDN: <span id="lblNuptk" style="font-weight: normal;">-</span></div>
+                      <!-- Nama Dosen Dicetak Tebal Saja -->
+                      <div style="font-weight: bold;" id="lblDosenTtd">-</div>
                   </div>
               </div>
               
@@ -322,6 +319,7 @@
     let kurikulumList = [];
     let dataASH = [];
     let dataPBA = [];
+    let dataNIM = []; // Variabel untuk menyimpan data sheet NIM / Data Mahasiswa
     
     // Variabel untuk menyimpan index matkul yang dipilih dari autocomplete
     let selectedMatkulIndex = -1;
@@ -348,7 +346,7 @@
       document.getElementById('lblTanggal').innerText = `Cianjur, ${d.getDate()} ${bulanArr[d.getMonth()]} ${d.getFullYear()}`;
     };
 
-    // Menutup Autocomplete jika klik di luar
+    // Fungsi Klik di luar dropdown untuk menutup autocomplete
     document.addEventListener('click', function(event) {
         const searchBox = document.getElementById('searchMatkulInput');
         const dropdown = document.getElementById('customDropdownMatkul');
@@ -389,6 +387,10 @@
                 if (nameUpper.includes('ASH')) dataASH = globalDB[sheetName];
                 if (nameUpper.includes('PBA')) dataPBA = globalDB[sheetName];
                 if (nameUpper.includes('KURIKULUM')) kurikulumList = globalDB[sheetName];
+                // Ekstraksi sheet NIM / Data Mahasiswa
+                if (nameUpper.includes('NIM') || nameUpper.includes('DATA MAHASISWA')) {
+                    dataNIM = globalDB[sheetName];
+                }
             }
 
             document.getElementById('loading').classList.add('hidden');
@@ -450,7 +452,7 @@
             if(matches.length > 0) {
                 matches.forEach(m => {
                     let div = document.createElement('div');
-                    div.className = 'px-5 py-3 hover:bg-slate-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0 cursor-pointer text-[13.5px] font-medium text-slate-700';
+                    div.className = 'px-5 py-3.5 hover:bg-slate-50 hover:text-brand-700 transition-colors border-b border-slate-100 last:border-0 cursor-pointer text-[13.5px] font-medium text-slate-700';
                     
                     const regex = new RegExp(`(${val})`, "gi");
                     div.innerHTML = m.label.replace(regex, "<span class='text-brand-600 font-black'>$1</span>");
@@ -470,6 +472,28 @@
         } else {
             dropdown.classList.add('hidden');
         }
+    }
+
+    // Fungsi Mencari NIM berdasarkan Nama
+    function getNimByName(studentName) {
+        if (!dataNIM || dataNIM.length === 0) return '-';
+        const target = studentName.toLowerCase().trim();
+        
+        for (let i = 0; i < dataNIM.length; i++) {
+            const row = dataNIM[i];
+            const keys = Object.keys(row);
+            if (keys.length < 2) continue;
+            
+            // Asumsi: kolom nama mengandung kata 'nama'
+            const nameKey = keys.find(k => k.toLowerCase().includes('nama')) || keys[1];
+            // Asumsi: kolom NIM mengandung kata 'nim' atau adalah kolom pertama
+            const nimKey = keys.find(k => k.toLowerCase().includes('nim')) || keys[0];
+            
+            if (nameKey && row[nameKey] && row[nameKey].toString().toLowerCase().trim() === target) {
+                return row[nimKey] ? row[nimKey].toString().trim() : '-';
+            }
+        }
+        return '-';
     }
 
     function konversiNilai(nilai) {
@@ -503,7 +527,7 @@
         
         // Validasi
         if (selectedMatkulIndex === -1) {
-            return; // Belum milih matkul dari dropdown
+            return; 
         }
         if (!targetTA) {
             setStatus("Harap pilih Tahun Akademik terlebih dahulu.", "error");
@@ -519,28 +543,22 @@
         const prodiAsli = mkInfo['Program Studi'] || mkInfo['Prodi'] || "";
         const sks = parseInt(mkInfo['SKS']) || 2;
         
-        // Deteksi NUPTK
-        let nuptkDosen = "-";
-        for (let key in mkInfo) {
-            if (key.toLowerCase().includes('nuptk') || key.toLowerCase().includes('nidn') || key.toLowerCase().includes('nip')) {
-                if(mkInfo[key]) nuptkDosen = mkInfo[key].toString().trim();
-                break;
-            }
-        }
+        // Ambil Nama Dosen Pengampu
+        const dosenName = mkInfo['Nama Dosen Pengampu'] || mkInfo['Nama Dosen'] || '-';
         
         // Update Label Header
         document.getElementById('lblMatkul').innerText = mkNameAsli;
-        document.getElementById('lblDosen').innerText = mkInfo['Nama Dosen'] || '-';
+        document.getElementById('lblDosen').innerText = dosenName;
         document.getElementById('lblProdi').innerText = prodiAsli;
         document.getElementById('lblKode').innerText = mkInfo['Kode MK'] || '-';
         document.getElementById('lblSks').innerText = sks;
         document.getElementById('lblSemester').innerText = mkInfo['Semester'] || '-';
         
-        document.getElementById('lblDosenTtd').innerText = mkInfo['Nama Dosen'] || '___________________';
-        document.getElementById('lblNuptk').innerText = nuptkDosen;
+        // Update Tanda Tangan Footer
+        document.getElementById('lblDosenTtd').innerText = dosenName;
         
-        // Update Label TA dari filter Dropdown
-        document.getElementById('lblTaSmt').innerText = "TAHUN AKADEMIK " + targetTA.toUpperCase();
+        // Update Label TA HANYA nilai yang dipilih
+        document.getElementById('lblTaSmt').innerText = "TAHUN AKADEMIK " + targetTA;
 
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
         const targetDataMhs = isASH ? dataASH : dataPBA;
@@ -577,10 +595,10 @@
         let adaData = false;
 
         targetDataMhs.forEach(row => {
-            // Filter berdasarkan Tahun Akademik yang dipilih
+            // Filter ketat berdasarkan Tahun Akademik
             const rowTaKey = Object.keys(row).find(k => k.toLowerCase().trim() === 'ta');
             if (!rowTaKey || row[rowTaKey].toString().trim() !== targetTA) {
-                return; // Skip jika TA tidak cocok
+                return; // Skip baris ini jika TA tidak sama
             }
 
             const valNilaiRaw = row[exactColumnKey];
@@ -588,11 +606,20 @@
                 adaData = true;
                 const nilaiAngka = parseFloat(valNilaiRaw);
                 
-                const nimKey = Object.keys(row).find(k => k.toLowerCase().includes('nim'));
                 const namaKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
+                const nama = namaKey && row[namaKey] ? row[namaKey].toString().trim() : '-';
                 
-                const nim = nimKey && row[nimKey] ? row[nimKey] : '-';
-                const nama = namaKey && row[namaKey] ? row[namaKey] : '-';
+                // Cari NIM dari sheet yang sama
+                let nim = '-';
+                const nimKey = Object.keys(row).find(k => k.toLowerCase().includes('nim'));
+                if (nimKey && row[nimKey]) {
+                    nim = row[nimKey].toString().trim();
+                }
+                
+                // Jika tidak ada di sheet KHS, cari otomatis di sheet NIM (dataNIM) berdasarkan nama
+                if (nim === '-' || nim === '') {
+                    nim = getNimByName(nama);
+                }
                 
                 const hasilKonversi = konversiNilai(nilaiAngka);
                 const mutu = sks * hasilKonversi.bobot;
