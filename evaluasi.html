@@ -213,13 +213,14 @@
             const result = await response.json();
             
             if (result.status === "success") { 
-                const newDataString = JSON.stringify(result.data);
+                // PERBAIKAN: Mengubah result.data menjadi result
+                const newDataString = JSON.stringify(result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
                 // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
                 if (currentCache !== newDataString) {
                     localStorage.setItem(CACHE_KEY_DASH, newDataString);
-                    handleDataSuccess(result.data);
+                    handleDataSuccess(result); // PERBAIKAN: Mengubah result.data menjadi result
                 }
             } 
         } catch (err) { 
