@@ -6,8 +6,6 @@
   <title>Presensi Mahasiswa - Dasbor Premium</title>
   <meta name="theme-color" content="#064e3b">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Library html2pdf.js untuk cetak PDF A4 Landscape -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -45,12 +43,18 @@
     
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
+
+    /* CSS UNTUK MODE CETAK PDF */
+    @media print {
+      body * { visibility: hidden; }
+      #pdfPrintArea, #pdfPrintArea * { visibility: visible; }
+      #pdfPrintArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
+      #pdfModal { background: white !important; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
-
-  <!-- WADAH TOAST NOTIFIKASI -->
-  <div id="toast-container" class="fixed top-8 inset-x-0 z-[9999] flex flex-col items-center gap-3 pointer-events-none px-4"></div>
 
   <!-- SIDEBAR DESKTOP -->
   <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
@@ -107,17 +111,10 @@
       
       <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
         
-        <div class="flex items-center gap-3">
-          <!-- Tombol Cetak PDF A4 Landscape -->
-          <button onclick="cetakPDF()" class="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-all shadow-sm text-sm">
-            <i class="fas fa-file-pdf"></i> Cetak Daftar Hadir (PDF)
-          </button>
-
-          <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0">
-            <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
-            <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
-            <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
-          </div>
+        <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+          <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+          <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+          <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
         </div>
 
         <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
@@ -133,8 +130,7 @@
       </div>
     </header>
 
-    <!-- Diubah menjadi full-width (tanpa max-w-7xl dan mx-auto) sesuai gambar 2 -->
-    <div class="p-4 md:p-6 lg:p-8 w-full">
+    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto">
       
       <!-- LOADING STATE -->
       <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100">
@@ -216,71 +212,58 @@
 
     </div>
 
-    <!-- TEMPLATE RAHASIA UNTUK CETAK HTML2PDF (A4 Landscape) -->
-    <div id="pdf-wrapper" style="display: none;">
-        <div id="area-cetak-pdf" style="padding: 20px; font-family: 'Times New Roman', Times, serif; width: 100%; background: white; color: black;">
-            
-            <!-- KOP SURAT / JUDUL -->
-            <div style="text-align: center; margin-bottom: 25px;">
-                <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 3px 0;">DAFTAR HADIR PERKULIAHAN</h3>
-                <h1 style="font-size: 24px; font-weight: bold; margin: 0 0 3px 0;">STAI Imam Syafi'i Cianjur</h1>
-                <p style="font-size: 13px; margin: 0;">Tahun Ajaran 2026/2027</p>
-            </div>
-
-            <!-- INFO MATA KULIAH -->
-            <table style="width: 50%; margin-bottom: 15px; border-collapse: collapse; font-size: 11px;">
-                <tr>
-                    <td style="border: 1px solid black; padding: 4px 8px; width: 140px; font-weight: bold;">Mata Kuliah</td>
-                    <td style="border: 1px solid black; padding: 4px 8px;" id="pdf-matkul-teks">-</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid black; padding: 4px 8px; font-weight: bold;">Semester / Kelas</td>
-                    <td style="border: 1px solid black; padding: 4px 8px;" id="pdf-semester-teks">-</td>
-                </tr>
-            </table>
-
-            <!-- TABEL UTAMA ABSENSI -->
-            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 10px;">
-                <thead>
-                    <tr>
-                        <th rowspan="2" style="border: 1px solid black; padding: 4px; width: 30px; background-color: #f3f4f6;">No.</th>
-                        <th rowspan="2" style="border: 1px solid black; padding: 4px; text-align: left; width: 220px; background-color: #f3f4f6;">Nama Mahasiswa</th>
-                        <th colspan="16" style="border: 1px solid black; padding: 4px; background-color: #f3f4f6;">Pertemuan</th>
-                        <th colspan="4" style="border: 1px solid black; padding: 4px; background-color: #f3f4f6;">Keterangan</th>
-                    </tr>
-                    <tr>
-                        <script>
-                            for(let i=1; i<=16; i++) document.write(`<th style="border: 1px solid black; padding: 3px; background-color: #f3f4f6;">${i}</th>`);
-                        </script>
-                        <th style="border: 1px solid black; padding: 3px; font-weight: bold; background-color: #f3f4f6;">H</th>
-                        <th style="border: 1px solid black; padding: 3px; font-weight: bold; background-color: #f3f4f6;">A</th>
-                        <th style="border: 1px solid black; padding: 3px; font-weight: bold; background-color: #f3f4f6;">I</th>
-                        <th style="border: 1px solid black; padding: 3px; font-weight: bold; background-color: #f3f4f6;">S</th>
-                    </tr>
-                </thead>
-                <tbody id="pdf-tbody">
-                    <!-- Data akan di-generate otomatis via JS saat tombol cetak ditekan -->
-                </tbody>
-            </table>
-
-            <!-- BAGIAN TANDA TANGAN -->
-            <div style="margin-top: 35px; float: right; width: 230px; text-align: left; font-size: 11px;">
-                <p style="margin: 0 0 3px 0;" id="pdf-tgl-cetak">Cianjur, 30 Agustus 2026</p>
-                <p style="margin: 0 0 50px 0;">Dosen Pengampu,</p>
-                <p style="margin: 0; font-weight: bold; text-decoration: underline;">Zaki Saiful Alam, S.H.I., M.H.</p>
-            </div>
-            <div style="clear: both;"></div>
-        </div>
-    </div>
-
     <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
       &copy; 2026 Dasbor Akademik
     </footer>
     
+    <!-- MODAL PREVIEW PDF -->
+    <div id="pdfModal" class="fixed inset-0 z-[100] hidden bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
+            <div class="px-6 py-4 md:px-8 md:py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 no-print">
+                <h3 class="font-black text-slate-800 text-lg md:text-xl">Pratinjau Daftar Hadir</h3>
+                <button onclick="closePDFModal()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all shadow-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-gray-50">
+                <!-- Area Kertas A4 Pratinjau -->
+                <div class="bg-white p-8 md:p-12 shadow-md max-w-[210mm] min-h-[297mm] mx-auto text-slate-800" id="pdfPrintArea">
+                    <div class="text-center mb-8 border-b-2 border-slate-800 pb-6">
+                        <h2 class="text-xl md:text-2xl font-black uppercase tracking-wide">Daftar Hadir Mahasiswa</h2>
+                        <p class="text-xs md:text-sm font-bold text-slate-600 mt-2 uppercase tracking-widest" id="previewMatkulName"></p>
+                    </div>
+                    <table class="w-full text-left text-xs md:text-sm border-collapse border border-slate-300">
+                        <thead>
+                            <tr class="bg-slate-100">
+                                <th class="border border-slate-300 p-2 text-center w-10">No</th>
+                                <th class="border border-slate-300 p-2">Nama Mahasiswa</th>
+                                <th class="border border-slate-300 p-2 text-center">Hadir</th>
+                                <th class="border border-slate-300 p-2 text-center">Izin</th>
+                                <th class="border border-slate-300 p-2 text-center">Sakit</th>
+                                <th class="border border-slate-300 p-2 text-center">Alpa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <!-- Data diisi dari JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 md:px-8 md:py-5 border-t border-slate-100 flex justify-end gap-3 bg-white no-print">
+                <button onclick="closePDFModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
+                <button onclick="window.print()" class="px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center gap-2 transition-all">
+                    <i class="fas fa-download"></i> Simpan ke PDF
+                </button>
+            </div>
+        </div>
+    </div>
+    
   </main>
 
   <!-- NAVIGASI BOTTOM (HP) -->
-  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl no-print">
     <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
       <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
@@ -303,62 +286,14 @@
   </div>
 
   <script>
-    // Fungsi Toast Notification
-    function showToast(type, message) {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        
-        let icon = '';
-        let colorClass = '';
-        let title = '';
-
-        if (type === 'success') {
-            icon = 'fa-check-circle';
-            colorClass = 'text-emerald-500 bg-emerald-50 border-emerald-200';
-            title = 'Berhasil';
-        } else if (type === 'error') {
-            icon = 'fa-times-circle';
-            colorClass = 'text-rose-500 bg-rose-50 border-rose-200';
-            title = 'Gagal';
-        } else if (type === 'warning') {
-            icon = 'fa-exclamation-triangle';
-            colorClass = 'text-amber-500 bg-amber-50 border-amber-200';
-            title = 'Peringatan';
-        }
-
-        toast.className = `flex items-start gap-4 p-4 rounded-2xl shadow-2xl border bg-white transform transition-all duration-300 -translate-y-10 scale-95 opacity-0 max-w-sm w-full pointer-events-auto`;
-        toast.innerHTML = `
-            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}">
-                <i class="fas ${icon} text-lg"></i>
-            </div>
-            <div class="flex-1 pt-1">
-                <p class="font-bold text-slate-800 text-sm">${title}</p>
-                <p class="text-slate-500 text-xs mt-0.5 leading-relaxed">${message}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        container.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.remove('-translate-y-10', 'scale-95', 'opacity-0');
-            toast.classList.add('translate-y-0', 'scale-100', 'opacity-100');
-        }, 10);
-
-        setTimeout(() => {
-            toast.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
-            toast.classList.add('-translate-y-10', 'scale-95', 'opacity-0');
-            setTimeout(() => toast.remove(), 300); 
-        }, 4000);
-    }
-
+    // ⚠️ PASTE URL API Backend Google Script DI SINI
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
+    // Variabel Global
     let globalDataMhs = [];
 
+    // Jam Real-time
     function updateJam() {
       try {
         const now = new Date();
@@ -372,6 +307,7 @@
     }
     setInterval(updateJam, 1000);
 
+    // Render Data Berhasil
     function handleDataSuccess(data) {
         globalDataMhs = data.rekap_presensi || []; 
         
@@ -381,6 +317,7 @@
         populateFilters();
     }
 
+    // Ambil Data Latar Belakang
     async function fetchDataLatarBelakang() {
         try {
             const response = await fetch(scriptUrlDash);
@@ -403,6 +340,59 @@
         }
     }
 
+    // Fungsi Membuka Modal Pratinjau PDF
+    window.previewPDF = function(mkName) {
+        const modal = document.getElementById('pdfModal');
+        const modalContent = document.getElementById('pdfModalContent');
+        const previewMatkul = document.getElementById('previewMatkulName');
+        const previewTable = document.getElementById('previewTableBody');
+        
+        // Filter data mahasiswa berdasarkan mata kuliah yang dipilih
+        const mhsList = globalDataMhs.filter(m => {
+            const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
+            return groupName === mkName;
+        });
+
+        previewMatkul.innerText = mkName;
+        
+        // Render tabel pratinjau
+        let html = '';
+        mhsList.forEach((m, index) => {
+            html += `
+            <tr class="hover:bg-slate-50">
+                <td class="border border-slate-300 p-2 text-center font-medium">${index + 1}</td>
+                <td class="border border-slate-300 p-2 font-bold text-slate-700">${m.nama}</td>
+                <td class="border border-slate-300 p-2 text-center">${m.hadir}</td>
+                <td class="border border-slate-300 p-2 text-center">${m.izin}</td>
+                <td class="border border-slate-300 p-2 text-center">${m.sakit}</td>
+                <td class="border border-slate-300 p-2 text-center ${m.alpa >= 4 ? 'text-rose-600 font-bold' : ''}">${m.alpa}</td>
+            </tr>`;
+        });
+        previewTable.innerHTML = html;
+
+        // Animasi Tampil
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+        }, 10);
+    };
+
+    // Fungsi Menutup Modal
+    window.closePDFModal = function() {
+        const modal = document.getElementById('pdfModal');
+        const modalContent = document.getElementById('pdfModalContent');
+        
+        // Animasi Tutup
+        modal.classList.add('opacity-0');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    };
+
+    // Eksekusi saat Web Dibuka
     window.onload = function() {
         updateJam();
         
@@ -419,6 +409,7 @@
         fetchDataLatarBelakang();
     };
 
+    // Fungsi Mengisi Dropdown Filter
     function populateFilters() {
       let selTahun = document.getElementById('globalTahunFilter');
       let selMatkul = document.getElementById('globalMatkulFilter');
@@ -457,11 +448,13 @@
       applyGlobalFilter();
     }
 
+    // Fungsi Memicu Render
     function applyGlobalFilter() {
       renderPeringatan();
       renderPresensi();
     }
 
+    // Fungsi Render Peringatan (Terblokir Ujian - Alpa >= 4)
     function renderPeringatan() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -504,6 +497,7 @@
       }
     }
 
+    // Fungsi Render Tabel Utama Presensi 
     function renderPresensi() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -522,6 +516,7 @@
         return;
       }
 
+      // Grouping berdasarkan Mata Kuliah & Kelas
       const groups = {};
       filtered.forEach(m => {
         const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
@@ -534,9 +529,16 @@
         html += `
         <tr class="bg-slate-50/50">
           <td colspan="5" class="px-5 md:px-8 py-3 md:py-4 border-y border-slate-100">
-             <div class="flex items-center gap-2 md:gap-3 font-black text-brand-700 text-[10px] md:text-xs tracking-widest uppercase whitespace-normal leading-tight">
-               <div class="w-5 h-5 md:w-6 md:h-6 rounded-md bg-brand-100 flex items-center justify-center shrink-0"><i class="fas fa-cube text-brand-600 text-[9px] md:text-[10px]"></i></div>
-               ${mk}
+             <div class="flex items-center justify-between gap-4">
+                 <div class="flex items-center gap-2 md:gap-3 font-black text-brand-700 text-[10px] md:text-xs tracking-widest uppercase whitespace-normal leading-tight">
+                   <div class="w-5 h-5 md:w-6 md:h-6 rounded-md bg-brand-100 flex items-center justify-center shrink-0"><i class="fas fa-cube text-brand-600 text-[9px] md:text-[10px]"></i></div>
+                   ${mk}
+                 </div>
+                 
+                 <!-- TOMBOL PDF BARU -->
+                 <button onclick="previewPDF('${mk.replace(/'/g, "\\'")}')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-[10px] md:text-xs px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 shadow-sm shadow-brand-500/30 transition-all shrink-0">
+                    <i class="fas fa-file-pdf"></i> PDF
+                 </button>
              </div>
           </td>
         </tr>`;
@@ -571,97 +573,6 @@
         });
       }
       tbody.innerHTML = html;
-    }
-
-    // Fungsi Cetak PDF A4 Landscape Menggunakan html2pdf.js
-    function cetakPDF() {
-        const filterMatkul = document.getElementById('globalMatkulFilter').value;
-        const filterTahun = document.getElementById('globalTahunFilter').value;
-
-        if (filterMatkul === "Semua") {
-            showToast('warning', 'Silakan pilih Mata Kuliah tertentu terlebih dahulu pada filter untuk mencetak PDF.');
-            return;
-        }
-
-        // Ambil data mahasiswa sesuai mata kuliah yang dipilih
-        const dataMhsMatkul = globalDataMhs.filter(m => m.matkul === filterMatkul && (filterTahun === "Semua" || m.tahun === filterTahun));
-
-        if (dataMhsMatkul.length === 0) {
-            showToast('error', 'Tidak ada data mahasiswa untuk mata kuliah ini.');
-            return;
-        }
-
-        // Set teks header pada template PDF
-        document.getElementById('pdf-matkul-teks').innerText = filterMatkul;
-        document.getElementById('pdf-semester-teks').innerText = dataMhsMatkul[0].kelas || '-';
-
-        // Tanggal TTD Realtime
-        const now = new Date();
-        const bulanStr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        document.getElementById('pdf-tgl-cetak').innerText = `Cianjur, ${now.getDate()} ${bulanStr[now.getMonth()]} ${now.getFullYear()}`;
-
-        // Render baris tabel pertemuan 1-16 (Mock/Rekap Data)
-        let pdfTbodyHtml = '';
-        dataMhsMatkul.forEach((m, idx) => {
-            pdfTbodyHtml += `
-                <tr>
-                    <td style="border: 1px solid black; padding: 3px;">${idx + 1}</td>
-                    <td style="border: 1px solid black; padding: 3px; text-align: left;">${m.nama}</td>`;
-            
-            // Kolom pertemuan 1 s.d 16 (Dibuat simulasi berdasarkan total hadir/izin/sakit/alpa)
-            for(let i=1; i<=16; i++) {
-                let statusVal = "H";
-                let bgStyle = "";
-                // Contoh pengisian sel matriks pertemuan
-                if(i > (m.hadir + m.izin + m.sakit + m.alpa)) {
-                    statusVal = "";
-                } else if(i === 4 && m.alpa > 0) {
-                    statusVal = "A";
-                    bgStyle = "background-color: #ef4444; color: white; font-weight: bold;";
-                } else if(i === 5 && m.sakit > 0) {
-                    statusVal = "S";
-                    bgStyle = "background-color: #eab308; color: black; font-weight: bold;";
-                } else if(i === 6 && m.izin > 0) {
-                    statusVal = "I";
-                    bgStyle = "background-color: #3b82f6; color: white; font-weight: bold;";
-                }
-                pdfTbodyHtml += `<td style="border: 1px solid black; padding: 3px; ${bgStyle}">${statusVal}</td>`;
-            }
-
-            // Kolom Rekap (H, A, I, S)
-            pdfTbodyHtml += `
-                    <td style="border: 1px solid black; padding: 3px; font-weight: bold;">${m.hadir}</td>
-                    <td style="border: 1px solid black; padding: 3px; font-weight: bold; ${m.alpa > 0 ? 'background-color: #ef4444; color: white;' : ''}">${m.alpa}</td>
-                    <td style="border: 1px solid black; padding: 3px;">${m.izin}</td>
-                    <td style="border: 1px solid black; padding: 3px;">${m.sakit}</td>
-                </tr>
-            `;
-        });
-        document.getElementById('pdf-tbody').innerHTML = pdfTbodyHtml;
-
-        // Tampilkan elemen wrapper PDF sementara
-        const wrapper = document.getElementById('pdf-wrapper');
-        const areaCetak = document.getElementById('area-cetak-pdf');
-        wrapper.style.display = 'block';
-
-        const opt = {
-            margin:       10,
-            filename:     `Daftar_Hadir_${filterMatkul.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-
-        showToast('success', 'Mempersiapkan dokumen PDF A4 Landscape...');
-
-        html2pdf().set(opt).from(areaCetak).save().then(() => {
-            wrapper.style.display = 'none';
-            showToast('success', 'Dokumen PDF berhasil diunduh!');
-        }).catch(err => {
-            console.error(err);
-            wrapper.style.display = 'none';
-            showToast('error', 'Terjadi kesalahan saat mencetak PDF.');
-        });
     }
   </script>
 </body>
