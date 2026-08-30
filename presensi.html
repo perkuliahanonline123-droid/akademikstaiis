@@ -212,8 +212,8 @@
             </div>
             
             <div class="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar bg-gray-200 flex justify-center">
-                <!-- Area Kertas Pratinjau: Menggunakan satuan mm mutlak agar tabel lurus sempurna & dikunci 1 hal -->
-                <div class="bg-white shadow-md font-formal relative" id="pdfPrintArea" style="width: 297mm; height: 210mm; max-height: 210mm; padding: 12mm; box-sizing: border-box; overflow: hidden; color: black;">
+                <!-- Area Kertas Pratinjau: Menggunakan persentase agar 100% responsif di A4 tanpa terpotong -->
+                <div class="bg-white shadow-md font-formal relative mx-auto" id="pdfPrintArea" style="width: 297mm; height: 210mm; max-height: 210mm; padding: 10mm 15mm; box-sizing: border-box; overflow: hidden; color: black;">
                     
                     <div class="text-center mb-5">
                         <h3 class="text-xs tracking-wide uppercase font-bold">Daftar Hadir Perkuliahan</h3>
@@ -221,15 +221,15 @@
                         <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                     </div>
 
-                    <!-- Tabel Info Mata Kuliah (Lebar tepat 70mm untuk sejajar dengan No + Nama) -->
-                    <table class="text-[12px] border-collapse border border-black mb-3 table-fixed-layout" style="width: 70mm;">
+                    <!-- Tabel 2: Info Mata Kuliah (Tepat 28% mengikuti kolom No + Nama) -->
+                    <table class="text-[12px] border-collapse border border-black mb-3 table-fixed-layout" style="width: 28%;">
                         <colgroup>
-                            <col style="width: 25mm;">
-                            <col style="width: 45mm;">
+                            <col style="width: 35%;">
+                            <col style="width: 65%;">
                         </colgroup>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Mata Kuliah</td>
-                            <td class="border border-black px-2 py-0.5 truncate" id="previewMatkulDetail"></td>
+                            <td class="border border-black px-2 py-0.5 truncate max-w-0" id="previewMatkulDetail"></td>
                         </tr>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Bobot (SKS)</td>
@@ -237,21 +237,20 @@
                         </tr>
                         <tr>
                             <td class="border border-black px-2 py-0.5">Semester</td>
-                            <td class="border border-black px-2 py-0.5" id="previewSemesterDetail"></td>
+                            <td class="border border-black px-2 py-0.5 truncate max-w-0" id="previewSemesterDetail"></td>
                         </tr>
                     </table>
 
                     <!-- Tabel Utama -->
-                    <!-- Total Lebar: 8 + 62 + (16*9) + (4*14.75) = 273mm (Menyesuaikan sisa padding kertas) -->
-                    <table class="w-full text-[11px] border-collapse border border-black text-center whitespace-nowrap table-fixed-layout" style="width: 273mm;">
+                    <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
                         <colgroup>
-                            <!-- Kiri (No + Nama) Total = 70mm (Sejajar tabel atas) -->
-                            <col style="width: 8mm;">
-                            <col style="width: 62mm;">
-                            <!-- Tengah (Pertemuan) = 16 * 9mm = 144mm -->
-                            <col style="width: 9mm;" span="16">
-                            <!-- Kanan (Keterangan) = 4 * 14.75mm = 59mm -->
-                            <col style="width: 14.75mm;" span="4">
+                            <!-- Kiri (No + Nama) Total = 28% (Sejajar dengan tabel Info MK) -->
+                            <col style="width: 3%;">
+                            <col style="width: 25%;">
+                            <!-- Tengah (Pertemuan) = 16 Kolom x 3.6% = 57.6% -->
+                            <col style="width: 3.6%;" span="16">
+                            <!-- Kanan (Keterangan) = 4 Kolom x 3.6% = 14.4% -->
+                            <col style="width: 3.6%;" span="4">
                         </colgroup>
                         <thead>
                             <tr>
@@ -262,27 +261,27 @@
                             </tr>
                             <tr>
                                 <!-- 1 to 16 -->
-                                <th class="border border-black py-0.5 px-1">1</th>
-                                <th class="border border-black py-0.5 px-1">2</th>
-                                <th class="border border-black py-0.5 px-1">3</th>
-                                <th class="border border-black py-0.5 px-1">4</th>
-                                <th class="border border-black py-0.5 px-1">5</th>
-                                <th class="border border-black py-0.5 px-1">6</th>
-                                <th class="border border-black py-0.5 px-1">7</th>
-                                <th class="border border-black py-0.5 px-1">8</th>
-                                <th class="border border-black py-0.5 px-1">9</th>
-                                <th class="border border-black py-0.5 px-1">10</th>
-                                <th class="border border-black py-0.5 px-1">11</th>
-                                <th class="border border-black py-0.5 px-1">12</th>
-                                <th class="border border-black py-0.5 px-1">13</th>
-                                <th class="border border-black py-0.5 px-1">14</th>
-                                <th class="border border-black py-0.5 px-1">15</th>
-                                <th class="border border-black py-0.5 px-1">16</th>
+                                <th class="border border-black py-0.5 px-0.5">1</th>
+                                <th class="border border-black py-0.5 px-0.5">2</th>
+                                <th class="border border-black py-0.5 px-0.5">3</th>
+                                <th class="border border-black py-0.5 px-0.5">4</th>
+                                <th class="border border-black py-0.5 px-0.5">5</th>
+                                <th class="border border-black py-0.5 px-0.5">6</th>
+                                <th class="border border-black py-0.5 px-0.5">7</th>
+                                <th class="border border-black py-0.5 px-0.5">8</th>
+                                <th class="border border-black py-0.5 px-0.5">9</th>
+                                <th class="border border-black py-0.5 px-0.5">10</th>
+                                <th class="border border-black py-0.5 px-0.5">11</th>
+                                <th class="border border-black py-0.5 px-0.5">12</th>
+                                <th class="border border-black py-0.5 px-0.5">13</th>
+                                <th class="border border-black py-0.5 px-0.5">14</th>
+                                <th class="border border-black py-0.5 px-0.5">15</th>
+                                <th class="border border-black py-0.5 px-0.5">16</th>
                                 <!-- H, A, I, S -->
-                                <th class="border border-black font-bold py-0.5 px-1">H</th>
-                                <th class="border border-black font-bold py-0.5 px-1">A</th>
-                                <th class="border border-black font-bold py-0.5 px-1">I</th>
-                                <th class="border border-black font-bold py-0.5 px-1">S</th>
+                                <th class="border border-black font-bold py-0.5 px-0.5">H</th>
+                                <th class="border border-black font-bold py-0.5 px-0.5">A</th>
+                                <th class="border border-black font-bold py-0.5 px-0.5">I</th>
+                                <th class="border border-black font-bold py-0.5 px-0.5">S</th>
                             </tr>
                         </thead>
                         <tbody id="previewTableBody">
@@ -417,7 +416,8 @@
             html += `
             <tr>
                 <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
-                <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 62mm;">${m.nama}</td>
+                <!-- max-w-[1px] dan truncate mencegah teks panjang merusak tabel fixed layout -->
+                <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
                 ${meetingCellsHtml}
                 <td class="border border-black py-0.5 px-1 text-center">${h}</td>
                 <td class="border border-black py-0.5 px-1 text-center" style="${alpaTotalStyle}">${a}</td>
