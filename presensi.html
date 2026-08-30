@@ -233,9 +233,9 @@
   </div>
 
   <script>
-    // URL API Backend Google Script
+    // ⚠️ PASTE URL API Backend Google Script DI SINI
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
-    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1'; // Berbagi Cache yang sama dengan Index/Jurnal/Evaluasi
+    const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
     // Variabel Global
     let globalDataMhs = [];
@@ -256,7 +256,8 @@
 
     // Render Data Berhasil
     function handleDataSuccess(data) {
-        globalDataMhs = data.mahasiswa || []; 
+        // PERUBAHAN PENTING: Membaca objek "rekap_presensi" dari Google Apps Script terbaru
+        globalDataMhs = data.rekap_presensi || []; 
         
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('tab-presensi').classList.remove('hidden');
@@ -264,7 +265,7 @@
         populateFilters();
     }
 
-    // Ambil Data Latar Belakang (Sinkronisasi Background)
+    // Ambil Data Latar Belakang
     async function fetchDataLatarBelakang() {
         try {
             const response = await fetch(scriptUrlDash);
@@ -274,15 +275,14 @@
                 const newDataString = JSON.stringify(result.data);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
-                // Hanya update/render ulang jika ada perbedaan data (anti-flicker)
                 if (currentCache !== newDataString) {
                     localStorage.setItem(CACHE_KEY_DASH, newDataString);
-                    handleDataSuccess(result.data);
+                    // Panggil fungsi dengan hasil parsing data yang baru
+                    handleDataSuccess(result);
                 }
             } 
         } catch (err) { 
             console.error("Error Dashboard data:", err); 
-            // Munculkan peringatan hanya jika tidak ada cache sama sekali
             if (!localStorage.getItem(CACHE_KEY_DASH)) {
                 document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
             }
@@ -293,27 +293,26 @@
     window.onload = function() {
         updateJam();
         
-        // 1. Cek Cache Dulu (Muat super cepat)
         const cachedData = localStorage.getItem(CACHE_KEY_DASH);
         if (cachedData) {
             try {
-                const parsedData = JSON.parse(cachedData);
-                handleDataSuccess(parsedData);
+                // Parse dari Cache
+                const parsedResult = JSON.parse(cachedData);
+                // Fungsi memanggil array yang ada di root hasil
+                handleDataSuccess(parsedResult);
             } catch(e) {
                 console.error("Gagal membaca cache:", e);
             }
         }
         
-        // 2. Refresh diam-diam di background (Stale-while-revalidate)
         fetchDataLatarBelakang();
     };
 
-    // Fungsi Mengisi Dropdown Filter (Tahun & Matkul)
+    // Fungsi Mengisi Dropdown Filter (Tahun/Semester & Matkul)
     function populateFilters() {
       let selTahun = document.getElementById('globalTahunFilter');
       let selMatkul = document.getElementById('globalMatkulFilter');
       
-      // Simpan Pilihan User Saat Ini
       let currentTahun = selTahun ? selTahun.value : "Semua";
       let currentMatkul = selMatkul ? selMatkul.value : "Semua";
 
@@ -348,13 +347,13 @@
       applyGlobalFilter();
     }
 
-    // Fungsi Memicu Render setelah Filter diubah
+    // Fungsi Memicu Render
     function applyGlobalFilter() {
       renderPeringatan();
       renderPresensi();
     }
 
-    // Fungsi Render Peringatan (Terblokir Ujian)
+    // Fungsi Render Peringatan (Terblokir Ujian - Alpa >= 4)
     function renderPeringatan() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -397,7 +396,7 @@
       }
     }
 
-    // Fungsi Render Tabel Utama Presensi
+    // Fungsi Render Tabel Utama Presensi (Sesuai Hadir, Izin, Sakit, Alpa)
     function renderPresensi() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -426,7 +425,6 @@
 
       let html = '';
       for (const [mk, mhsList] of Object.entries(groups)) {
-        // Render Header Group (Judul Matkul)
         html += `
         <tr class="bg-slate-50/50">
           <td colspan="5" class="px-5 md:px-8 py-3 md:py-4 border-y border-slate-100">
@@ -437,10 +435,9 @@
           </td>
         </tr>`;
         
-        // Render Data Mahasiswa
         mhsList.forEach(m => {
-          let warnBg = m.alpa > 3 ? "bg-red-50/40" : "hover:bg-slate-50";
-          let warnBadge = m.alpa > 3 ? `<span class="ml-2 md:ml-3 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] md:text-[10px] font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-md shadow-sm uppercase tracking-wider animate-pulse">Warning</span>` : "";
+          let warnBg = m.alpa >= 4 ? "bg-red-50/40" : "hover:bg-slate-50";
+          let warnBadge = m.alpa >= 4 ? `<span class="ml-2 md:ml-3 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] md:text-[10px] font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-md shadow-sm uppercase tracking-wider animate-pulse">Warning</span>` : "";
           
           html += `
           <tr class="${warnBg} transition-all duration-200 group border-b border-slate-50 last:border-0 hover:-translate-y-0.5">
