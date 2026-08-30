@@ -380,16 +380,28 @@
       let htmlJurnal = '';
       if(filteredJurnal.length > 0) {
         filteredJurnal.forEach(j => {
-          let tglParts = j.tanggal.split(" ");
-          let hariTgl = tglParts.length > 1 ? tglParts[0] : j.tanggal;
-          let bulanTahun = tglParts.length > 2 ? tglParts[1] + " " + tglParts[2] : "";
+          // 1. Konversi format YYYY-MM-DD menjadi Tanggal dan Singkatan Bulan
+          let dateOnly = j.tanggal.split("T")[0].split(" ")[0]; 
+          let parts = dateOnly.split("-");
+          let hariTgl = dateOnly;
+          let bulanTahun = "";
 
+          if (parts.length === 3) {
+            const namaBulan = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+            let tahun = parts[0];
+            let bulanIdx = parseInt(parts[1], 10) - 1;
+            
+            hariTgl = parts[2]; // Ambil 2 digit tanggal
+            bulanTahun = (bulanIdx >= 0 && bulanIdx < 12) ? `${namaBulan[bulanIdx]} ${tahun}` : tahun;
+          }
+
+          // 2. Sesuaikan desain kotak agar persis seperti referensi (ukuran presisi & padding)
           htmlJurnal += `
           <tr class="hover:bg-slate-50/80 transition-all duration-200 group hover:-translate-y-1">
             <td class="p-4 md:p-6 pl-6 md:pl-8 align-middle">
-              <div class="inline-flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300/50 px-3 py-1.5 md:px-4 md:py-2 rounded-xl shadow-sm group-hover:shadow-md transition-all">
-                <span class="text-lg md:text-xl font-black text-slate-800">${hariTgl}</span>
-                <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">${bulanTahun}</span>
+              <div class="inline-flex flex-col items-center justify-center bg-slate-100 border border-slate-200/80 w-16 h-16 md:w-[76px] md:h-[76px] rounded-2xl shadow-sm group-hover:shadow-md transition-all">
+                <span class="text-xl md:text-[26px] font-black text-slate-800 leading-none">${hariTgl}</span>
+                <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 md:mt-1.5">${bulanTahun}</span>
               </div>
             </td>
             <td class="p-4 md:p-6 align-middle">
