@@ -46,12 +46,12 @@
         td { border-bottom: 1px solid #f8fafc; }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans relative">
 
-    <!-- WADAH TOAST NOTIFICATION -->
-    <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+    <!-- WADAH TOAST NOTIFICATION POSISI ATAS TENGAH -->
+    <div id="toast-container" class="fixed top-8 inset-x-0 z-[9999] flex flex-col items-center gap-3 pointer-events-none px-4"></div>
 
-    <!-- KONTEN UTAMA (LANGSUNG TAMPIL) -->
+    <!-- KONTEN UTAMA -->
     <div id="main-content" class="w-full h-full flex flex-row">
         
         <!-- SIDEBAR DESKTOP -->
@@ -201,11 +201,11 @@
                 <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
             </a>
         </div>
-    </div> <!-- END KONTEN UTAMA -->
+    </div> 
 
     <!-- LOGIK JAVASCRIPT -->
     <script>
-        // Fungsi Kustom untuk Notifikasi (Toast)
+        // Fungsi Kustom untuk Notifikasi (Toast Tengah Atas)
         function showToast(type, message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -229,8 +229,8 @@
                 title = 'Peringatan';
             }
 
-            // Struktur HTML Toast
-            toast.className = `flex items-start gap-4 p-4 rounded-2xl shadow-xl border bg-white transform transition-all duration-300 translate-x-full opacity-0 max-w-sm w-full pointer-events-auto`;
+            // Struktur HTML Toast (Animasi dari atas)
+            toast.className = `flex items-start gap-4 p-4 rounded-2xl shadow-2xl border bg-white transform transition-all duration-300 -translate-y-10 scale-95 opacity-0 max-w-sm w-full pointer-events-auto`;
             toast.innerHTML = `
                 <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}">
                     <i class="fas ${icon} text-lg"></i>
@@ -246,14 +246,16 @@
 
             container.appendChild(toast);
 
-            // Animasi masuk
+            // Animasi masuk (muncul dari atas)
             setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.remove('-translate-y-10', 'scale-95', 'opacity-0');
+                toast.classList.add('translate-y-0', 'scale-100', 'opacity-100');
             }, 10);
 
-            // Otomatis hilang setelah 4 detik
+            // Otomatis hilang setelah 4 detik (naik ke atas lagi)
             setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
+                toast.classList.add('-translate-y-10', 'scale-95', 'opacity-0');
                 setTimeout(() => toast.remove(), 300); 
             }, 4000);
         }
