@@ -9,6 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Pustaka html2pdf untuk unduh langsung tanpa @media print -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -44,54 +47,8 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
 
-    /* CSS CETAK PDF LANDSCAPE */
-    @media print {
-      @page { size: A4 landscape; margin: 10mm; }
-      
-      html, body { height: auto !important; overflow: visible !important; background: white !important; margin: 0; padding: 0; }
-      
-      body > *:not(#pdfModal) { display: none !important; }
-      
-      #pdfModal { 
-        position: relative !important; 
-        display: block !important; 
-        opacity: 1 !important; 
-        visibility: visible !important; 
-        background: white !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible !important;
-      }
-      
-      #pdfModalContent {
-        transform: none !important;
-        max-width: none !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
-        box-shadow: none !important;
-        border: none !important;
-      }
-
-      #pdfPrintArea { 
-        width: 100% !important; 
-        max-width: 100% !important;
-        margin: 0 !important; 
-        padding: 0 !important; 
-        box-shadow: none !important; 
-      }
-      
-      .no-print { display: none !important; }
-      
-      * { 
-        -webkit-print-color-adjust: exact !important; 
-        print-color-adjust: exact !important; 
-        color-adjust: exact !important; 
-      }
-    }
-
-    .font-formal { font-family: 'Times New Roman', Times, serif; }
+    /* FONT CAMBRIA UNTUK PDF */
+    .font-formal { font-family: 'Cambria', Georgia, serif; }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
@@ -134,7 +91,6 @@
         Evaluasi Akademik
       </a>
 
-      <!-- MENU KHS DIKEMBALIKAN -->
       <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
         Hasil Studi
@@ -178,7 +134,7 @@
       <!-- KONTEN UTAMA PRESENSI -->
       <div id="tab-presensi" class="hidden space-y-6 md:space-y-8 animate-slide-up">
         
-        <!-- CARD PERINGATAN ALPA (DIKEMBALIKAN) -->
+        <!-- CARD PERINGATAN ALPA -->
         <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-rose-100/60 p-5 md:p-6 flex flex-col gap-4 relative overflow-hidden">
           <div class="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 bg-rose-50 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
           
@@ -243,31 +199,35 @@
       </div>
     </div>
     
-    <!-- MODAL PREVIEW PDF -->
+    <!-- MODAL PREVIEW PDF (Sekarang digunakan untuk Pratinjau & Download Langsung) -->
     <div id="pdfModal" class="fixed inset-0 z-[100] hidden bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
             
-            <div class="px-6 py-4 md:px-8 md:py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 no-print">
+            <div class="px-6 py-4 md:px-8 md:py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <h3 class="font-black text-slate-800 text-lg md:text-xl">Pratinjau Daftar Hadir (Mode Cetak Landscape)</h3>
                 <button onclick="closePDFModal()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all shadow-sm">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-gray-200">
-                <!-- Area Kertas A4 Pratinjau (Landscape) -->
-                <div class="bg-white p-8 md:p-12 shadow-md max-w-[297mm] min-h-[210mm] mx-auto text-black font-formal relative" id="pdfPrintArea">
+            <div class="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar bg-gray-200">
+                <!-- Area Kertas A4 Pratinjau (Ukuran presisi A4 Landscape, disiapkan untuk html2pdf) -->
+                <div class="bg-white shadow-md font-formal relative" id="pdfPrintArea" style="width: 297mm; min-height: 210mm; padding: 15mm; margin: 0 auto; box-sizing: border-box; color: black;">
                     
                     <div class="text-center mb-6">
-                        <h3 class="text-sm tracking-wide uppercase">Daftar Hadir Perkuliahan</h3>
+                        <h3 class="text-sm tracking-wide uppercase font-bold">Daftar Hadir Perkuliahan</h3>
                         <h1 class="text-3xl font-bold mt-1">STAI Imam Syafi'i Cianjur</h1>
                         <p class="text-sm mt-1">Tahun Ajaran <span id="previewTahunName">2024-2025</span></p>
                     </div>
 
-                    <!-- Tabel Info Mata Kuliah -->
-                    <table class="w-[50%] text-sm border-collapse border border-black mb-4">
+                    <!-- Tabel Info Mata Kuliah (Lebarnya dikunci di 30% agar sejajar sempurna dengan No + Nama Mahasiswa) -->
+                    <table class="text-sm border-collapse border border-black mb-4" style="width: 30%; table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 35%;">
+                            <col style="width: 65%;">
+                        </colgroup>
                         <tr>
-                            <td class="border border-black px-2 py-1 w-32">Mata Kuliah</td>
+                            <td class="border border-black px-2 py-1">Mata Kuliah</td>
                             <td class="border border-black px-2 py-1" id="previewMatkulDetail"></td>
                         </tr>
                         <tr>
@@ -281,45 +241,52 @@
                     </table>
 
                     <!-- Tabel Utama -->
-                    <div class="overflow-x-auto overflow-y-hidden">
-                        <table class="w-full text-xs border-collapse border border-black text-center whitespace-nowrap table-fixed">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" class="border border-black w-8 p-1">No.</th>
-                                    <th rowspan="2" class="border border-black w-64 text-left px-2 p-1">Nama Mahasiswa</th>
-                                    <th colspan="16" class="border border-black p-1">Pertemuan</th>
-                                    <th colspan="4" class="border border-black p-1">Keterangan</th>
-                                </tr>
-                                <tr>
-                                    <!-- 1 to 16 -->
-                                    <th class="border border-black w-6 p-1">1</th>
-                                    <th class="border border-black w-6 p-1">2</th>
-                                    <th class="border border-black w-6 p-1">3</th>
-                                    <th class="border border-black w-6 p-1">4</th>
-                                    <th class="border border-black w-6 p-1">5</th>
-                                    <th class="border border-black w-6 p-1">6</th>
-                                    <th class="border border-black w-6 p-1">7</th>
-                                    <th class="border border-black w-6 p-1">8</th>
-                                    <th class="border border-black w-6 p-1">9</th>
-                                    <th class="border border-black w-6 p-1">10</th>
-                                    <th class="border border-black w-6 p-1">11</th>
-                                    <th class="border border-black w-6 p-1">12</th>
-                                    <th class="border border-black w-6 p-1">13</th>
-                                    <th class="border border-black w-6 p-1">14</th>
-                                    <th class="border border-black w-6 p-1">15</th>
-                                    <th class="border border-black w-6 p-1">16</th>
-                                    <!-- H, A, I, S -->
-                                    <th class="border border-black w-8 font-bold p-1">H</th>
-                                    <th class="border border-black w-8 font-bold p-1">A</th>
-                                    <th class="border border-black w-8 font-bold p-1">I</th>
-                                    <th class="border border-black w-8 font-bold p-1">S</th>
-                                </tr>
-                            </thead>
-                            <tbody id="previewTableBody">
-                                <!-- Data diisi dari JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-xs border-collapse border border-black text-center whitespace-nowrap table-fixed">
+                        <colgroup>
+                            <!-- Kiri (No + Nama) = 5% + 25% = 30% -->
+                            <col style="width: 5%;">
+                            <col style="width: 25%;">
+                            <!-- Tengah (Pertemuan) = 16 * 3.25% = 52% -->
+                            <col style="width: 3.25%;" span="16">
+                            <!-- Kanan (Keterangan) = 4 * 4.5% = 18% -->
+                            <col style="width: 4.5%;" span="4">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="border border-black p-1">No.</th>
+                                <th rowspan="2" class="border border-black text-left px-2 p-1">Nama Mahasiswa</th>
+                                <th colspan="16" class="border border-black p-1">Pertemuan</th>
+                                <th colspan="4" class="border border-black p-1">Keterangan</th>
+                            </tr>
+                            <tr>
+                                <!-- 1 to 16 -->
+                                <th class="border border-black p-1">1</th>
+                                <th class="border border-black p-1">2</th>
+                                <th class="border border-black p-1">3</th>
+                                <th class="border border-black p-1">4</th>
+                                <th class="border border-black p-1">5</th>
+                                <th class="border border-black p-1">6</th>
+                                <th class="border border-black p-1">7</th>
+                                <th class="border border-black p-1">8</th>
+                                <th class="border border-black p-1">9</th>
+                                <th class="border border-black p-1">10</th>
+                                <th class="border border-black p-1">11</th>
+                                <th class="border border-black p-1">12</th>
+                                <th class="border border-black p-1">13</th>
+                                <th class="border border-black p-1">14</th>
+                                <th class="border border-black p-1">15</th>
+                                <th class="border border-black p-1">16</th>
+                                <!-- H, A, I, S -->
+                                <th class="border border-black font-bold p-1">H</th>
+                                <th class="border border-black font-bold p-1">A</th>
+                                <th class="border border-black font-bold p-1">I</th>
+                                <th class="border border-black font-bold p-1">S</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <!-- Data diisi dari JS -->
+                        </tbody>
+                    </table>
 
                     <!-- Footer TTD -->
                     <div class="mt-8 flex justify-end">
@@ -334,10 +301,10 @@
                 </div>
             </div>
             
-            <div class="px-6 py-4 md:px-8 md:py-5 border-t border-slate-100 flex justify-end gap-3 bg-white no-print">
+            <div class="px-6 py-4 md:px-8 md:py-5 border-t border-slate-100 flex justify-end gap-3 bg-white">
                 <button onclick="closePDFModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
-                <button onclick="window.print()" class="px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center gap-2 transition-all">
-                    <i class="fas fa-print"></i> Cetak Dokumen
+                <button id="btnDownloadPdf" onclick="downloadPDF()" class="px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center gap-2 transition-all">
+                    <i class="fas fa-download"></i> Unduh PDF
                 </button>
             </div>
         </div>
@@ -345,8 +312,8 @@
     
   </main>
 
-  <!-- NAVIGASI BOTTOM (HP) DIKEMBALIKAN LENGKAP -->
-  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl no-print">
+  <!-- NAVIGASI BOTTOM (HP) -->
+  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
     <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
       <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
@@ -400,24 +367,22 @@
         }
     }
 
-    // FUNGSI PENGISIAN BERURUTAN (Tanpa Acak)
+    // PENGISIAN BERURUTAN H, S, I, A
     function generateMeetingData(h, a, i, s) {
         let items = [];
         
-        // Memasukkan data secara berurutan: H dulu, lalu S, I, dan terakhir A
         for(let k=0; k<h; k++) items.push('H');
         for(let k=0; k<s; k++) items.push('S');
         for(let k=0; k<i; k++) items.push('I');
         for(let k=0; k<a; k++) items.push('A');
         
-        // Isi sisanya dengan sel kosong jika total < 16
         while(items.length < 16) { items.push(''); }
         if(items.length > 16) { items.length = 16; }
 
         return items; 
     }
 
-    // FUNGSI PREVIEW PDF 
+    // FUNGSI PREVIEW DOKUMEN HTML (Disiapkan untuk html2pdf)
     window.previewPDF = function(mkName) {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
@@ -446,7 +411,6 @@
             let i = parseInt(m.izin) || 0;
             let s = parseInt(m.sakit) || 0;
 
-            // Generate 16 sel data
             let meetingArray = generateMeetingData(h, a, i, s);
             let meetingCellsHtml = '';
             
@@ -456,20 +420,20 @@
                 let fontWeight = '';
                 
                 if (val === 'A') {
-                    bgColor = 'background-color: #dc2626 !important;'; 
-                    textColor = 'color: white !important;';
+                    bgColor = 'background-color: #dc2626;'; 
+                    textColor = 'color: white;';
                     fontWeight = 'font-weight: bold;';
                 } else if (val === 'S' || val === 'I') {
-                    bgColor = 'background-color: #facc15 !important;'; 
-                    textColor = 'color: black !important;';
+                    bgColor = 'background-color: #facc15;'; 
+                    textColor = 'color: black;';
                     fontWeight = 'font-weight: bold;';
                 }
 
-                let style = `${bgColor} ${textColor} ${fontWeight} -webkit-print-color-adjust: exact; print-color-adjust: exact;`;
+                let style = `${bgColor} ${textColor} ${fontWeight}`;
                 meetingCellsHtml += `<td class="border border-black p-1 text-center" style="${style}">${val}</td>`;
             });
 
-            let alpaTotalStyle = a > 0 ? "background-color: #dc2626 !important; color: white !important; font-weight: bold; -webkit-print-color-adjust: exact;" : "";
+            let alpaTotalStyle = a > 0 ? "background-color: #dc2626; color: white; font-weight: bold;" : "";
 
             html += `
             <tr>
@@ -483,7 +447,7 @@
             </tr>`;
         });
 
-        // Baris kosong untuk estetika jika data sedikit
+        // Baris kosong pengisi estetika
         let sisaBaris = 17 - mhsList.length;
         if (sisaBaris > 0) {
             for(let r=0; r<sisaBaris; r++) {
@@ -515,12 +479,36 @@
         setTimeout(() => { modal.classList.add('hidden'); }, 300);
     };
 
+    // FUNGSI UNDUH LANGSUNG PDF (Menggunakan html2pdf bypass print browser)
+    window.downloadPDF = function() {
+        const element = document.getElementById('pdfPrintArea');
+        const mkName = document.getElementById('previewMatkulDetail').innerText || 'Presensi';
+        const btn = document.getElementById('btnDownloadPdf');
+        
+        const originalBtnHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+        const opt = {
+            margin:       0,
+            filename:     `Presensi_${mkName}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.innerHTML = originalBtnHtml;
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        });
+    };
+
     window.onload = function() {
         const cachedData = localStorage.getItem(CACHE_KEY_DASH);
         if (cachedData) {
-            try {
-                handleDataSuccess(JSON.parse(cachedData));
-            } catch(e) {}
+            try { handleDataSuccess(JSON.parse(cachedData)); } catch(e) {}
         }
         fetchDataLatarBelakang();
     };
