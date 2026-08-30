@@ -44,12 +44,22 @@
     .tab-inactive { color: #94a3b8; background: transparent; }
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
     
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fda4af; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
 
     /* FONT CAMBRIA UNTUK PDF & TABEL FIXED */
     .font-formal { font-family: 'Cambria', Georgia, serif; }
     .table-fixed-layout { table-layout: fixed; }
+    
+    /* CSS Khusus agar container kertas scale down untuk layar kecil */
+    .preview-container {
+        display: flex;
+        justify-content: center;
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
+    @media (max-width: 1024px) { .preview-container { transform: scale(0.7); } }
+    @media (max-width: 768px) { .preview-container { transform: scale(0.45); } }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
@@ -202,7 +212,7 @@
     
     <!-- MODAL PREVIEW PDF -->
     <div id="pdfModal" class="fixed inset-0 z-[100] hidden bg-slate-900/80 backdrop-blur-sm flex justify-center items-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="pdfModalContent">
             
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <h3 class="font-black text-slate-800 text-lg">Pratinjau Daftar Hadir (Mode Cetak Kunci 1 Halaman)</h3>
@@ -211,95 +221,100 @@
                 </button>
             </div>
             
-            <div class="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar bg-gray-200 flex justify-center">
-                <!-- Area Kertas Pratinjau: Padding atas dikurangi jadi 5mm agar geser ke atas -->
-                <div class="bg-white shadow-md font-formal relative mx-auto" id="pdfPrintArea" style="width: 297mm; height: 210mm; max-height: 210mm; padding: 5mm 15mm; box-sizing: border-box; overflow: hidden; color: black;">
+            <!-- Area Scroll Modal dengan Custom Class Container -->
+            <div class="flex-1 overflow-auto custom-scrollbar bg-gray-200 p-4">
+                <div class="preview-container">
                     
-                    <!-- Header (Margin mb-5 diperkecil jadi mb-3) -->
-                    <div class="text-center mb-3">
-                        <h3 class="text-xs tracking-wide uppercase font-bold">Daftar Hadir Perkuliahan</h3>
-                        <h1 class="text-2xl font-bold mt-1">STAI Imam Syafi'i Cianjur</h1>
-                        <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
-                    </div>
-
-                    <!-- Info Mata Kuliah (Margin mb-4 diperkecil jadi mb-2) -->
-                    <table class="text-[11.5px] mb-2 text-left">
-                        <tbody>
-                            <tr>
-                                <td class="font-bold pr-4 pb-0.5">Mata Kuliah</td>
-                                <td class="pb-0.5">: <span id="previewMatkulDetail"></span></td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold pr-4 pb-0.5">Kode MK</td>
-                                <td class="pb-0.5">: <span id="previewKodeMK"></span></td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold pr-4 pb-0.5">Bobot (SKS)</td>
-                                <td class="pb-0.5">: 2</td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold pr-4 pb-0.5">Semester</td>
-                                <td class="pb-0.5">: <span id="previewSemesterDetail"></span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Tabel Utama -->
-                    <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
-                        <colgroup>
-                            <col style="width: 4%;">
-                            <col style="width: 26%;">
-                            <col style="width: 3.5%;" span="16">
-                            <col style="width: 3.5%;" span="4">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="border border-black py-1 px-1">No.</th>
-                                <th rowspan="2" class="border border-black text-left py-1 px-2">Nama Mahasiswa</th>
-                                <th colspan="16" class="border border-black py-1 px-1">Pertemuan</th>
-                                <th colspan="4" class="border border-black py-1 px-1">Keterangan</th>
-                            </tr>
-                            <tr>
-                                <th class="border border-black py-0.5 px-0.5">1</th>
-                                <th class="border border-black py-0.5 px-0.5">2</th>
-                                <th class="border border-black py-0.5 px-0.5">3</th>
-                                <th class="border border-black py-0.5 px-0.5">4</th>
-                                <th class="border border-black py-0.5 px-0.5">5</th>
-                                <th class="border border-black py-0.5 px-0.5">6</th>
-                                <th class="border border-black py-0.5 px-0.5">7</th>
-                                <th class="border border-black py-0.5 px-0.5">8</th>
-                                <th class="border border-black py-0.5 px-0.5">9</th>
-                                <th class="border border-black py-0.5 px-0.5">10</th>
-                                <th class="border border-black py-0.5 px-0.5">11</th>
-                                <th class="border border-black py-0.5 px-0.5">12</th>
-                                <th class="border border-black py-0.5 px-0.5">13</th>
-                                <th class="border border-black py-0.5 px-0.5">14</th>
-                                <th class="border border-black py-0.5 px-0.5">15</th>
-                                <th class="border border-black py-0.5 px-0.5">16</th>
-                                <th class="border border-black font-bold py-0.5 px-0.5">H</th>
-                                <th class="border border-black font-bold py-0.5 px-0.5">A</th>
-                                <th class="border border-black font-bold py-0.5 px-0.5">I</th>
-                                <th class="border border-black font-bold py-0.5 px-0.5">S</th>
-                            </tr>
-                        </thead>
-                        <tbody id="previewTableBody">
-                            <!-- Data diisi dari JS -->
-                        </tbody>
-                    </table>
-
-                    <!-- Footer TTD (Jarak enter br dikurangi agar hemat tempat) -->
-                    <div class="mt-2 flex justify-end">
-                        <div class="text-[12px] text-left w-56">
-                            <p>Cianjur, 31 Desember 2026</p>
-                            <p>Dosen,</p>
-                            <br><br>
-                            <p class="font-bold border-b border-black inline-block min-w-[150px]" id="previewDosenSignature"></p>
+                    <!-- Area Kertas Pratinjau: Fix 297x210mm dengan overflow hidden -->
+                    <div class="bg-white shadow-md font-formal relative" id="pdfPrintArea" style="width: 297mm; height: 210mm; padding: 10mm 15mm; box-sizing: border-box; color: black; background: white;">
+                        
+                        <!-- Header -->
+                        <div class="text-center mb-3">
+                            <h3 class="text-xs tracking-wide uppercase font-bold">Daftar Hadir Perkuliahan</h3>
+                            <h1 class="text-2xl font-bold mt-1">STAI Imam Syafi'i Cianjur</h1>
+                            <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                         </div>
-                    </div>
 
+                        <!-- Info Mata Kuliah -->
+                        <table class="text-[11.5px] mb-2 text-left">
+                            <tbody>
+                                <tr>
+                                    <td class="font-bold pr-4 pb-0.5">Mata Kuliah</td>
+                                    <td class="pb-0.5">: <span id="previewMatkulDetail"></span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold pr-4 pb-0.5">Kode MK</td>
+                                    <td class="pb-0.5">: <span id="previewKodeMK"></span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold pr-4 pb-0.5">Bobot (SKS)</td>
+                                    <td class="pb-0.5">: 2</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold pr-4 pb-0.5">Semester</td>
+                                    <td class="pb-0.5">: <span id="previewSemesterDetail"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Tabel Utama -->
+                        <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
+                            <colgroup>
+                                <col style="width: 4%;">
+                                <col style="width: 26%;">
+                                <col style="width: 3.5%;" span="16">
+                                <col style="width: 3.5%;" span="4">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="border border-black py-1 px-1">No.</th>
+                                    <th rowspan="2" class="border border-black text-left py-1 px-2">Nama Mahasiswa</th>
+                                    <th colspan="16" class="border border-black py-1 px-1">Pertemuan</th>
+                                    <th colspan="4" class="border border-black py-1 px-1">Keterangan</th>
+                                </tr>
+                                <tr>
+                                    <th class="border border-black py-0.5 px-0.5">1</th>
+                                    <th class="border border-black py-0.5 px-0.5">2</th>
+                                    <th class="border border-black py-0.5 px-0.5">3</th>
+                                    <th class="border border-black py-0.5 px-0.5">4</th>
+                                    <th class="border border-black py-0.5 px-0.5">5</th>
+                                    <th class="border border-black py-0.5 px-0.5">6</th>
+                                    <th class="border border-black py-0.5 px-0.5">7</th>
+                                    <th class="border border-black py-0.5 px-0.5">8</th>
+                                    <th class="border border-black py-0.5 px-0.5">9</th>
+                                    <th class="border border-black py-0.5 px-0.5">10</th>
+                                    <th class="border border-black py-0.5 px-0.5">11</th>
+                                    <th class="border border-black py-0.5 px-0.5">12</th>
+                                    <th class="border border-black py-0.5 px-0.5">13</th>
+                                    <th class="border border-black py-0.5 px-0.5">14</th>
+                                    <th class="border border-black py-0.5 px-0.5">15</th>
+                                    <th class="border border-black py-0.5 px-0.5">16</th>
+                                    <th class="border border-black font-bold py-0.5 px-0.5">H</th>
+                                    <th class="border border-black font-bold py-0.5 px-0.5">A</th>
+                                    <th class="border border-black font-bold py-0.5 px-0.5">I</th>
+                                    <th class="border border-black font-bold py-0.5 px-0.5">S</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                                <!-- Data diisi dari JS -->
+                            </tbody>
+                        </table>
+
+                        <!-- Footer TTD -->
+                        <div class="mt-3 flex justify-end">
+                            <div class="text-[12px] text-left w-56">
+                                <p>Cianjur, 31 Desember 2026</p>
+                                <p>Dosen,</p>
+                                <br><br>
+                                <p class="font-bold border-b border-black inline-block min-w-[150px]" id="previewDosenSignature"></p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
+            </div>
             
-            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white">
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white z-10">
                 <button onclick="closePDFModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
                 <button id="btnDownloadPdf" onclick="downloadPDF()" class="px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/30 flex items-center gap-2 transition-all">
                     <i class="fas fa-download"></i> Unduh PDF
@@ -361,7 +376,7 @@
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
         const previewMatkul = document.getElementById('previewMatkulDetail');
-        const previewKode = document.getElementById('previewKodeMK'); // Elemen baru Kode MK
+        const previewKode = document.getElementById('previewKodeMK');
         const previewSemester = document.getElementById('previewSemesterDetail');
         const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
@@ -380,7 +395,6 @@
             previewSemester.innerText = firstMhsData.kelas || "-";
             previewTahun.innerText = firstMhsData.tahun || "2026/2027";
             
-            // Mengubah peringatan error menjadi string kosong "" agar garis ttd tetap bersih
             let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || firstMhsData.pengampu || "";
             previewDosenSig.innerHTML = namaDosen;
         }
@@ -428,7 +442,6 @@
             </tr>`;
         });
 
-        // Maksimal baris diset 18 agar pas 1 halaman terkunci
         // Maksimal baris diset 20 agar pas 1 halaman terkunci
         let sisaBaris = 20 - mhsList.length;
         if (sisaBaris > 0) {
