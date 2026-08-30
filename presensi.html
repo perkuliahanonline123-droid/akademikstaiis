@@ -235,27 +235,43 @@
                             <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                         </div>
 
-                        <!-- Info Mata Kuliah -->
-                        <table class="text-[11.5px] mb-2 text-left">
-                            <tbody>
-                                <tr>
-                                    <td class="font-bold pr-4 pb-0.5">Mata Kuliah</td>
-                                    <td class="pb-0.5">: <span id="previewMatkulDetail"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold pr-4 pb-0.5">Kode MK</td>
-                                    <td class="pb-0.5">: <span id="previewKodeMK"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold pr-4 pb-0.5">Bobot (SKS)</td>
-                                    <td class="pb-0.5">: 2</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold pr-4 pb-0.5">Semester</td>
-                                    <td class="pb-0.5">: <span id="previewSemesterDetail"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <!-- Info Mata Kuliah 2 Kolom -->
+                        <div class="flex justify-between text-[11.5px] mb-4">
+                            <!-- Kolom Kiri -->
+                            <table class="text-left">
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Program Studi</td>
+                                        <td class="pb-1">: <span id="previewProdi"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Mata Kuliah</td>
+                                        <td class="pb-1">: <span id="previewMatkulDetail"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Dosen</td>
+                                        <td class="pb-1">: <span id="previewDosenHeader"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- Kolom Kanan -->
+                            <table class="text-left mr-10">
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Kode MK</td>
+                                        <td class="pb-1">: <span id="previewKodeMK"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Semester</td>
+                                        <td class="pb-1">: <span id="previewSemester"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold pr-4 pb-1">Kelas</td>
+                                        <td class="pb-1">: <span id="previewKelas"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <!-- Tabel Utama -->
                         <table class="text-[11px] border-collapse border border-black text-center table-fixed-layout" style="width: 100%;">
@@ -375,9 +391,12 @@
     window.previewPDF = function(mkName) {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
+        const previewProdi = document.getElementById('previewProdi');
         const previewMatkul = document.getElementById('previewMatkulDetail');
+        const previewDosenHeader = document.getElementById('previewDosenHeader');
         const previewKode = document.getElementById('previewKodeMK');
-        const previewSemester = document.getElementById('previewSemesterDetail');
+        const previewSemester = document.getElementById('previewSemester');
+        const previewKelas = document.getElementById('previewKelas');
         const previewTahun = document.getElementById('previewTahunName');
         const previewTable = document.getElementById('previewTableBody');
         const previewDosenSig = document.getElementById('previewDosenSignature');
@@ -390,13 +409,26 @@
         });
 
         if (firstMhsData) {
-            previewMatkul.innerText = firstMhsData.matkul || "-";
-            previewKode.innerText = firstMhsData.kode || "-";
-            previewSemester.innerText = firstMhsData.kelas || "-";
-            previewTahun.innerText = firstMhsData.tahun || "2026/2027";
+            // Ambil data dari kolom H (Prodi)
+            let namaProdi = firstMhsData.prodi || firstMhsData.program_studi || firstMhsData.Prodi || "-";
+            previewProdi.innerText = namaProdi;
             
-            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || firstMhsData.pengampu || "";
-            previewDosenSig.innerHTML = namaDosen;
+            previewMatkul.innerText = firstMhsData.matkul || "-";
+            
+            // Ambil data dari kolom F (Dosen)
+            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.dosen_pengampu || firstMhsData.Dosen || "-";
+            previewDosenHeader.innerText = namaDosen;
+            previewDosenSig.innerHTML = namaDosen; // Untuk TTD bawah
+
+            previewKode.innerText = firstMhsData.kode || "-";
+            
+            // Pengaturan Semester & Kelas
+            let kelasFull = firstMhsData.kelas || "-";
+            let semesterAngka = kelasFull.replace(/[^0-9]/g, ''); // Ambil angkanya saja untuk 'Semester'
+            previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
+            previewKelas.innerText = kelasFull;
+            
+            previewTahun.innerText = firstMhsData.tahun || "2026/2027";
         }
         
         let html = '';
