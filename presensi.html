@@ -293,7 +293,7 @@
                         <!-- Footer TTD (Didorong ke bawah) -->
                         <div class="mt-auto pt-3 flex justify-end shrink-0">
                             <div class="text-[11.5px] text-left w-56">
-                                <p id="previewTanggalTtd">Cianjur, 31 Desember 2026</p>
+                                <p id="previewTanggalTtd">Cianjur, </p>
                                 <p>Dosen Pengampu,</p>
                                 <br><br>
                                 <!-- Hapus border-b dan border-black di sini -->
@@ -392,7 +392,7 @@
             
             previewMatkul.innerText = firstMhsData.matkul || "-";
             
-            // Tangkap Nama Dosen Pengampu (Mencakup semua variasi penamaan kolom Google Sheets)
+            // Tangkap Nama Dosen Pengampu
             let namaDosen = firstMhsData.nama_dosen_pengampu || 
                             firstMhsData.namadosenpengampu || 
                             firstMhsData['Nama Dosen Pengampu'] || 
@@ -413,19 +413,32 @@
             let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
             previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
             previewKelas.innerText = kelasFull;
-            // --- LOGIKA TANGGAL OTOMATIS BERDASARKAN SEMESTER ---
-            let nilaiSemester = firstMhsData.semester || semesterAngka;
-            let tanggalTtd = "31 Desember 2026"; // Nilai default (Ganjil)
-            
-            // Cek jika datanya "Genap" (dari teks) atau angka genap (habis dibagi 2)
-            if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
-                tanggalTtd = "30 Juni 2026"; // Jika Genap
+
+            // --- LOGIKA TANGGAL TTD DINAMIS DARI DATABASE ---
+            let dataTanggalTTD = firstMhsData.tanggal_ttd;
+            let tanggalAkhir = "";
+
+            if (dataTanggalTTD && dataTanggalTTD.trim() !== "") {
+                // Jika data kolom K di spreadsheet ada
+                // Cek apakah string mengandung "Cianjur", jika tidak tambahkan
+                if (dataTanggalTTD.toLowerCase().includes("cianjur")) {
+                     tanggalAkhir = dataTanggalTTD;
+                } else {
+                     tanggalAkhir = "Cianjur, " + dataTanggalTTD;
+                }
             } else {
-                tanggalTtd = "31 Desember 2026"; // Jika Ganjil
+                // FALLBACK JIKA KOSONG DI SPREADSHEET (Ganjil/Genap otomatis)
+                let nilaiSemester = firstMhsData.semester || semesterAngka;
+                let tglFallback = "31 Desember 2026"; 
+                
+                if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
+                    tglFallback = "30 Juni 2026";
+                }
+                
+                tanggalAkhir = "Cianjur, " + tglFallback;
             }
             
-            // Terapkan ke elemen HTML
-            document.getElementById('previewTanggalTtd').innerText = "Cianjur, " + tanggalTtd;
+            document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
         }
         
         let html = '';
