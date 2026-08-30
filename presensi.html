@@ -212,17 +212,18 @@
             </div>
             
             <div class="flex-1 overflow-auto p-4 md:p-8 custom-scrollbar bg-gray-200 flex justify-center">
-                <!-- Area Kertas Pratinjau: Menggunakan persentase agar 100% responsif di A4 tanpa terpotong -->
-                <div class="bg-white shadow-md font-formal relative mx-auto" id="pdfPrintArea" style="width: 297mm; height: 210mm; max-height: 210mm; padding: 10mm 15mm; box-sizing: border-box; overflow: hidden; color: black;">
+                <!-- Area Kertas Pratinjau: Padding atas dikurangi jadi 5mm agar geser ke atas -->
+                <div class="bg-white shadow-md font-formal relative mx-auto" id="pdfPrintArea" style="width: 297mm; height: 210mm; max-height: 210mm; padding: 5mm 15mm; box-sizing: border-box; overflow: hidden; color: black;">
                     
-                    <div class="text-center mb-5">
+                    <!-- Header (Margin mb-5 diperkecil jadi mb-3) -->
+                    <div class="text-center mb-3">
                         <h3 class="text-xs tracking-wide uppercase font-bold">Daftar Hadir Perkuliahan</h3>
                         <h1 class="text-2xl font-bold mt-1">STAI Imam Syafi'i Cianjur</h1>
                         <p class="text-[11px] mt-1">Tahun Ajaran <span id="previewTahunName">2026/2027</span></p>
                     </div>
 
-                    <!-- Info Mata Kuliah (Tabel Tanpa Garis agar Rapat dan Sejajar) -->
-                    <table class="text-[12px] mb-3 text-left">
+                    <!-- Info Mata Kuliah (Margin mb-4 diperkecil jadi mb-2) -->
+                    <table class="text-[11.5px] mb-2 text-left">
                         <tbody>
                             <tr>
                                 <td class="font-bold pr-4 pb-0.5">Mata Kuliah</td>
@@ -248,9 +249,7 @@
                         <colgroup>
                             <col style="width: 4%;">
                             <col style="width: 26%;">
-                            <!-- Tengah (Pertemuan) = 16 Kolom x 3.5% = 56% -->
                             <col style="width: 3.5%;" span="16">
-                            <!-- Kanan (Keterangan) = 4 Kolom x 3.5% = 14% -->
                             <col style="width: 3.5%;" span="4">
                         </colgroup>
                         <thead>
@@ -261,7 +260,6 @@
                                 <th colspan="4" class="border border-black py-1 px-1">Keterangan</th>
                             </tr>
                             <tr>
-                                <!-- 1 to 16 -->
                                 <th class="border border-black py-0.5 px-0.5">1</th>
                                 <th class="border border-black py-0.5 px-0.5">2</th>
                                 <th class="border border-black py-0.5 px-0.5">3</th>
@@ -278,7 +276,6 @@
                                 <th class="border border-black py-0.5 px-0.5">14</th>
                                 <th class="border border-black py-0.5 px-0.5">15</th>
                                 <th class="border border-black py-0.5 px-0.5">16</th>
-                                <!-- H, A, I, S -->
                                 <th class="border border-black font-bold py-0.5 px-0.5">H</th>
                                 <th class="border border-black font-bold py-0.5 px-0.5">A</th>
                                 <th class="border border-black font-bold py-0.5 px-0.5">I</th>
@@ -290,19 +287,17 @@
                         </tbody>
                     </table>
 
-                    <!-- Footer TTD -->
-                    <div class="mt-4 flex justify-end">
+                    <!-- Footer TTD (Jarak enter br dikurangi agar hemat tempat) -->
+                    <div class="mt-2 flex justify-end">
                         <div class="text-[12px] text-left w-56">
                             <p>Cianjur, 31 Desember 2026</p>
                             <p>Dosen,</p>
-                            <br><br><br>
-                            <!-- inline-block memastikan garis bawah hanya sebatas teks -->
-                            <p class="font-bold border-b border-black inline-block" id="previewDosenSignature">-</p>
+                            <br><br>
+                            <p class="font-bold border-b border-black inline-block min-w-[150px]" id="previewDosenSignature"></p>
                         </div>
                     </div>
 
                 </div>
-            </div>
             
             <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white">
                 <button onclick="closePDFModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
