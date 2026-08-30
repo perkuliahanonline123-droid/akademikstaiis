@@ -259,11 +259,12 @@
         return;
       }
 
+      // Hapus kata "& Status" dari header
       thead.innerHTML = `
         <tr>
           <th class="py-4 md:py-6 pl-6 md:pl-8 pr-4 md:pr-6 text-left">Mahasiswa yang Gagal</th>
           <th class="py-4 md:py-6 px-4 md:px-6 text-center">Jumlah Matkul</th>
-          <th class="py-4 md:py-6 pr-6 md:pr-8 text-left">Mata Kuliah & Status</th>
+          <th class="py-4 md:py-6 pr-6 md:pr-8 text-left">Mata Kuliah</th>
         </tr>
       `;
 
@@ -271,7 +272,6 @@
       const groupedData = {};
       
       globalGagalBody.forEach(row => {
-          // Sesuaikan dengan posisi indeks kolom dari Google Sheets Anda
           let nama = row[3] ? row[3].toString().trim() : "";
           let matkul = row[4] ? row[4].toString().trim() : "";
           let status = row[5] ? row[5].toString().trim().toUpperCase() : "";
@@ -286,7 +286,7 @@
                   matkuls: []
               };
           }
-          // Dorong mata kuliah beserta statusnya ke dalam grup mahasiswa
+          // Dorong mata kuliah ke dalam grup mahasiswa
           groupedData[nama].matkuls.push({ mk: matkul, st: status });
       });
 
@@ -316,16 +316,11 @@
 
         let matkulHtml = '<div class="flex flex-col gap-3">';
         item.matkuls.forEach(m => {
-          // Buat warna lencana berbeda antara GAGAL (Merah) dan KELUAR (Kuning)
-          let badgeColor = m.st === 'GAGAL' ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-amber-100 text-amber-600 border-amber-200';
-          
+          // Lencana status dihapus di sini, hanya menampilkan list mata kuliah
           matkulHtml += `
             <div class="flex items-start gap-2.5">
-              <div class="mt-2 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 shadow-sm"></div>
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                 <span class="text-xs md:text-sm font-semibold text-slate-600 whitespace-normal leading-tight">${m.mk}</span>
-                 <span class="text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-md border ${badgeColor} w-fit tracking-wider">${m.st}</span>
-              </div>
+              <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 shadow-sm"></div>
+              <span class="text-xs md:text-sm font-semibold text-slate-600 whitespace-normal leading-tight">${m.mk}</span>
             </div>
           `;
         });
