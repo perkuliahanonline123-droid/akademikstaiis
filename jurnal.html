@@ -309,7 +309,6 @@
 
       let years = new Set();
       globalDataJurnal.forEach(j => years.add(j.tahun));
-      globalDataMhs.forEach(m => years.add(m.tahun));
       let yearsArr = Array.from(years).filter(y => y && y !== "Semester Tidak Diketahui").sort().reverse();
 
       let optTahun = '<option value="Semua">Tampilkan Semua Semester</option>';
@@ -325,7 +324,6 @@
 
       let matkuls = new Set();
       globalDataJurnal.forEach(j => matkuls.add(j.matkul));
-      globalDataMhs.forEach(m => matkuls.add(m.matkul));
       let matkulsArr = Array.from(matkuls).sort();
 
       let optMatkul = '<option value="Semua">Semua Mata Kuliah</option>';
