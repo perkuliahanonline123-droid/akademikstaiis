@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cetak Nilai Kelas - Dasbor Premium</title>
+  <meta name="theme-color" content="#064e3b">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: { 
+            brand: { 900: '#064e3b', 800: '#065f46', 600: '#059669', 500: '#10b981', 100: '#d1fae5', 50: '#ecfdf5' } 
+          },
+          boxShadow: {
+            'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+            'up': '0 -4px 20px rgba(0,0,0,0.05)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #f3f4f6; background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+    .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
+    .tab-inactive { color: #94a3b8; background: transparent; }
+    .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
+
+    /* ==============================================================
+       CSS KHUSUS UNTUK CETAK DAFTAR NILAI (SESUAI GAMBAR REFERENSI)
+       ============================================================== */
+    #cetakArea { 
+        display: none; 
+        margin-top: 20px; 
+        background: #fff; 
+        padding: 40px 60px; 
+        color: #000; 
+        border-radius: 1.5rem; 
+        font-family: 'Times New Roman', Times, serif; /* Menggunakan font Serif resmi */
+    }
+    
+    .judul-dokumen { text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 25px; line-height: 1.4; letter-spacing: 0.5px;}
+    
+    .info-table { width: 100%; border-collapse: collapse; font-size: 12px; font-weight: bold; margin-bottom: 20px;}
+    .info-table td { padding: 4px 8px; vertical-align: top; border: none; }
+    
+    /* Tabel Data Nilai: Garis horizontal saja */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center; }
+    .data-table th { border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 4px; font-weight: bold; }
+    .data-table td { padding: 6px 4px; border: none; }
+    /* Garis bawah penutup tabel */
+    .data-table tbody tr:last-child td { border-bottom: 2px solid #000; padding-bottom: 12px; }
+    
+    /* Footer Keterangan & TTD */
+    .footer-area { display: flex; justify-content: space-between; margin-top: 40px; font-size: 11.5px; }
+    .tabel-ket { width: 120px; border-collapse: collapse; }
+    .tabel-ket td { padding: 2px 0; }
+    
+    @media print {
+        @page { size: A4 portrait; margin: 15mm; }
+        body, html { background: #fff !important; padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; }
+        
+        /* SEMBUNYIKAN SEMUA ELEMEN DASHBOARD SAAT PRINT */
+        aside, header, nav, .md\:hidden, #kontrol-cetak, #status-msg, #printBtn, #loading { display: none !important; }
+        
+        main { display: block !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
+        
+        #cetakArea { display: block !important; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: none !important;}
+        
+        thead { display: table-row-group; }
+    }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 font-sans">
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+    <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+
+    <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
+      <div class="relative flex-shrink-0">
+        <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+        <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+      </div>
+      <div class="text-left flex flex-col justify-center">
+        <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <div class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+          </div>
+          <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
+        </div>
+      </div>
+    </div>
+    
+    <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
+      <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
+        Riwayat Jurnal
+      </a>
+      <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
+        Presensi Mahasiswa
+      </a>
+      <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
+        Evaluasi Akademik
+      </a>
+      <!-- MENU BARU UNTUK NILAI MAHASISWA (AKTIF) -->
+      <a href="nilaimaba.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-file-invoice text-white text-sm"></i></div>
+        Daftar Nilai Kelas
+      </a>
+      <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
+        Cetak KHS / Transkrip
+      </a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0 print:h-auto print:overflow-visible">
+    
+    <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
+      <div>
+        <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Daftar Nilai Akhir Kelas</h2>
+        <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Sistem Pencetakan Laporan Nilai Kolektif per Mata Kuliah</p>
+      </div>
+      
+      <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
+        <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+          <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+          <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+          <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto print:p-0 print:max-w-none">
+
+      <!-- LOADING STATE -->
+      <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100">
+        <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-6">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
+          <i class="fas fa-database absolute inset-0 m-auto h-5 w-5 md:h-6 md:w-6 text-brand-500 text-xl"></i>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-800">Menyinkronkan Data</h3>
+        <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Menyiapkan pangkalan data nilai...</p>
+      </div>
+
+      <div id="tab-nilai" class="space-y-6 animate-slide-up hidden">
+          
+          <!-- KONTROL PENCARIAN MATKUL -->
+          <div id="kontrol-cetak" class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-soft border border-slate-100 flex flex-col gap-4">
+              <label class="font-bold text-slate-700 text-sm">Pilih Mata Kuliah untuk Dicetak:</label>
+              <select id="selectMatkulTarget" onchange="renderNilaiMatkul()" class="w-full bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer hover:bg-slate-100 transition-all appearance-none">
+                  <option value="">-- Memuat data Mata Kuliah... --</option>
+              </select>
+          </div>
+          
+          <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
+
+          <!-- AREA YANG AKAN DICETAK (DESAIN RESMI) -->
+          <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
+              
+              <!-- HEADER DOKUMEN -->
+              <div class="judul-dokumen">
+                  SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR<br>
+                  DAFTAR NILAI AKHIR MAHASISWA<br>
+                  <span id="lblTaSmt">SEMESTER GENAP 2025/2026</span>
+              </div>
+
+              <!-- INFO KELAS (2 KOLOM) -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                  <table style="font-size: 12px; font-weight: bold;">
+                      <tr>
+                          <td style="width: 120px; padding-bottom: 4px;">Mata Kuliah</td>
+                          <td style="padding-bottom: 4px;">: <span id="lblMatkul" style="font-weight: normal;">-</span></td>
+                      </tr>
+                      <tr>
+                          <td style="padding-bottom: 4px;">Dosen Pengampu</td>
+                          <td style="padding-bottom: 4px;">: <span id="lblDosen" style="font-weight: normal;">-</span></td>
+                      </tr>
+                      <tr>
+                          <td>Program Studi</td>
+                          <td>: <span id="lblProdi" style="font-weight: normal;">-</span></td>
+                      </tr>
+                  </table>
+                  
+                  <table style="font-size: 12px; font-weight: bold;">
+                      <tr>
+                          <td style="width: 80px; padding-bottom: 4px;">Kode</td>
+                          <td style="padding-bottom: 4px;">: <span id="lblKode" style="font-weight: normal;">-</span></td>
+                      </tr>
+                      <tr>
+                          <td style="padding-bottom: 4px;">SKS</td>
+                          <td style="padding-bottom: 4px;">: <span id="lblSks" style="font-weight: normal;">-</span></td>
+                      </tr>
+                      <tr>
+                          <td>Semester</td>
+                          <td>: <span id="lblSemester" style="font-weight: normal;">-</span></td>
+                      </tr>
+                  </table>
+              </div>
+
+              <!-- TABEL NILAI -->
+              <table class="data-table">
+                  <thead>
+                      <tr>
+                          <th style="width: 5%;">No</th>
+                          <th style="width: 15%;">NIM</th>
+                          <th style="text-align: left; padding-left: 8px;">Nama Mahasiswa</th>
+                          <th style="width: 10%;">Angka</th>
+                          <th style="width: 10%;">Huruf</th>
+                          <th style="width: 10%;">Indeks</th>
+                          <th style="width: 12%;">SKS*Indeks</th>
+                      </tr>
+                  </thead>
+                  <tbody id="nilaiBody">
+                      <!-- Data Rendered by JS -->
+                  </tbody>
+              </table>
+
+              <!-- FOOTER (KETERANGAN & TTD) -->
+              <div class="footer-area">
+                  <div>
+                      <div style="margin-bottom: 6px;">Keterangan Nilai</div>
+                      <table class="tabel-ket">
+                          <tr><td style="width: 50px;">85-100</td><td>A</td></tr>
+                          <tr><td>80-84</td><td>A-</td></tr>
+                          <tr><td>70-79</td><td>B+</td></tr>
+                          <tr><td>65-69</td><td>B</td></tr>
+                          <tr><td>60-64</td><td>B-</td></tr>
+                          <tr><td>55-59</td><td>C+</td></tr>
+                          <tr><td>50-54</td><td>C</td></tr>
+                          <tr><td>45-49</td><td>C-</td></tr>
+                          <tr><td>40-44</td><td>D</td></tr>
+                          <tr><td>0-39</td><td>E</td></tr>
+                      </table>
+                  </div>
+                  
+                  <div style="text-align: center; width: 250px;">
+                      <div id="lblTanggal" style="margin-bottom: 4px;">Cianjur, 30 Agustus 2026</div>
+                      <div style="margin-bottom: 70px;">Dosen Mata Kuliah,</div>
+                      <div style="font-weight: bold; text-decoration: underline;" id="lblDosenTtd">-</div>
+                      <div>NIDN: <span id="lblNidn">__________________</span></div>
+                  </div>
+              </div>
+              
+          </div>
+
+          <button class="w-full bg-brand-600 hover:bg-brand-500 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-md flex items-center justify-center gap-3" id="printBtn" onclick="window.print()" style="display: none;">
+              <i class="fas fa-print"></i> Cetak Daftar Nilai (PDF / Printer)
+          </button>
+      </div>
+
+    </div>
+
+    <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
+      &copy; 2026 Dasbor Akademik
+    </footer>
+    
+  </main>
+
+  <script>
+    // URL Backend Google Apps Script (Menggunakan URL yang sama dengan KHS)
+    const SCRIPT_URL_DB = 'https://script.google.com/macros/s/AKfycbxlS2O6Z0hEzUCYVnIyuZHg-v_bV12pRKF2mG-ujQE1TDEJeSmph5mnCqIX6bAS7rls0Q/exec'; 
+    let globalDB = null;
+    let kurikulumList = [];
+    let dataASH = [];
+    let dataPBA = [];
+
+    function updateJam() {
+      try {
+        const now = new Date();
+        const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const el = document.getElementById("realtimeClock");
+        if(el) {
+          el.innerText = hari[now.getDay()] + ", " + now.getDate() + " " + bulan[now.getMonth()] + " " + now.getFullYear() + " • " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + " WIB";
+        }
+      } catch(e){}
+    }
+    setInterval(updateJam, 1000);
+
+    window.onload = async function() {
+      updateJam();
+      initDataNilai();
+      
+      // Setup Tanggal Cetak Otomatis
+      const d = new Date();
+      const bulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      document.getElementById('lblTanggal').innerText = `Cianjur, ${d.getDate()} ${bulanArr[d.getMonth()]} ${d.getFullYear()}`;
+    };
+
+    function setStatus(msg, type = 'normal') {
+        const statusEl = document.getElementById('status-msg');
+        if(msg === "") {
+            statusEl.style.display = "none";
+        } else {
+            statusEl.innerHTML = msg; 
+            if (type === 'error') {
+                statusEl.className = 'text-center font-bold p-4 rounded-xl border mb-6 bg-red-50 text-red-600 border-red-200';
+            } else {
+                statusEl.className = 'text-center font-bold p-4 rounded-xl border mb-6 bg-amber-50 text-amber-600 border-amber-200';
+            }
+            statusEl.style.display = "block";
+        }
+    }
+
+    async function initDataNilai() {
+        try {
+            const noCacheUrl = SCRIPT_URL_DB + (SCRIPT_URL_DB.includes('?') ? '&' : '?') + 't=' + Date.now();
+            const response = await fetch(noCacheUrl);
+            
+            if (!response.ok) throw new Error("Gagal terhubung ke server");
+            
+            const json = await response.json();
+            if (json.status !== "success" || !json.data) throw new Error("Format data tidak valid.");
+    
+            globalDB = json.data;
+            
+            // Pemisahan Sheet Data
+            for (const sheetName in globalDB) {
+                const nameUpper = sheetName.toUpperCase();
+                if (nameUpper.includes('ASH')) dataASH = globalDB[sheetName];
+                if (nameUpper.includes('PBA')) dataPBA = globalDB[sheetName];
+                if (nameUpper.includes('KURIKULUM')) kurikulumList = globalDB[sheetName];
+            }
+
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('tab-nilai').classList.remove('hidden');
+            populateDropdownMatkul();
+
+        } catch (error) {
+            console.log("Error:", error);
+            setStatus("Gagal memuat database. Pastikan koneksi internet stabil.", "error");
+            document.getElementById('loading').innerHTML = `<div class="text-rose-500 font-bold"><i class="fas fa-exclamation-triangle text-3xl mb-2 block"></i>Gagal Memuat Data</div>`;
+        }
+    }
+
+    function populateDropdownMatkul() {
+        const select = document.getElementById('selectMatkulTarget');
+        select.innerHTML = '<option value="">-- Pilih Mata Kuliah & Kelas untuk Dicetak --</option>';
+        
+        kurikulumList.forEach((mk, index) => {
+            if(!mk['Mata Kuliah'] || mk['Mata Kuliah'] === 'Mata Kuliah' || mk['Mata Kuliah'] === '') return;
+            const prodiStr = mk['Prodi'] ? (mk['Prodi'].toLowerCase().includes('ahwal') ? 'ASH' : 'PBA') : '';
+            const label = `${mk['Mata Kuliah']} - Smt ${mk['Semester']} (${prodiStr})`;
+            
+            select.innerHTML += `<option value="${index}">${label}</option>`;
+        });
+    }
+
+    function konversiNilai(nilai) {
+        let huruf = 'E', bobot = 0.00;
+        if (nilai >= 85.00) { huruf = 'A'; bobot = 4.00; } 
+        else if (nilai >= 80.00) { huruf = 'A-'; bobot = 3.75; } 
+        else if (nilai >= 70.00) { huruf = 'B+'; bobot = 3.50; } 
+        else if (nilai >= 65.00) { huruf = 'B'; bobot = 3.25; } 
+        else if (nilai >= 60.00) { huruf = 'B-'; bobot = 3.00; } 
+        else if (nilai >= 55.00) { huruf = 'C+'; bobot = 2.75; } 
+        else if (nilai >= 50.00) { huruf = 'C'; bobot = 2.50; } 
+        else if (nilai >= 45.00) { huruf = 'C-'; bobot = 2.25; } 
+        else if (nilai >= 40.00) { huruf = 'D'; bobot = 2.00; } 
+        else { huruf = 'E'; bobot = 0.00; }
+        return { huruf, bobot };
+    }
+
+    function formatKoma(num) {
+        return num.toString().replace('.', ',');
+    }
+
+    function normalizeMatkul(text) {
+        if (!text) return "";
+        return text.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function renderNilaiMatkul() {
+        const val = document.getElementById('selectMatkulTarget').value;
+        const cetakArea = document.getElementById('cetakArea');
+        const printBtn = document.getElementById('printBtn');
+        
+        if (val === "") {
+            cetakArea.style.display = 'none';
+            printBtn.style.display = 'none';
+            return;
+        }
+
+        setStatus("Memproses rekapitulasi data nilai...");
+        
+        const mkInfo = kurikulumList[val];
+        const mkNameAsli = mkInfo['Mata Kuliah'];
+        const prodiAsli = mkInfo['Prodi'] || "";
+        const sks = parseInt(mkInfo['SKS']) || 2;
+        
+        // Update Label Header Cetak
+        document.getElementById('lblMatkul').innerText = mkNameAsli;
+        document.getElementById('lblDosen').innerText = mkInfo['Nama Dosen'] || '-';
+        document.getElementById('lblProdi').innerText = prodiAsli;
+        document.getElementById('lblKode').innerText = mkInfo['Kode MK'] || '-';
+        document.getElementById('lblSks').innerText = sks;
+        document.getElementById('lblSemester').innerText = mkInfo['Semester'] || '-';
+        
+        document.getElementById('lblDosenTtd').innerText = mkInfo['Nama Dosen'] || '___________________';
+        
+        // Tahun Akademik
+        const taStr = mkInfo['Tahun Akademik'] || 'Ganjil Tahun Akademik 2026/2027';
+        document.getElementById('lblTaSmt').innerText = taStr.toUpperCase();
+
+        // 1. Tentukan sumber data berdasarkan prodi matkul
+        const isASH = prodiAsli.toLowerCase().includes('ahwal');
+        const targetDataMhs = isASH ? dataASH : dataPBA;
+
+        if (!targetDataMhs || targetDataMhs.length === 0) {
+            setStatus("Data nilai untuk program studi ini tidak ditemukan.", "error");
+            cetakArea.style.display = 'none';
+            printBtn.style.display = 'none';
+            return;
+        }
+
+        // 2. Cari kunci/nama kolom di sheet Mahasiswa yang pas dengan Matkul ini
+        const normTarget = normalizeMatkul(mkNameAsli);
+        const headersSheetMhs = Object.keys(targetDataMhs[0]);
+        let exactColumnKey = null;
+
+        for (let k of headersSheetMhs) {
+            if (normalizeMatkul(k) === normTarget) {
+                exactColumnKey = k;
+                break;
+            }
+        }
+
+        const tbody = document.getElementById('nilaiBody');
+        tbody.innerHTML = '';
+
+        if (!exactColumnKey) {
+            setStatus("Mata Kuliah belum terdaftar di Sheet Penilaian Mahasiswa.", "error");
+            cetakArea.style.display = 'none';
+            printBtn.style.display = 'none';
+            return;
+        }
+
+        // 3. Proses dan Render Data
+        let no = 1;
+        let adaData = false;
+
+        targetDataMhs.forEach(row => {
+            const valNilaiRaw = row[exactColumnKey];
+            
+            // Cek jika kolom nilai terisi dan berupa angka valid
+            if (valNilaiRaw !== null && valNilaiRaw !== '' && !isNaN(parseFloat(valNilaiRaw))) {
+                adaData = true;
+                const nilaiAngka = parseFloat(valNilaiRaw);
+                
+                // Cari NIM dan Nama
+                const nimKey = Object.keys(row).find(k => k.toLowerCase().includes('nim'));
+                const namaKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
+                
+                const nim = nimKey && row[nimKey] ? row[nimKey] : '-';
+                const nama = namaKey && row[namaKey] ? row[namaKey] : '-';
+                
+                const hasilKonversi = konversiNilai(nilaiAngka);
+                const mutu = sks * hasilKonversi.bobot;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${no++}</td>
+                        <td>${nim}</td>
+                        <td style="text-align: left; padding-left: 8px;">${nama}</td>
+                        <td>${formatKoma(nilaiAngka.toFixed(2))}</td>
+                        <td>${hasilKonversi.huruf}</td>
+                        <td>${formatKoma(hasilKonversi.bobot.toFixed(2))}</td>
+                        <td>${formatKoma(mutu.toFixed(2))}</td>
+                    </tr>
+                `;
+            }
+        });
+
+        if (!adaData) {
+            tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; font-style: italic; color: #555;">Belum ada dosen/admin yang memasukkan nilai untuk Mata Kuliah ini.</td></tr>`;
+        }
+
+        cetakArea.style.display = 'block';
+        printBtn.style.display = 'flex';
+        setStatus(""); 
+    }
+  </script>
+</body>
+</html>
