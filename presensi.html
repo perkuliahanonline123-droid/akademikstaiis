@@ -409,23 +409,26 @@
         const previewDosenSig = document.getElementById('previewDosenSignature');
         
         let firstMhsData = null;
+        
+        // Memfilter data dan mencocokkan grup dengan memanggil key 'program_studi'
         const mhsList = globalDataMhs.filter(m => {
-            const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
+            let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
+            const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
             if (groupName === mkName && !firstMhsData) firstMhsData = m;
             return groupName === mkName;
         });
 
         if (firstMhsData) {
-            // Tangkap Data Prodi (Kolom H) dari berbagai kemungkinan nama header
-            let namaProdi = firstMhsData.prodi || firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData.Prodi || "-";
+            // Tangkap Program Studi
+            let namaProdi = firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData['Program Studi'] || firstMhsData.prodi || "-";
             previewProdi.innerText = namaProdi;
             
             previewMatkul.innerText = firstMhsData.matkul || "-";
             
-            // Tangkap Data Dosen (Kolom F) dari berbagai kemungkinan nama header
-            let namaDosen = firstMhsData.dosen || firstMhsData.nama_dosen || firstMhsData.namadosen || firstMhsData.Dosen || firstMhsData.dosen_pengampu || "-";
+            // Tangkap Nama Dosen Pengampu
+            let namaDosen = firstMhsData.nama_dosen_pengampu || firstMhsData.namadosenpengampu || firstMhsData['Nama Dosen Pengampu'] || firstMhsData.dosen || "-";
             previewDosenHeader.innerText = namaDosen;
-            previewDosenSig.innerHTML = namaDosen; // Tanda tangan di bawah
+            previewDosenSig.innerHTML = namaDosen; 
 
             previewKode.innerText = firstMhsData.kode || "-";
             
@@ -433,9 +436,9 @@
             let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
             previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
             previewKelas.innerText = kelasFull;
-        }
             
-            previewTahun.innerText = firstMhsData.tahun || "2026/2027";
+            // Error sebelumnya ada di blok ini (kurung penutup berlebih)
+            if(previewTahun) previewTahun.innerText = firstMhsData.tahun || "2026/2027";
         }
         
         let html = '';
@@ -481,7 +484,6 @@
             </tr>`;
         });
 
-        // Maksimal baris diset 20 agar pas 1 halaman terkunci
         let sisaBaris = 20 - mhsList.length;
         if (sisaBaris > 0) {
             for(let r=0; r<sisaBaris; r++) {
@@ -504,7 +506,7 @@
             modalContent.classList.remove('scale-95');
         }, 10);
     };
-
+    
     window.closePDFModal = function() {
         const modal = document.getElementById('pdfModal');
         const modalContent = document.getElementById('pdfModalContent');
@@ -632,7 +634,10 @@
 
       const groups = {};
       filtered.forEach(m => {
-        const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${m.prodi}`;
+        // Panggil key program studi dengan benar agar tidak muncul "undefined"
+        let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
+        const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
+        
         if(!groups[groupName]) groups[groupName] = [];
         groups[groupName].push(m);
       });
