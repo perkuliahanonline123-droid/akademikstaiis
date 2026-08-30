@@ -48,29 +48,11 @@
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
-    <!-- LAYAR KEAMANAN (LOGIN) -->
-    <div id="security-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 backdrop-blur-md">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all border border-white/20">
-            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner rotate-3">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Akses Terbatas</h2>
-            <p class="text-slate-500 text-sm mb-8">Silakan masukkan kode keamanan untuk mengakses dasbor akademik.</p>
-            
-            <input type="password" id="security-code" placeholder="Masukkan kode..." class="w-full p-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 mb-4 text-center font-bold tracking-widest transition-all bg-slate-50" onkeypress="if(event.key === 'Enter') checkSecurityCode()">
-            
-            <button onclick="checkSecurityCode()" class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-800 hover:to-brand-600 text-white font-black py-4 px-6 rounded-xl transition-all duration-300 shadow-soft transform hover:-translate-y-1 flex justify-center items-center gap-2">
-                Buka Kunci <i class="fas fa-unlock-alt text-sm"></i>
-            </button>
-            
-            <p id="error-msg" class="text-rose-500 text-sm font-bold mt-4 hidden bg-rose-50 py-2 rounded-lg border border-rose-100 animate-pulse">
-                Kode keamanan tidak valid!
-            </p>
-        </div>
-    </div>
-    
-    <!-- KONTEN UTAMA (DISEMBUNYIKAN SEBELUM LOGIN) -->
-    <div id="main-content" class="hidden w-full h-full flex-row">
+    <!-- WADAH TOAST NOTIFICATION -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- KONTEN UTAMA (LANGSUNG TAMPIL) -->
+    <div id="main-content" class="w-full h-full flex flex-row">
         
         <!-- SIDEBAR DESKTOP -->
         <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
@@ -223,23 +205,57 @@
 
     <!-- LOGIK JAVASCRIPT -->
     <script>
-        // Logika Keamanan Login
-        function checkSecurityCode() {
-            const codeInput = document.getElementById('security-code').value;
-            const errorMsg = document.getElementById('error-msg');
+        // Fungsi Kustom untuk Notifikasi (Toast)
+        function showToast(type, message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
             
-            // Mengecek kesesuaian kode keamanan
-            if (codeInput === 'dpr') { 
-                document.getElementById('security-overlay').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('main-content').classList.add('flex');
-                
-                // Menjalankan fetch data hanya jika password benar untuk menghemat request
-                loadData(); 
-            } else {
-                errorMsg.classList.remove('hidden');
-                document.getElementById('security-code').value = ''; // Reset input
+            let icon = '';
+            let colorClass = '';
+            let title = '';
+
+            // Menyesuaikan tampilan berdasarkan tipe notifikasi
+            if (type === 'success') {
+                icon = 'fa-check-circle';
+                colorClass = 'text-emerald-500 bg-emerald-50 border-emerald-200';
+                title = 'Berhasil';
+            } else if (type === 'error') {
+                icon = 'fa-times-circle';
+                colorClass = 'text-rose-500 bg-rose-50 border-rose-200';
+                title = 'Gagal';
+            } else if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                colorClass = 'text-amber-500 bg-amber-50 border-amber-200';
+                title = 'Peringatan';
             }
+
+            // Struktur HTML Toast
+            toast.className = `flex items-start gap-4 p-4 rounded-2xl shadow-xl border bg-white transform transition-all duration-300 translate-x-full opacity-0 max-w-sm w-full pointer-events-auto`;
+            toast.innerHTML = `
+                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}">
+                    <i class="fas ${icon} text-lg"></i>
+                </div>
+                <div class="flex-1 pt-1">
+                    <p class="font-bold text-slate-800 text-sm">${title}</p>
+                    <p class="text-slate-500 text-xs mt-0.5 leading-relaxed">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Animasi masuk
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            // Otomatis hilang setelah 4 detik
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300); 
+            }, 4000);
         }
 
         // Jam Real-time
@@ -271,10 +287,10 @@
                     globalData = result;
                     populateDropdown();
                 } else {
-                    alert("Gagal memuat data: " + result.message);
+                    showToast('error', "Gagal memuat data: " + result.message);
                 }
             } catch (e) {
-                alert("Terjadi kesalahan jaringan saat memuat data.");
+                showToast('error', "Terjadi kesalahan jaringan saat memuat data.");
             }
         }
 
@@ -375,13 +391,13 @@
             let metodeInput = document.getElementById('metodePembelajaran').value;
 
             if (!tanggalInput) {
-                alert("Harap isi Tanggal Perkuliahan terlebih dahulu!");
+                showToast('warning', "Harap isi Tanggal Perkuliahan terlebih dahulu!");
                 document.getElementById('tanggalKuliah').focus();
                 return;
             }
             
             if (!metodeInput) {
-                alert("Harap pilih Metode Pembelajaran terlebih dahulu!");
+                showToast('warning', "Harap pilih Metode Pembelajaran terlebih dahulu!");
                 document.getElementById('metodePembelajaran').focus();
                 return;
             }
@@ -389,7 +405,7 @@
             if (metodeInput === 'Lainnya') {
                 const teksLainnya = document.getElementById('metodeLainnya').value.trim();
                 if (!teksLainnya) {
-                    alert("Harap tuliskan Metode Pembelajaran lainnya!");
+                    showToast('warning', "Harap tuliskan Metode Pembelajaran lainnya!");
                     document.getElementById('metodeLainnya').focus();
                     return;
                 }
@@ -432,7 +448,7 @@
                 try {
                     const result = JSON.parse(textResponse);
                     if (result.status === 'success') {
-                        alert('Laporan Absensi berhasil disimpan!');
+                        showToast('success', 'Laporan Absensi berhasil disimpan!');
                         document.getElementById('selectMatkul').value = ""; 
                         document.getElementById('tanggalKuliah').value = ""; 
                         document.getElementById('metodePembelajaran').value = ""; 
@@ -440,22 +456,22 @@
                         document.getElementById('metodeLainnya').classList.add('hidden');
                         renderMahasiswa(); 
                     } else {
-                        alert('Gagal menyimpan: ' + result.message);
+                        showToast('error', 'Gagal menyimpan: ' + result.message);
                     }
                 } catch (parseError) {
-                    alert('Akses Ditolak Google! Pastikan pengaturan API Anda benar.');
+                    showToast('error', 'Akses Ditolak Google! Pastikan pengaturan API Anda benar.');
                 }
             } catch (error) {
-                alert('Terjadi kesalahan jaringan atau perangkat tidak terhubung ke internet.');
+                showToast('error', 'Terjadi kesalahan jaringan atau perangkat tidak terhubung ke internet.');
             }
 
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Laporan Absensi';
             btn.disabled = false;
         }
         
-        // Memfokuskan kursor secara otomatis ke kolom input sandi pada saat halaman termuat
+        // Memuat data secara otomatis saat halaman dibuka
         window.onload = function() {
-            document.getElementById('security-code').focus();
+            loadData();
         };
     </script>
 </body>
