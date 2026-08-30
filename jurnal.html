@@ -166,7 +166,7 @@
             </div>
             <div class="relative z-10">
               <h4 class="text-2xl md:text-3xl font-black text-slate-800 leading-none mb-1 md:mb-1.5" id="statTotalDosen">0</h4>
-              <p class="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Metode Ajar<br>Variatif</p>
+              <p class="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-tight">Dosen<br>Pengajar</p>
             </div>
           </div>
         </div>
@@ -178,9 +178,9 @@
               <thead class="text-slate-400 uppercase text-[10px] md:text-[11px] font-black tracking-widest border-b-2 border-slate-100">
                 <tr>
                   <th class="p-4 md:p-6 pl-6 md:pl-8">Jadwal Sesi</th>
-                  <th class="p-4 md:p-6">Informasi Kelas & Matkul</th>
+                  <th class="p-4 md:p-6">Informasi Kelas & Dosen</th>
                   <th class="p-4 md:p-6 text-center">Sesi</th>
-                  <th class="p-4 md:p-6">Metode Pembelajaran / Info</th>
+                  <th class="p-4 md:p-6">Pokok Bahasan / Silabus</th>
                 </tr>
               </thead>
               <tbody id="body-jurnal" class="divide-y divide-slate-100/60"></tbody>
@@ -199,6 +199,7 @@
 
   <!-- NAVIGASI BOTTOM (HP) -->
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+    
     <!-- MENU AKTIF: JURNAL (INDEX) -->
     <a href="index.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
@@ -220,26 +221,26 @@
   </div>
 
   <script>
-    // ⚠️ PASTE URL API Backend Google Script DI SINI
+    // ⚠️ PASTE URL API Backend Google Script BARU DI SINI (HASIL DEPLOY BARU)
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
-    // Variabel Global
-    let globalDataPresensi = [];
-    let sesiCounter = {}; // Object untuk menghitung sesi ke-berapa
+    let globalDataJurnal = [];
 
-    // Format Tanggal
+    // Format Tanggal Aman
     function formatTanggalIndo(tanggalIso) {
       if (!tanggalIso) return { hariTgl: "-", bulanTahun: "" };
       try {
-        const date = new Date(tanggalIso);
-        if (isNaN(date.getTime())) {
-          return { hariTgl: tanggalIso, bulanTahun: "" }; // Fallback jika bukan ISO date
+        let date = new Date(tanggalIso);
+        // Tangani format teks jika Spreadsheet mengirim string "yyyy-mm-dd" biasa
+        if (isNaN(date.getTime()) && typeof tanggalIso === 'string') {
+            date = new Date(tanggalIso.split(" ")[0]); 
         }
+        if (isNaN(date.getTime())) return { hariTgl: "-", bulanTahun: tanggalIso };
+        
         const hariArr = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
         const bulanArr = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
         
-        let hari = hariArr[date.getDay()];
         let tgl = date.getDate().toString().padStart(2, '0');
         let bln = bulanArr[date.getMonth()];
         let thn = date.getFullYear();
@@ -249,11 +250,10 @@
           bulanTahun: `${bln} ${thn}`
         };
       } catch (e) {
-        return { hariTgl: tanggalIso, bulanTahun: "" };
+        return { hariTgl: "-", bulanTahun: tanggalIso };
       }
     }
 
-    // Jam Real-time
     function updateJam() {
       try {
         const now = new Date();
@@ -267,55 +267,10 @@
     }
     setInterval(updateJam, 1000);
 
-    // Proses Data Mentah PRESENSI menjadi Data Jurnal Sesi
-    function prosesDataJurnal(rekapPresensi) {
-        let uniqueSessionsMap = new Map();
-        
-        // Kumpulkan data sesi unik berdasarkan Tanggal, Matkul, dan Prodi
-        rekapPresensi.forEach(row => {
-            // Karena rekap_presensi per siswa, kita ambil 1 data per pertemuan (unik)
-            let sessionKey = `${row.tanggal}_${row.matkul}_${row.prodi}`;
-            
-            if (!uniqueSessionsMap.has(sessionKey)) {
-                uniqueSessionsMap.set(sessionKey, {
-                    tanggal: row.tanggal,
-                    matkul: row.matkul,
-                    prodi: row.prodi,
-                    semester: row.semester,
-                    metode: row.metode || "Terdata di Sistem", // Menampilkan metode ajar
-                    kode: row.kode || "-",
-                    kelas: row.kelas || row.semester,
-                    dosen: row.dosen || "-",
-                    tahun: row.tahun || "Semua"
-                });
-            }
-        });
-
-        // Urutkan berdasarkan tanggal (terlama ke terbaru) untuk menghitung sesi ke-berapa
-        let sortedSessions = Array.from(uniqueSessionsMap.values()).sort((a, b) => {
-            return new Date(a.tanggal) - new Date(b.tanggal);
-        });
-
-        sesiCounter = {};
-        
-        // Hitung sesi
-        sortedSessions.forEach(session => {
-             let counterKey = `${session.matkul}_${session.prodi}`;
-             if (!sesiCounter[counterKey]) sesiCounter[counterKey] = 0;
-             sesiCounter[counterKey]++;
-             
-             session.sesiKe = sesiCounter[counterKey];
-        });
-
-        // Kembalikan dibalik (terbaru ke terlama) untuk ditampilkan
-        return sortedSessions.reverse();
-    }
-
-    // Render Data Berhasil
+    // Tangani Keberhasilan Render
     function handleDataSuccess(data) {
-        // Ambil data rekap_presensi (karena format data dari Google Script baru dipecah per mhs)
-        let rawPresensi = data.rekap_presensi || []; 
-        globalDataPresensi = prosesDataJurnal(rawPresensi);
+        // Ambil dari variabel data.jurnal yang disediakan di backend
+        globalDataJurnal = data.jurnal || [];
         
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('tab-jurnal').classList.remove('hidden');
@@ -323,14 +278,13 @@
         populateFilters();
     }
 
-    // Ambil Data Latar Belakang
     async function fetchDataLatarBelakang() {
         try {
             const response = await fetch(scriptUrlDash);
             const result = await response.json();
             
             if (result.status === "success") { 
-                const newDataString = JSON.stringify(result.data);
+                const newDataString = JSON.stringify(result.data || result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
                 if (currentCache !== newDataString) {
@@ -346,24 +300,20 @@
         }
     }
 
-    // Eksekusi saat Web Dibuka
     window.onload = function() {
         updateJam();
-        
         const cachedData = localStorage.getItem(CACHE_KEY_DASH);
         if (cachedData) {
             try {
-                const parsedResult = JSON.parse(cachedData);
-                handleDataSuccess(parsedResult);
+                const parsedData = JSON.parse(cachedData);
+                handleDataSuccess(parsedData.data || parsedData);
             } catch(e) {
                 console.error("Gagal membaca cache:", e);
             }
         }
-        
         fetchDataLatarBelakang();
     };
 
-    // Fungsi Mengisi Dropdown Filter (Tahun & Matkul)
     function populateFilters() {
       let selTahun = document.getElementById('globalTahunFilter');
       let selMatkul = document.getElementById('globalMatkulFilter');
@@ -372,21 +322,19 @@
       let currentMatkul = selMatkul ? selMatkul.value : "Semua";
 
       let years = new Set();
-      globalDataPresensi.forEach(j => years.add(j.tahun));
-      let yearsArr = Array.from(years).filter(y => y && y !== "Semua").sort().reverse();
+      globalDataJurnal.forEach(j => years.add(j.tahun));
+      let yearsArr = Array.from(years).filter(y => y && y !== "Semester Tidak Diketahui").sort().reverse();
 
       let optTahun = '<option value="Semua">Tampilkan Semua Semester</option>';
       yearsArr.forEach(y => { optTahun += `<option value="${y}">${y}</option>`; });
       
       if(selTahun) {
           selTahun.innerHTML = optTahun;
-          if(Array.from(selTahun.options).some(o => o.value === currentTahun)) {
-              selTahun.value = currentTahun;
-          }
+          if(Array.from(selTahun.options).some(o => o.value === currentTahun)) selTahun.value = currentTahun;
       }
 
       let matkuls = new Set();
-      globalDataPresensi.forEach(j => matkuls.add(j.matkul));
+      globalDataJurnal.forEach(j => matkuls.add(j.matkul));
       let matkulsArr = Array.from(matkuls).sort();
 
       let optMatkul = '<option value="Semua">Semua Mata Kuliah</option>';
@@ -394,26 +342,21 @@
       
       if(selMatkul) {
           selMatkul.innerHTML = optMatkul;
-          if(Array.from(selMatkul.options).some(o => o.value === currentMatkul)) {
-              selMatkul.value = currentMatkul;
-          }
+          if(Array.from(selMatkul.options).some(o => o.value === currentMatkul)) selMatkul.value = currentMatkul;
       }
-
       applyGlobalFilter();
     }
 
-    // Fungsi Memicu Render
     function applyGlobalFilter() {
       renderStats();
       renderJurnal();
     }
 
-    // Fungsi Render Statistik Atas
     function renderStats() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
 
-      const filteredJurnal = globalDataPresensi.filter(j => {
+      const filteredJurnal = globalDataJurnal.filter(j => {
           const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
           const matchMatkul = (filterMatkul === "Semua" || j.matkul === filterMatkul);
           return matchTahun && matchMatkul;
@@ -421,20 +364,18 @@
 
       const totalSesi = filteredJurnal.length;
       const uniqueMatkul = new Set(filteredJurnal.map(j => j.matkul)).size;
-      const uniqueMetode = new Set(filteredJurnal.map(j => j.metode)).size;
+      const uniqueDosen = new Set(filteredJurnal.map(j => j.dosen)).size;
 
       document.getElementById('statTotalSesi').innerText = totalSesi;
       document.getElementById('statTotalMatkul').innerText = uniqueMatkul;
-      // Menampilkan statistik variasi metode pembelajaran yang digunakan dosen
-      document.getElementById('statTotalDosen').innerText = uniqueMetode; 
+      document.getElementById('statTotalDosen').innerText = uniqueDosen;
     }
 
-    // Fungsi Render Tabel Jurnal
     function renderJurnal() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
 
-      const filteredJurnal = globalDataPresensi.filter(j => {
+      const filteredJurnal = globalDataJurnal.filter(j => {
           const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
           const matchMatkul = (filterMatkul === "Semua" || j.matkul === filterMatkul);
           return matchTahun && matchMatkul;
@@ -459,7 +400,8 @@
                 <div class="text-[9px] md:text-[10px] text-brand-700 font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg bg-brand-50 border border-brand-100 tracking-wider whitespace-nowrap">${j.kode}</div>
               </div>
               <div class="flex flex-col gap-1 mt-1 md:mt-1.5">
-                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-normal leading-tight">SMT: <span class="text-slate-600">${j.kelas}</span> • ${j.prodi}</div>
+                <div class="text-xs md:text-sm text-slate-600 font-bold flex items-center gap-1.5"><i class="fas fa-user-circle text-brand-500"></i> ${j.dosen}</div>
+                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 md:pl-5 whitespace-normal leading-tight">SMT: <span class="text-slate-600">${j.kelas}</span> • ${j.prodi}</div>
               </div>
             </td>
             <td class="p-4 md:p-6 align-middle text-center">
@@ -468,9 +410,9 @@
               </div>
             </td>
             <td class="p-4 md:p-6 align-middle">
-              <div class="bg-slate-50 border border-slate-200/60 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-semibold text-slate-700 leading-relaxed shadow-inner min-w-[200px] md:min-w-[280px] max-w-[400px] whitespace-normal line-clamp-2 break-words" title="${j.metode}">
-                <span class="text-xs text-brand-600 font-black tracking-wider uppercase mb-1 block">Metode Pembelajaran:</span>
-                ${j.metode}
+              <div class="bg-slate-50 border border-slate-200/60 p-3 md:p-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-semibold text-slate-700 leading-relaxed shadow-inner min-w-[200px] md:min-w-[280px] max-w-[400px] whitespace-normal line-clamp-2 break-words" title="${j.topik}">
+                <span class="text-xs text-brand-600 font-black tracking-wider uppercase mb-1 block">Metode Pembelajaran: ${j.metode}</span>
+                ${j.topik}
               </div>
             </td>
           </tr>`;
