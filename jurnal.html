@@ -40,11 +40,13 @@
     .tab-active { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); transform: scale(1.02);}
     .tab-inactive { color: #94a3b8; background: transparent; }
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
-  <!-- SIDEBAR DESKTOP -->
   <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
     <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
     <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
@@ -67,8 +69,7 @@
     </div>
     
     <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
-      <!-- MENU AKTIF: JURNAL (INDEX) -->
-      <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
+      <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
         Riwayat Jurnal
       </a>
@@ -77,10 +78,12 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
         Presensi Mahasiswa
       </a>
+      
       <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
         Evaluasi Akademik
       </a>
+      
       <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
         Hasil Studi
@@ -98,14 +101,12 @@
       
       <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
         
-        <!-- JAM REALTIME -->
         <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
           <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
           <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
           <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
         </div>
 
-        <!-- FILTER PENCARIAN JURNAL -->
         <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
           <select id="globalTahunFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none">
             <option value="Semua">Tampilkan Semua Semester</option>
@@ -121,7 +122,6 @@
 
     <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto">
       
-      <!-- LOADING STATE -->
       <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100">
         <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-6">
           <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
@@ -132,10 +132,8 @@
         <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mengunduh data akademik secara real-time...</p>
       </div>
 
-      <!-- KONTEN UTAMA JURNAL -->
       <div id="tab-jurnal" class="hidden animate-slide-up">
         
-        <!-- WIDGET STATISTIK -->
         <div id="globalStats" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:bg-emerald-100 transition-colors duration-500"></div>
@@ -171,22 +169,11 @@
           </div>
         </div>
 
-        <!-- TABEL JURNAL -->
-        <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 overflow-hidden">
-          <div class="overflow-x-auto p-2 md:p-4">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-              <thead class="text-slate-400 uppercase text-[10px] md:text-[11px] font-black tracking-widest border-b-2 border-slate-100">
-                <tr>
-                  <th class="p-4 md:p-6 pl-6 md:pl-8">Jadwal Sesi</th>
-                  <th class="p-4 md:p-6">Informasi Kelas & Dosen</th>
-                  <th class="p-4 md:p-6 text-center">Sesi</th>
-                  <th class="p-4 md:p-6">Pokok Bahasan / Silabus</th>
-                </tr>
-              </thead>
-              <tbody id="body-jurnal" class="divide-y divide-slate-100/60"></tbody>
-            </table>
-          </div>
+        <!-- WADAH CARD JURNAL (MENGGANTIKAN TABEL) -->
+        <div id="body-jurnal" class="space-y-4">
+          <!-- Card List Akan Dimuat Disini -->
         </div>
+
       </div>
 
     </div>
@@ -197,10 +184,7 @@
     
   </main>
 
-  <!-- NAVIGASI BOTTOM (HP) -->
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-    
-    <!-- MENU AKTIF: JURNAL (INDEX) -->
     <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
@@ -221,24 +205,20 @@
   </div>
 
   <script>
-    // ⚠️ PASTE URL API Backend Google Script BARU DI SINI (HASIL DEPLOY BARU)
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
     let globalDataJurnal = [];
 
-    // Format Tanggal Aman
     function formatTanggalIndo(tanggalIso) {
       if (!tanggalIso) return { hariTgl: "-", bulanTahun: "" };
       try {
         let date = new Date(tanggalIso);
-        // Tangani format teks jika Spreadsheet mengirim string "yyyy-mm-dd" biasa
         if (isNaN(date.getTime()) && typeof tanggalIso === 'string') {
             date = new Date(tanggalIso.split(" ")[0]); 
         }
         if (isNaN(date.getTime())) return { hariTgl: "-", bulanTahun: tanggalIso };
         
-        const hariArr = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
         const bulanArr = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
         
         let tgl = date.getDate().toString().padStart(2, '0');
@@ -267,14 +247,10 @@
     }
     setInterval(updateJam, 1000);
 
-    // Tangani Keberhasilan Render
     function handleDataSuccess(data) {
-        // Ambil dari variabel data.jurnal yang disediakan di backend
         globalDataJurnal = data.jurnal || [];
-        
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('tab-jurnal').classList.remove('hidden');
-        
         populateFilters();
     }
 
@@ -282,11 +258,9 @@
         try {
             const response = await fetch(scriptUrlDash);
             const result = await response.json();
-            
             if (result.status === "success") { 
                 const newDataString = JSON.stringify(result.data || result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
-                
                 if (currentCache !== newDataString) {
                     localStorage.setItem(CACHE_KEY_DASH, newDataString);
                     handleDataSuccess(result);
@@ -307,9 +281,7 @@
             try {
                 const parsedData = JSON.parse(cachedData);
                 handleDataSuccess(parsedData.data || parsedData);
-            } catch(e) {
-                console.error("Gagal membaca cache:", e);
-            }
+            } catch(e) {}
         }
         fetchDataLatarBelakang();
     };
@@ -371,6 +343,7 @@
       document.getElementById('statTotalDosen').innerText = uniqueDosen;
     }
 
+    // DESAIN CARD JURNAL BARU (Sesuai Referensi Gambar 1)
     function renderJurnal() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -387,50 +360,56 @@
           let tglInfo = formatTanggalIndo(j.tanggal);
 
           htmlJurnal += `
-          <tr class="hover:bg-slate-50/50 transition-all duration-200 group hover:-translate-y-0.5 border-b border-slate-50 last:border-0">
+          <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100/80 shadow-soft hover:shadow-lg transition-all duration-300 p-4 md:p-6 lg:px-8 lg:py-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 group">
             
-            <!-- JADWAL SESI -->
-            <td class="p-4 md:p-6 pl-6 md:pl-8 align-middle">
-              <div class="inline-flex flex-col items-center justify-center bg-slate-100/80 border border-slate-200/50 px-4 py-3 md:px-5 md:py-3.5 rounded-2xl shadow-sm transition-all">
-                <span class="text-xl md:text-2xl font-black text-slate-700 leading-none mb-1">${tglInfo.hariTgl}</span>
-                <span class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">${tglInfo.bulanTahun}</span>
-              </div>
-            </td>
-            
-            <!-- INFORMASI KELAS & DOSEN -->
-            <td class="p-4 md:p-6 align-middle">
-              <div class="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
-                <div class="font-black text-slate-800 text-sm md:text-base whitespace-normal">${j.matkul}</div>
-                <div class="text-[9px] md:text-[10px] text-brand-700 font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg bg-brand-50 border border-brand-100 tracking-wider whitespace-nowrap">${j.kode}</div>
-              </div>
-              <div class="flex flex-col gap-1 mt-1 md:mt-1.5">
-                <div class="text-xs md:text-sm text-slate-600 font-semibold flex items-center gap-1.5">
-                  <i class="fas fa-check-circle text-brand-500"></i> ${j.dosen}
+            <!-- Tanggal (Kiri) -->
+            <div class="flex items-center justify-center shrink-0 w-16 md:w-24">
+                <div class="flex flex-col items-center justify-center bg-slate-50 border border-slate-200/60 px-4 py-2.5 md:py-3.5 rounded-2xl shadow-sm transition-all group-hover:border-brand-200 group-hover:bg-brand-50 w-full">
+                    <span class="text-xl md:text-3xl font-black text-slate-800 leading-none mb-1 group-hover:text-brand-700">${tglInfo.hariTgl}</span>
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-brand-500">${tglInfo.bulanTahun}</span>
                 </div>
-                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 md:pl-5 whitespace-normal leading-tight">
-                  KLS: <span class="text-slate-600">${j.kelas}</span> • ${j.prodi}
+            </div>
+
+            <!-- Informasi Kelas & Dosen (Tengah) -->
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <div class="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
+                    <h3 class="font-black text-slate-800 text-base md:text-lg lg:text-xl truncate">${j.matkul}</h3>
+                    <span class="text-[9px] md:text-[10px] text-emerald-700 font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-emerald-50 border border-emerald-100 tracking-wider shrink-0">${j.kode}</span>
                 </div>
-              </div>
-            </td>
-            
-            <!-- SESI (Berubah warna HANYA saat di-hover) -->
-            <td class="p-4 md:p-6 align-middle text-center">
-              <div class="inline-flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white text-brand-600 shadow-sm border border-slate-100 group-hover:bg-brand-500 group-hover:text-white transition-all duration-300">
-                <span class="text-lg md:text-xl font-black">${j.sesiKe}</span>
-              </div>
-            </td>
-            
-            <!-- POKOK BAHASAN -->
-            <td class="p-4 md:p-6 align-middle">
-              <div class="bg-white border border-slate-100 px-6 py-3.5 rounded-full text-xs md:text-sm font-medium text-slate-600 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] min-w-[200px] md:min-w-[280px] max-w-[400px] truncate" title="${j.topik}">
-                ${j.topik}
-              </div>
-            </td>
-            
-          </tr>`;
+                
+                <div class="flex flex-col gap-1 md:gap-1.5 mt-1">
+                    <div class="text-xs md:text-sm text-slate-600 font-semibold flex items-center gap-1.5 truncate">
+                        <i class="fas fa-check-circle text-emerald-500 shrink-0"></i> 
+                        <span class="truncate">${j.dosen}</span>
+                    </div>
+                    <div class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 md:pl-5 whitespace-normal leading-tight">
+                        KLS: <span class="text-slate-600">${j.kelas}</span> • ${j.prodi}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sesi (Lingkaran) -->
+            <div class="flex items-center justify-center shrink-0 mx-2 md:mx-4 hidden md:flex">
+                <div class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white text-emerald-500 border-2 border-emerald-100 flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white transition-all duration-300">
+                    <span class="text-lg md:text-2xl font-black">${j.sesiKe}</span>
+                </div>
+            </div>
+
+            <!-- Pokok Bahasan (Kanan) -->
+            <div class="w-full md:w-1/3 lg:w-[40%] shrink-0">
+                <div class="bg-slate-50/50 border border-slate-100 px-5 py-4 md:py-5 rounded-2xl text-xs md:text-sm font-medium text-slate-600 relative overflow-hidden group-hover:bg-emerald-50/30 transition-colors h-full flex flex-col justify-center">
+                    <!-- Sesi HP Only -->
+                    <div class="absolute top-2 right-3 md:hidden font-black text-emerald-200/50 text-4xl">#${j.sesiKe}</div>
+                    
+                    <span class="text-[9px] md:text-[10px] text-emerald-600 font-black tracking-wider uppercase mb-1.5 block relative z-10">Materi Silabus / Info:</span>
+                    <p class="whitespace-normal leading-relaxed relative z-10 break-words">${j.topik}</p>
+                </div>
+            </div>
+
+          </div>`;
         });
       } else {
-        htmlJurnal = '<tr><td colspan="4" class="p-10 md:p-16 text-center text-slate-400 font-bold text-base md:text-lg">Tidak ada data untuk filter yang dipilih.</td></tr>';
+        htmlJurnal = '<div class="p-10 md:p-16 text-center text-slate-400 font-bold text-base md:text-lg bg-white rounded-3xl border border-slate-100">Tidak ada data untuk filter yang dipilih.</div>';
       }
       document.getElementById('body-jurnal').innerHTML = htmlJurnal;
     }
