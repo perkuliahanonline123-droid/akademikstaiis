@@ -41,7 +41,6 @@
         .tab-inactive { color: #94a3b8; background: transparent; }
         .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
         
-        /* Custom Table Styling */
         table { border-collapse: separate; border-spacing: 0; }
         th { border-bottom: 2px solid #f1f5f9; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
         td { border-bottom: 1px solid #f8fafc; }
@@ -49,159 +48,200 @@
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
-    <!-- SIDEBAR DESKTOP -->
-    <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
-        <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
-
-        <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
-            <div class="relative flex-shrink-0">
-                <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
-                <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+    <!-- LAYAR KEAMANAN (LOGIN) -->
+    <div id="security-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 backdrop-blur-md">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all border border-white/20">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner rotate-3">
+                <i class="fas fa-shield-alt"></i>
             </div>
-            <div class="text-left flex flex-col justify-center">
-                <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
-                <div class="flex items-center gap-1.5 mt-1.5">
-                    <div class="relative flex h-1.5 w-1.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
-                    </div>
-                    <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
-                </div>
-            </div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Akses Terbatas</h2>
+            <p class="text-slate-500 text-sm mb-8">Silakan masukkan kode keamanan untuk mengakses dasbor akademik.</p>
+            
+            <input type="password" id="security-code" placeholder="Masukkan kode..." class="w-full p-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 mb-4 text-center font-bold tracking-widest transition-all bg-slate-50" onkeypress="if(event.key === 'Enter') checkSecurityCode()">
+            
+            <button onclick="checkSecurityCode()" class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-800 hover:to-brand-600 text-white font-black py-4 px-6 rounded-xl transition-all duration-300 shadow-soft transform hover:-translate-y-1 flex justify-center items-center gap-2">
+                Buka Kunci <i class="fas fa-unlock-alt text-sm"></i>
+            </button>
+            
+            <p id="error-msg" class="text-rose-500 text-sm font-bold mt-4 hidden bg-rose-50 py-2 rounded-lg border border-rose-100 animate-pulse">
+                Kode keamanan tidak valid!
+            </p>
         </div>
-        
-        <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
-            <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
-                Riwayat Jurnal
-            </a>
-            
-            <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
-                Presensi Mahasiswa
-            </a>
-            
-            <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
-                Evaluasi Akademik
-            </a>
-            
-            <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
-                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
-                Hasil Studi
-            </a>
-        </nav>
-    </aside>
-    <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0">
-        
-        <!-- HEADER TOP -->
-        <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
-            <div>
-                <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Form Presensi Perkuliahan</h2>
-                <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Input kehadiran mahasiswa dan laporan metode ajar</p>
-            </div>
-            
-            <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
-                <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
-                <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
-                <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
-            </div>
-        </header>
-
-        <!-- KONTEN UTAMA FORM ABSENSI -->
-        <div class="p-4 md:p-8 lg:p-10 w-full max-w-5xl mx-auto animate-slide-up">
-            <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-6 md:p-8 lg:p-10">
-                
-                <!-- Dropdown Kurikulum -->
-                <div class="mb-6">
-                    <label class="block font-bold mb-2 text-sm text-slate-700">Pilih Mata Kuliah & Kelas</label>
-                    <select id="selectMatkul" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all" onchange="renderMahasiswa()">
-                        <option value="">Memuat data mata kuliah...</option>
-                    </select>
-                </div>
-
-                <!-- Wadah Tanggal & Metode Pembelajaran -->
-                <div id="formInformasiTambahan" class="hidden mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block font-bold mb-2 text-sm text-slate-700">Tanggal Perkuliahan</label>
-                        <input type="date" id="tanggalKuliah" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
-                    </div>
-                    <div>
-                        <label class="block font-bold mb-2 text-sm text-slate-700">Metode Pembelajaran</label>
-                        <select id="metodePembelajaran" onchange="toggleMetodeLainnya()" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
-                            <option value="">-- Pilih Metode --</option>
-                            <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
-                            <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
-                            <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
-                            <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
-                            <option value="Studi Kasus (Case Study)">Studi Kasus (Case Study)</option>
-                            <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                        <input type="text" id="metodeLainnya" placeholder="Ketik metode pembelajaran..." class="hidden mt-3 w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
-                    </div>
-                </div>
-
-                <!-- Tabel Absensi -->
-                <div class="overflow-x-auto rounded-xl border border-slate-100">
-                    <table class="w-full text-left hidden" id="tableAbsen">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-500">
-                                <th class="p-4 w-12 text-center font-black">No</th>
-                                <th class="p-4 font-black">Nama Mahasiswa</th>
-                                <th class="p-4 text-center w-64 font-black">Status Kehadiran</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bodyMahasiswa">
-                            <!-- Baris mahasiswa akan muncul di sini -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- TOMBOL KIRIM ABSENSI -->
-                <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-8 w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-800 hover:to-brand-600 text-white font-black py-4 px-6 rounded-xl hidden transition-all duration-300 shadow-soft transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-paper-plane"></i> Kirim Laporan Absensi
-                </button>
-
-                <div id="pesanKosong" class="text-center text-slate-400 font-medium py-12 hidden flex-col items-center gap-3">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl mb-2"><i class="fas fa-folder-open"></i></div>
-                    Data mahasiswa tidak ditemukan untuk kelas ini.
-                </div>
-            </div>
-        </div>
-
-        <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
-            &copy; 2026 Dasbor Akademik
-        </footer>
-    </main>
-
-    <!-- NAVIGASI BOTTOM (HP) -->
-    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-        
-        <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
-            <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
-        </a>
-        
-        <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
-            <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
-        </a>
-        
-        <a href="evaluasi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
-            <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
-        </a>
-        
-        <a href="khs.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-graduation-cap text-lg"></i></div>
-            <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
-        </a>
     </div>
+
+    <!-- KONTEN UTAMA (DISEMBUNYIKAN SEBELUM LOGIN) -->
+    <div id="main-content" class="hidden w-full h-full flex-row">
+        
+        <!-- SIDEBAR DESKTOP -->
+        <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+
+            <div class="flex items-center gap-4 p-8 border-b border-white/10 relative z-10 group cursor-default">
+                <div class="relative flex-shrink-0">
+                    <div class="absolute inset-0 bg-white/20 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-500 animate-pulse"></div>
+                    <img src="https://i.ibb.co.com/fGv3qQ11/logo-staiis.webp" alt="Logo STAIIS" class="w-14 h-14 relative object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                </div>
+                <div class="text-left flex flex-col justify-center">
+                    <h1 class="font-black text-[26px] tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-emerald-100 drop-shadow-md">AKADEMIK</h1>
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                        <div class="relative flex h-1.5 w-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                        </div>
+                        <p class="text-[9.5px] text-brand-100 font-black tracking-[0.25em] uppercase opacity-90 drop-shadow-sm">STAIIS CIANJUR</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
+                <a href="jurnal.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-layer-group text-sm"></i></div>
+                    Riwayat Jurnal
+                </a>
+                
+                <a href="presensi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-shield text-sm"></i></div>
+                    Presensi Mahasiswa
+                </a>
+                
+                <a href="evaluasi.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-user-times text-sm"></i></div>
+                    Evaluasi Akademik
+                </a>
+                
+                <a href="khs.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-inactive transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-all"><i class="fas fa-graduation-cap text-sm"></i></div>
+                    Hasil Studi
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto relative pb-24 md:pb-0">
+            
+            <!-- HEADER TOP -->
+            <header class="glass-panel px-6 md:px-10 py-5 md:py-6 flex flex-col xl:flex-row justify-between items-start xl:items-center sticky top-0 z-20 shadow-sm gap-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Form Presensi Perkuliahan</h2>
+                    <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Input kehadiran mahasiswa dan laporan metode ajar</p>
+                </div>
+                
+                <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+                    <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+                    <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+                    <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+                </div>
+            </header>
+
+            <!-- KONTEN UTAMA FORM ABSENSI -->
+            <div class="p-4 md:p-8 lg:p-10 w-full max-w-5xl mx-auto animate-slide-up">
+                <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-6 md:p-8 lg:p-10">
+                    
+                    <!-- Dropdown Kurikulum -->
+                    <div class="mb-6">
+                        <label class="block font-bold mb-2 text-sm text-slate-700">Pilih Mata Kuliah & Kelas</label>
+                        <select id="selectMatkul" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all" onchange="renderMahasiswa()">
+                            <option value="">Memuat data mata kuliah...</option>
+                        </select>
+                    </div>
+
+                    <!-- Wadah Tanggal & Metode Pembelajaran -->
+                    <div id="formInformasiTambahan" class="hidden mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block font-bold mb-2 text-sm text-slate-700">Tanggal Perkuliahan</label>
+                            <input type="date" id="tanggalKuliah" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-2 text-sm text-slate-700">Metode Pembelajaran</label>
+                            <select id="metodePembelajaran" onchange="toggleMetodeLainnya()" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                                <option value="">-- Pilih Metode --</option>
+                                <option value="Ceramah & Tanya Jawab">Ceramah & Tanya Jawab</option>
+                                <option value="Diskusi Kelompok / Presentasi">Diskusi Kelompok / Presentasi</option>
+                                <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
+                                <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
+                                <option value="Studi Kasus (Case Study)">Studi Kasus (Case Study)</option>
+                                <option value="Praktikum / Simulasi">Praktikum / Simulasi</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                            <input type="text" id="metodeLainnya" placeholder="Ketik metode pembelajaran..." class="hidden mt-3 w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Tabel Absensi -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full text-left hidden" id="tableAbsen">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500">
+                                    <th class="p-4 w-12 text-center font-black">No</th>
+                                    <th class="p-4 font-black">Nama Mahasiswa</th>
+                                    <th class="p-4 text-center w-64 font-black">Status Kehadiran</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyMahasiswa">
+                                <!-- Baris mahasiswa akan muncul di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- TOMBOL KIRIM ABSENSI -->
+                    <button id="btnSubmit" onclick="kirimAbsensi()" class="mt-8 w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-800 hover:to-brand-600 text-white font-black py-4 px-6 rounded-xl hidden transition-all duration-300 shadow-soft transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Kirim Laporan Absensi
+                    </button>
+
+                    <div id="pesanKosong" class="text-center text-slate-400 font-medium py-12 hidden flex-col items-center gap-3">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl mb-2"><i class="fas fa-folder-open"></i></div>
+                        Data mahasiswa tidak ditemukan untuk kelas ini.
+                    </div>
+                </div>
+            </div>
+
+            <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
+                &copy; 2026 Dasbor Akademik
+            </footer>
+        </main>
+
+        <!-- NAVIGASI BOTTOM (HP) -->
+        <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
+            <a href="jurnal.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-layer-group text-lg"></i></div>
+                <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
+            </a>
+            <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
+                <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
+            </a>
+            <a href="evaluasi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-times text-lg"></i></div>
+                <span class="text-[9px] font-black tracking-widest uppercase">Evaluasi</span>
+            </a>
+            <a href="khs.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-graduation-cap text-lg"></i></div>
+                <span class="text-[9px] font-black tracking-widest uppercase">KHS</span>
+            </a>
+        </div>
+    </div> <!-- END KONTEN UTAMA -->
 
     <!-- LOGIK JAVASCRIPT -->
     <script>
+        // Logika Keamanan Login
+        function checkSecurityCode() {
+            const codeInput = document.getElementById('security-code').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            // Mengecek kesesuaian kode keamanan
+            if (codeInput === 'dpr') { 
+                document.getElementById('security-overlay').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('flex');
+                
+                // Menjalankan fetch data hanya jika password benar untuk menghemat request
+                loadData(); 
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('security-code').value = ''; // Reset input
+            }
+        }
+
         // Jam Real-time
         function updateJam() {
             try {
@@ -216,11 +256,11 @@
         }
         setInterval(updateJam, 1000);
 
-        // ⚠️ PASTE URL DEPLOY GOOGLE APPS SCRIPT DI SINI
+        // API Setup
         const API_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec'; 
         let globalData = { kurikulum: [], mahasiswa: {} };
 
-        // 1. Ambil data saat halaman dimuat
+        // 1. Ambil data
         async function loadData() {
             updateJam();
             try {
@@ -259,7 +299,7 @@
             return `${smtGroup} ${prodi}`;
         }
 
-        // 4. Memunculkan atau menyembunyikan input "Lainnya"
+        // 4. Input Lainnya
         function toggleMetodeLainnya() {
             const select = document.getElementById('metodePembelajaran');
             const inputLainnya = document.getElementById('metodeLainnya');
@@ -273,7 +313,7 @@
             }
         }
 
-        // 5. Tampilkan Tabel Mahasiswa
+        // 5. Tabel Mahasiswa
         function renderMahasiswa() {
             const selectVal = document.getElementById('selectMatkul').value;
             const table = document.getElementById('tableAbsen');
@@ -326,7 +366,7 @@
             btnSubmit.classList.remove('hidden'); 
         }
 
-        // 6. Mengirim Data ke Apps Script
+        // 6. Submit Data
         async function kirimAbsensi() {
             const btn = document.getElementById('btnSubmit');
             const selectVal = document.getElementById('selectMatkul').value;
@@ -401,9 +441,8 @@
                         alert('Gagal menyimpan: ' + result.message);
                     }
                 } catch (parseError) {
-                    alert('Akses Ditolak Google! Pastikan Anda sudah membuat NEW DEPLOYMENT dan set "Who has access: Anyone" pada file Apps Script Anda.');
+                    alert('Akses Ditolak Google! Pastikan pengaturan API Anda benar.');
                 }
-
             } catch (error) {
                 alert('Terjadi kesalahan jaringan atau perangkat tidak terhubung ke internet.');
             }
@@ -411,8 +450,11 @@
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Laporan Absensi';
             btn.disabled = false;
         }
-
-        window.onload = loadData;
+        
+        // Memfokuskan kursor secara otomatis ke kolom input sandi pada saat halaman termuat
+        window.onload = function() {
+            document.getElementById('security-code').focus();
+        };
     </script>
 </body>
 </html>
