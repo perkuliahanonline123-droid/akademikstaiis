@@ -57,25 +57,38 @@
         font-family: 'Times New Roman', Times, serif;
     }
     
-    .judul-dokumen { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 30px; line-height: 1.5; letter-spacing: 0.5px;}
+    .header-cetak { text-align: center; margin-bottom: 20px; }
+    .header-cetak h3 { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold; margin: 0; letter-spacing: 0.5px;}
+    .header-cetak h1 { font-size: 28px; font-weight: 900; margin: 5px 0 2px 0; text-transform: uppercase; letter-spacing: 1px;}
+    .header-cetak h2 { font-size: 16px; font-weight: bold; margin: 0; }
     
-    .info-container { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 12px; font-weight: bold; }
-    .info-table { border-collapse: collapse; }
-    .info-table td { padding: 4px 0; vertical-align: top; }
+    .garis-kop { border-top: 3px solid #000; border-bottom: 1px solid #000; height: 2px; margin-bottom: 20px; width: 100%;}
+    
+    .info-container { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 13px; font-weight: bold; }
+    .info-table, .info-table-right { border-collapse: collapse; }
+    .info-table td, .info-table-right td { padding: 4px 0; vertical-align: top; }
     .info-table td:first-child { width: 130px; }
-    
-    .info-table-right { border-collapse: collapse; }
-    .info-table-right td { padding: 4px 0; vertical-align: top; }
     .info-table-right td:first-child { width: 80px; }
 
-    .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center; }
-    .data-table th { border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 10px 4px; font-weight: bold; }
-    .data-table td { padding: 8px 4px; border: none; }
-    .data-table tbody tr:last-child td { border-bottom: 2px solid #000; padding-bottom: 12px; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; margin-bottom: 30px; }
+    .data-table th, .data-table td { border: 1px solid #000; padding: 6px 4px; }
+    .data-table th { font-weight: bold; }
     
-    .footer-area { display: flex; justify-content: space-between; margin-top: 50px; font-size: 11.5px; }
-    .tabel-ket { width: 120px; border-collapse: collapse; margin-top: 8px;}
-    .tabel-ket td { padding: 3px 0; }
+    .footer-area { display: flex; justify-content: space-between; font-size: 12px; }
+    
+    /* Box Keterangan Nilai */
+    .keterangan-box { border: 1.5px solid #000; border-radius: 8px; width: 280px; overflow: hidden; }
+    .keterangan-title { text-align: center; font-weight: bold; border-bottom: 1px solid #000; padding: 6px 0; background-color: #f3f4f6;}
+    .keterangan-grid { display: flex; }
+    .keterangan-col { width: 50%; padding: 8px 15px; }
+    .keterangan-col:first-child { border-right: 1px solid #000; }
+    .tabel-ket { width: 100%; border-collapse: collapse; font-weight: bold; }
+    .tabel-ket td { padding: 2px 0; }
+    
+    /* Area Tanda Tangan */
+    .ttd-area { text-align: center; width: 250px; font-size: 13px; }
+    .ttd-area div { margin-bottom: 5px; }
+    .ttd-nama { font-weight: bold; margin-top: 70px !important; }
     
     @media print {
         @page { size: A4 portrait; margin: 15mm; }
@@ -190,46 +203,29 @@
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
-          <!-- AREA YANG AKAN DICETAK -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <!-- HEADER DOKUMEN -->
-              <div class="judul-dokumen">
-                  SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR<br>
-                  DAFTAR NILAI AKHIR MAHASISWA<br>
-                  <span id="lblTaSmt">TAHUN AKADEMIK -</span>
+              <div class="header-cetak">
+                  <h3>SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR</h3>
+                  <h1>DAFTAR NILAI AKHIR MAHASISWA</h1>
+                  <h2 id="lblTaSmt">TAHUN AKADEMIK -</h2>
               </div>
+              
+              <div class="garis-kop"></div>
 
               <!-- INFO KELAS -->
               <div class="info-container">
                   <table class="info-table">
-                      <tr>
-                          <td>Mata Kuliah</td>
-                          <td>: <span id="lblMatkul" style="font-weight: normal;">-</span></td>
-                      </tr>
-                      <tr>
-                          <td>Dosen Pengampu</td>
-                          <td>: <span id="lblDosen" style="font-weight: normal;">-</span></td>
-                      </tr>
-                      <tr>
-                          <td>Program Studi</td>
-                          <td>: <span id="lblProdi" style="font-weight: normal;">-</span></td>
-                      </tr>
+                      <tr><td>Mata Kuliah</td><td>: <span id="lblMatkul" style="font-weight: normal;">-</span></td></tr>
+                      <tr><td>Dosen Pengampu</td><td>: <span id="lblDosen" style="font-weight: normal;">-</span></td></tr>
+                      <tr><td>Program Studi</td><td>: <span id="lblProdi" style="font-weight: normal;">-</span></td></tr>
                   </table>
                   
                   <table class="info-table-right">
-                      <tr>
-                          <td>Kode</td>
-                          <td>: <span id="lblKode" style="font-weight: normal;">-</span></td>
-                      </tr>
-                      <tr>
-                          <td>SKS</td>
-                          <td>: <span id="lblSks" style="font-weight: normal;">-</span></td>
-                      </tr>
-                      <tr>
-                          <td>Semester</td>
-                          <td>: <span id="lblSemester" style="font-weight: normal;">-</span></td>
-                      </tr>
+                      <tr><td>Kode</td><td>: <span id="lblKode" style="font-weight: normal;">-</span></td></tr>
+                      <tr><td>SKS</td><td>: <span id="lblSks" style="font-weight: normal;">-</span></td></tr>
+                      <tr><td>Semester</td><td>: <span id="lblSemester" style="font-weight: normal;">-</span></td></tr>
                   </table>
               </div>
 
@@ -243,7 +239,7 @@
                           <th style="width: 10%;">Angka</th>
                           <th style="width: 10%;">Huruf</th>
                           <th style="width: 10%;">Indeks</th>
-                          <th style="width: 15%;">SKS*Indeks</th>
+                          <th style="width: 15%;">SKS×Indeks</th>
                       </tr>
                   </thead>
                   <tbody id="nilaiBody">
@@ -253,32 +249,39 @@
 
               <!-- FOOTER (KETERANGAN & TTD) -->
               <div class="footer-area">
-                  <div>
-                      <div>Keterangan Nilai</div>
-                      <table class="tabel-ket">
-                          <tr><td style="width: 50px;">85-100</td><td>A</td></tr>
-                          <tr><td>80-84</td><td>A-</td></tr>
-                          <tr><td>70-79</td><td>B+</td></tr>
-                          <tr><td>65-69</td><td>B</td></tr>
-                          <tr><td>60-64</td><td>B-</td></tr>
-                          <tr><td>55-59</td><td>C+</td></tr>
-                          <tr><td>50-54</td><td>C</td></tr>
-                          <tr><td>45-49</td><td>C-</td></tr>
-                          <tr><td>40-44</td><td>D</td></tr>
-                          <tr><td>0-39</td><td>E</td></tr>
-                      </table>
+                  <div class="keterangan-box">
+                      <div class="keterangan-title">KETERANGAN NILAI</div>
+                      <div class="keterangan-grid">
+                          <div class="keterangan-col">
+                              <table class="tabel-ket">
+                                  <tr><td style="width: 50%;">85 - 100</td><td>A</td></tr>
+                                  <tr><td>80 - 84</td><td>A-</td></tr>
+                                  <tr><td>75 - 79</td><td>B+</td></tr>
+                                  <tr><td>70 - 74</td><td>B</td></tr>
+                                  <tr><td>65 - 69</td><td>B-</td></tr>
+                              </table>
+                          </div>
+                          <div class="keterangan-col">
+                              <table class="tabel-ket">
+                                  <tr><td style="width: 50%;">60 - 64</td><td>C+</td></tr>
+                                  <tr><td>55 - 59</td><td>C</td></tr>
+                                  <tr><td>50 - 54</td><td>C-</td></tr>
+                                  <tr><td>45 - 49</td><td>D</td></tr>
+                                  <tr><td>0 - 44</td><td>E</td></tr>
+                              </table>
+                          </div>
+                      </div>
                   </div>
                   
-                  <div style="text-align: center; width: 250px;">
-                      <div id="lblTanggal" style="margin-bottom: 6px;">Cianjur, 30 Agustus 2026</div>
-                      <div style="margin-bottom: 70px;">Dosen Mata Kuliah,</div>
-                      <!-- Nama Dosen Dicetak Tebal Saja tanpa garis bawah -->
-                      <div style="font-weight: bold;" id="lblDosenTtd">-</div>
+                  <div class="ttd-area">
+                      <div id="lblTanggal">Cianjur, 30 Agustus 2026</div>
+                      <div>Dosen Mata Kuliah,</div>
+                      <div class="ttd-nama" id="lblDosenTtd">-</div>
                   </div>
               </div>
               
           </div>
-
+        
           <button class="w-full bg-brand-600 hover:bg-brand-500 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-md flex items-center justify-center gap-3" id="printBtn" onclick="window.print()" style="display: none;">
               <i class="fas fa-print"></i> Cetak Daftar Nilai (PDF / Printer)
           </button>
@@ -408,14 +411,26 @@
         const selTA = document.getElementById('selectTA');
         let taSet = new Set();
         
-        // Ambil TA unik langsung dari sheet Mahasiswa Per TA untuk akurasi
         dataMhsPerTA.forEach(row => {
             const taKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'TA');
-            if (taKey && row[taKey] && row[taKey].toString().trim() !== '') {
-                taSet.add(row[taKey].toString().trim());
+            if (taKey && row[taKey]) {
+                let taValue = row[taKey].toString().trim();
+                
+                // FILTER: Hanya ambil format "Angka4Digit/Angka4Digit"
+                const match = taValue.match(/^(\d{4})\/(\d{4})$/);
+                if (match) {
+                    const tahunAwal = parseInt(match[1]);
+                    const tahunAkhir = parseInt(match[2]);
+                    
+                    // FILTER: Pastikan selisih tahun tepat 1 (mencegah salah ketik atau autofill aneh)
+                    if (tahunAkhir - tahunAwal === 1) {
+                        taSet.add(taValue);
+                    }
+                }
             }
         });
         
+        // Urutkan dari tahun terbaru ke terlama
         let taArray = Array.from(taSet).sort().reverse(); 
         
         selTA.innerHTML = '<option value="">-- Pilih TA --</option>';
