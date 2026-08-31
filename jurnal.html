@@ -391,38 +391,40 @@
           labelTahunAkademik = (extractedYear - 1) + "/" + extractedYear;
       }
       
-      let teksTAFormal = `${labelSemester} ${labelTahunAkademik}`;
-      let formatNamaFile = `${labelTahunAkademik.replace('/', '-')}`; // Contoh Output: 2026-2027
+      let formatNamaFile = `${labelTahunAkademik.replace('/', '-')}`; 
 
+      // FORMAT HTML CETAK (MENYESUAIKAN GAMBAR 2)
       let htmlPrint = `
-        <div style="text-align: center; border-bottom: 3px solid black; padding-bottom: 8px; margin-bottom: 25px; line-height: 1.2;">
-            <h2 style="font-size: 16pt; font-weight: bold; margin: 0; text-transform: uppercase;">SEKOLAH TINGGI AGAMA ISLAM IBNU SINA</h2>
-            <h3 style="font-size: 14pt; font-weight: bold; margin: 5px 0 0 0;">STAIIS CIANJUR</h3>
-            <br>
-            <h1 style="font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; text-decoration: underline;">JURNAL PERKULIAHAN DOSEN</h1>
-            <p style="font-size: 12pt; margin: 8px 0 0 0;">Tahun Akademik: ${teksTAFormal}</p>
+        <div style="text-align: center; margin-bottom: 25px; line-height: 1.4;">
+            <h2 style="font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase;">SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR</h2>
+            <h1 style="font-size: 22pt; font-weight: bold; margin: 15px 0 5px 0; text-transform: uppercase;">JURNAL PERKULIAHAN DOSEN</h1>
+            <p style="font-size: 12pt; font-weight: bold; margin: 0; text-transform: uppercase;">TAHUN AKADEMIK ${labelTahunAkademik}</p>
         </div>
         
-        <table style="width: 100%; font-size: 12pt; margin-bottom: 20px; line-height: 1.6;">
+        <table style="width: 100%; font-size: 11pt; margin-bottom: 20px; line-height: 1.6; border: none;">
             <tr>
-                <td style="width: 150px;">Mata Kuliah</td><td style="width: 10px;">:</td>
-                <td><b>${info.matkul}</b></td>
+                <td style="width: 18%; font-weight: bold;">Mata Kuliah</td>
+                <td style="width: 2%;">:</td>
+                <td style="width: 50%;">${info.matkul}</td>
+                <td style="width: 10%; font-weight: bold;">Kode</td>
+                <td style="width: 2%;">:</td>
+                <td style="width: 18%;">${info.kode}</td>
             </tr>
             <tr>
-                <td>Kode MK</td><td>:</td>
-                <td>${info.kode}</td>
-            </tr>
-            <tr>
-                <td>Dosen Pengampu</td><td>:</td>
+                <td style="font-weight: bold;">Dosen Pengampu</td>
+                <td>:</td>
                 <td>${info.dosen}</td>
-            </tr>
-            <tr>
-                <td>Program Studi</td><td>:</td>
-                <td>${info.prodi}</td>
-            </tr>
-            <tr>
-                <td>Kelas</td><td>:</td>
+                <td style="font-weight: bold;">Kelas</td>
+                <td>:</td>
                 <td>${info.kelas}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Program Studi</td>
+                <td>:</td>
+                <td>${info.prodi}</td>
+                <td style="font-weight: bold;">Semester</td>
+                <td>:</td>
+                <td>${labelSemester}</td>
             </tr>
         </table>
 
@@ -473,7 +475,7 @@
 
       // 1. Simpan original title halaman
       const originalTitle = document.title;
-      // 2. Ubah title document agar nama Save PDF otomatis sesuai instruksi
+      // 2. Ubah title document agar nama Save PDF otomatis
       document.title = `${info.matkul} - ${formatNamaFile}`;
 
       // Sembunyikan Dasbor, Tampilkan Area Cetak
