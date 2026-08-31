@@ -320,9 +320,10 @@
     let dataASH = [];
     let dataPBA = [];
     let dataNIM = []; 
+    let dataMhsPerTA = []; // Tambahan variabel untuk Sheet Mahasiswa Per TA
     
     let selectedMatkulIndex = -1;
-
+    
     function updateJam() {
       try {
         const now = new Date();
@@ -335,7 +336,7 @@
       } catch(e){}
     }
     setInterval(updateJam, 1000);
-
+    
     window.onload = async function() {
       updateJam();
       initDataNilai();
@@ -344,8 +345,7 @@
       const bulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       document.getElementById('lblTanggal').innerText = `Cianjur, ${d.getDate()} ${bulanArr[d.getMonth()]} ${d.getFullYear()}`;
     };
-
-    // Menutup Autocomplete jika klik di luar
+    
     document.addEventListener('click', function(event) {
         const searchBox = document.getElementById('searchMatkulInput');
         const dropdown = document.getElementById('customDropdownMatkul');
@@ -353,7 +353,7 @@
             dropdown.classList.add('hidden');
         }
     });
-
+    
     function setStatus(msg, type = 'normal') {
         const statusEl = document.getElementById('status-msg');
         if(msg === "") {
@@ -368,7 +368,7 @@
             statusEl.style.display = "block";
         }
     }
-
+    
     async function initDataNilai() {
         try {
             const noCacheUrl = SCRIPT_URL_DB + (SCRIPT_URL_DB.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -386,31 +386,31 @@
                 if (nameUpper.includes('ASH')) dataASH = globalDB[sheetName];
                 if (nameUpper.includes('PBA')) dataPBA = globalDB[sheetName];
                 if (nameUpper.includes('KURIKULUM')) kurikulumList = globalDB[sheetName];
-                if (nameUpper.includes('NIM') || nameUpper.includes('DATA MAHASISWA')) {
+                if (nameUpper.includes('MAHASISWA PER TA')) dataMhsPerTA = globalDB[sheetName];
+                if (nameUpper.includes('NIM') || nameUpper === 'DATA MAHASISWA') {
                     dataNIM = globalDB[sheetName];
                 }
             }
-
+    
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('tab-nilai').classList.remove('hidden');
             
             populateTADropdown();
-
+    
         } catch (error) {
             console.log("Error:", error);
             setStatus("Gagal memuat database. Pastikan koneksi internet stabil.", "error");
             document.getElementById('loading').innerHTML = `<div class="text-rose-500 font-bold"><i class="fas fa-exclamation-triangle text-3xl mb-2 block"></i>Gagal Memuat Data</div>`;
         }
     }
-
-    // Mengambil Tahun Akademik dari Kolom TA
+    
     function populateTADropdown() {
         const selTA = document.getElementById('selectTA');
         let taSet = new Set();
         
-        const allGrades = [...dataASH, ...dataPBA];
-        allGrades.forEach(row => {
-            const taKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'TA' || k.trim().toUpperCase() === 'TAHUN AKADEMIK');
+        // Ambil TA unik langsung dari sheet Mahasiswa Per TA untuk akurasi
+        dataMhsPerTA.forEach(row => {
+            const taKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'TA');
             if (taKey && row[taKey] && row[taKey].toString().trim() !== '') {
                 taSet.add(row[taKey].toString().trim());
             }
@@ -423,30 +423,27 @@
             selTA.innerHTML += `<option value="${ta}">${ta}</option>`;
         });
     }
-
-    // Fungsi Autocomplete Pencarian Mata Kuliah
+    
     function handleInputMatkul(e) {
         const val = e.target.value.toLowerCase().trim();
         const dropdown = document.getElementById('customDropdownMatkul');
         dropdown.innerHTML = '';
-        selectedMatkulIndex = -1; // Reset selection jika mengetik ulang
-
+        selectedMatkulIndex = -1; 
+    
         if(val.length >= 3) {
             let matches = [];
             kurikulumList.forEach((mk, idx) => {
                 if(!mk['Mata Kuliah'] || mk['Mata Kuliah'] === 'Mata Kuliah' || mk['Mata Kuliah'] === '') return;
                 
-                // MENGAMBIL NAMA PRODI LANGSUNG DARI SHEET KURIKULUM (KOLOM H)
                 const prodiStr = mk['Program Studi'] || mk['Prodi'] || '';
                 const semesterStr = mk['Semester'] || '-';
-                
                 const label = `${mk['Mata Kuliah']} - ${prodiStr} (Semester ${semesterStr})`;
                 
                 if(label.toLowerCase().includes(val)) {
                     matches.push({label: label, index: idx});
                 }
             });
-
+    
             if(matches.length > 0) {
                 matches.forEach(m => {
                     let div = document.createElement('div');
@@ -459,7 +456,7 @@
                         document.getElementById('searchMatkulInput').value = m.label;
                         selectedMatkulIndex = m.index;
                         dropdown.classList.add('hidden');
-                        renderNilaiMatkul(); // Otomatis proses saat diklik
+                        renderNilaiMatkul(); 
                     };
                     dropdown.appendChild(div);
                 });
@@ -471,8 +468,7 @@
             dropdown.classList.add('hidden');
         }
     }
-
-    // Fungsi Mencari NIM berdasarkan Nama
+    
     function getNimByName(studentName) {
         if (!dataNIM || dataNIM.length === 0) return '-';
         const target = studentName.toLowerCase().trim();
@@ -491,7 +487,7 @@
         }
         return '-';
     }
-
+    
     function konversiNilai(nilai) {
         let huruf = 'E', bobot = 0.00;
         if (nilai >= 85.00) { huruf = 'A'; bobot = 4.00; } 
@@ -506,144 +502,161 @@
         else { huruf = 'E'; bobot = 0.00; }
         return { huruf, bobot };
     }
-
+    
     function formatKoma(num) {
         return num.toString().replace('.', ',');
     }
-
+    
     function normalizeMatkul(text) {
         if (!text) return "";
         return text.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
     }
-
+    
     function renderNilaiMatkul() {
         const targetTA = document.getElementById('selectTA').value.trim();
         const cetakArea = document.getElementById('cetakArea');
         const printBtn = document.getElementById('printBtn');
         
-        if (selectedMatkulIndex === -1) {
-            return; 
-        }
+        if (selectedMatkulIndex === -1) return; 
+        
         if (!targetTA) {
             setStatus("Harap pilih Tahun Akademik terlebih dahulu.", "error");
             cetakArea.style.display = 'none';
             printBtn.style.display = 'none';
             return;
         }
-
+    
         setStatus("Memproses rekapitulasi data nilai...");
         
         const mkInfo = kurikulumList[selectedMatkulIndex];
         const mkNameAsli = mkInfo['Mata Kuliah'];
         const prodiAsli = mkInfo['Program Studi'] || mkInfo['Prodi'] || "";
         const sks = parseInt(mkInfo['SKS']) || 2;
-        
-        // Ambil Nama Dosen Pengampu dari kolom F Data Kurikulum
         const dosenName = mkInfo['Nama Dosen Pengampu'] || mkInfo['Nama Dosen'] || '-';
         
-        // Mengubah <title> dokumen agar nama PDF sesuai (Matkul - TA)
-        const judulTAsafe = targetTA.replace(/\//g, '-');
-        document.title = `${mkNameAsli} - ${judulTAsafe}`;
+        document.title = `${mkNameAsli} - ${targetTA.replace(/\//g, '-')}`;
         
-        // Update Label Header
         document.getElementById('lblMatkul').innerText = mkNameAsli;
         document.getElementById('lblDosen').innerText = dosenName;
         document.getElementById('lblProdi').innerText = prodiAsli;
         document.getElementById('lblKode').innerText = mkInfo['Kode MK'] || '-';
         document.getElementById('lblSks').innerText = sks;
         document.getElementById('lblSemester').innerText = mkInfo['Semester'] || '-';
-        
-        // Update Tanda Tangan Footer
         document.getElementById('lblDosenTtd').innerText = dosenName;
-        
-        // Update Label TA
         document.getElementById('lblTaSmt').innerText = "TAHUN AKADEMIK " + targetTA.toUpperCase();
-
+    
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
         const targetDataMhs = isASH ? dataASH : dataPBA;
-
-        if (!targetDataMhs || targetDataMhs.length === 0) {
-            setStatus("Data nilai untuk program studi ini tidak ditemukan.", "error");
-            cetakArea.style.display = 'none';
-            printBtn.style.display = 'none';
-            return;
+        const semesterNum = parseInt(mkInfo['Semester']) || 1;
+    
+        // 1. Menentukan Nama Kolom di Sheet Mahasiswa Per TA
+        let kolomMhsTarget = "";
+        if (isASH) {
+            if (semesterNum === 1 || semesterNum === 2) kolomMhsTarget = "Semester 1 & 2 Ahwal Al-Syakhshiyyah";
+            else if (semesterNum === 3 || semesterNum === 4) kolomMhsTarget = "Semester 3 & 4 Ahwal Al-Syakhshiyyah";
+            else if (semesterNum === 5 || semesterNum === 6) kolomMhsTarget = "Semester 5 & 6 Ahwal Al-Syakhshiyyah";
+            else if (semesterNum === 7 || semesterNum === 8) kolomMhsTarget = "Semester 7 & 8 Ahwal Al-Syakhshiyyah";
+        } else {
+            if (semesterNum === 1 || semesterNum === 2) kolomMhsTarget = "Semester 1 & 2 Pendidikan Bahasa Arab";
+            else if (semesterNum === 3 || semesterNum === 4) kolomMhsTarget = "Semester 3 & 4 Pendidikan Bahasa Arab";
+            else if (semesterNum === 5 || semesterNum === 6) kolomMhsTarget = "Semester 5 & 6 Pendidikan Bahasa Arab";
+            else if (semesterNum === 7 || semesterNum === 8) kolomMhsTarget = "Semester 7 & 8 Pendidikan Bahasa Arab";
         }
-
-        const normTarget = normalizeMatkul(mkNameAsli);
-        const headersSheetMhs = Object.keys(targetDataMhs[0]);
-        let exactColumnKey = null;
-
-        for (let k of headersSheetMhs) {
-            if (normalizeMatkul(k) === normTarget) {
-                exactColumnKey = k;
-                break;
+    
+        // 2. Mengambil Daftar Nama Mahasiswa sesuai TA dan Kolom Target
+        let daftarNama = [];
+        dataMhsPerTA.forEach(row => {
+            if (row['TA'] === targetTA && row[kolomMhsTarget]) {
+                const namaClean = row[kolomMhsTarget].toString().trim();
+                if (namaClean !== '') daftarNama.push(namaClean);
             }
-        }
-
+        });
+    
         const tbody = document.getElementById('nilaiBody');
         tbody.innerHTML = '';
-
-        if (!exactColumnKey) {
-            setStatus("Mata Kuliah belum terdaftar di Sheet Penilaian Mahasiswa.", "error");
+    
+        if (daftarNama.length === 0) {
+            setStatus(`Data mahasiswa untuk ${kolomMhsTarget} pada TA ${targetTA} belum tersedia.`, "error");
             cetakArea.style.display = 'none';
             printBtn.style.display = 'none';
             return;
         }
-
-        let no = 1;
-        let adaData = false;
-
-        targetDataMhs.forEach(row => {
-            // Filter ketat berdasarkan Tahun Akademik
-            const rowTaKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'TA' || k.trim().toUpperCase() === 'TAHUN AKADEMIK');
-            const rowTAValue = (rowTaKey && row[rowTaKey]) ? row[rowTaKey].toString().trim() : '';
-            
-            if (rowTAValue !== targetTA) {
-                return; // Skip baris ini jika TA tidak cocok
+    
+        // 3. Menentukan Kolom Nilai di Sheet Nilai (ASH/PBA)
+        const normTargetMK = normalizeMatkul(mkNameAsli);
+        let exactColumnKey = null;
+        if (targetDataMhs && targetDataMhs.length > 0) {
+            const headersSheetNilai = Object.keys(targetDataMhs[0]);
+            for (let k of headersSheetNilai) {
+                if (normalizeMatkul(k) === normTargetMK) {
+                    exactColumnKey = k;
+                    break;
+                }
             }
-
-            const valNilaiRaw = row[exactColumnKey];
-            if (valNilaiRaw !== null && valNilaiRaw !== '' && !isNaN(parseFloat(valNilaiRaw))) {
-                adaData = true;
-                const nilaiAngka = parseFloat(valNilaiRaw);
-                
-                const namaKey = Object.keys(row).find(k => k.toLowerCase().includes('nama mahasiswa'));
-                const nama = namaKey && row[namaKey] ? row[namaKey].toString().trim() : '-';
-                
-                let nim = '-';
-                const nimKey = Object.keys(row).find(k => k.toLowerCase().includes('nim'));
-                if (nimKey && row[nimKey]) {
-                    nim = row[nimKey].toString().trim();
+        }
+    
+        let no = 1;
+    
+        // 4. Proses Pencocokan Nilai per Mahasiswa
+        daftarNama.forEach(namaMhs => {
+            let nim = getNimByName(namaMhs);
+            let nilaiAngkaFinal = null;
+    
+            if (exactColumnKey && targetDataMhs) {
+                const rowNilai = targetDataMhs.find(r => {
+                    const namaKey = Object.keys(r).find(k => k.toLowerCase().includes('nama mahasiswa'));
+                    const isNamaCocok = namaKey && r[namaKey] && r[namaKey].toString().trim().toLowerCase() === namaMhs.toLowerCase();
+                    const isTACocok = r['TA'] === targetTA;
+                    return isNamaCocok && isTACocok;
+                });
+    
+                if (rowNilai && rowNilai[exactColumnKey]) {
+                    const valRaw = rowNilai[exactColumnKey];
+                    if (valRaw !== null && valRaw !== '' && !isNaN(parseFloat(valRaw))) {
+                        nilaiAngkaFinal = parseFloat(valRaw);
+                    }
                 }
-                
-                if (nim === '-' || nim === '') {
-                    nim = getNimByName(nama);
-                }
-                
-                const hasilKonversi = konversiNilai(nilaiAngka);
-                const mutu = sks * hasilKonversi.bobot;
-
+            }
+    
+            // Render Baris Tabel
+            if (nilaiAngkaFinal !== null) {
+                const konv = konversiNilai(nilaiAngkaFinal);
+                const mutu = sks * konv.bobot;
                 tbody.innerHTML += `
                     <tr>
                         <td>${no++}</td>
                         <td>${nim}</td>
-                        <td style="text-align: left; padding-left: 8px;">${nama}</td>
-                        <td>${formatKoma(nilaiAngka.toFixed(2))}</td>
-                        <td>${hasilKonversi.huruf}</td>
-                        <td>${formatKoma(hasilKonversi.bobot.toFixed(2))}</td>
+                        <td style="text-align: left; padding-left: 8px;">${namaMhs}</td>
+                        <td>${formatKoma(nilaiAngkaFinal.toFixed(2))}</td>
+                        <td>${konv.huruf}</td>
+                        <td>${formatKoma(konv.bobot.toFixed(2))}</td>
                         <td>${formatKoma(mutu.toFixed(2))}</td>
+                    </tr>
+                `;
+            } else {
+                // Jika nilai belum masuk, tampilkan mahasiswa tapi kosongkan nilainya
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${no++}</td>
+                        <td>${nim}</td>
+                        <td style="text-align: left; padding-left: 8px;">${namaMhs}</td>
+                        <td style="color: #94a3b8;">-</td>
+                        <td style="color: #94a3b8;">-</td>
+                        <td style="color: #94a3b8;">-</td>
+                        <td style="color: #94a3b8;">-</td>
                     </tr>
                 `;
             }
         });
-
-        if (!adaData) {
-            tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; font-style: italic; color: #555;">Belum ada dosen/admin yang memasukkan nilai untuk Mata Kuliah ini pada Tahun Akademik yang dipilih.</td></tr>`;
-        }
-
+    
         cetakArea.style.display = 'block';
         printBtn.style.display = 'flex';
-        setStatus(""); 
+        
+        if (!exactColumnKey) {
+            setStatus(`Menampilkan mahasiswa. Namun kolom nilai untuk mata kuliah ini belum dibuat di sheet pangkalan nilai.`, "normal");
+        } else {
+            setStatus(""); 
+        }
     }
   </script>
 </body>
