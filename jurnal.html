@@ -41,22 +41,28 @@
     .tab-inactive { color: #94a3b8; background: transparent; }
     .tab-inactive:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(5px); }
 
-    /* Gaya Khusus Untuk Print Laporan Jurnal */
+    /* Gaya Khusus Untuk Print Laporan Jurnal yang Formal */
     @media print {
-      @page { size: A4 portrait; margin: 1.5cm; }
-      body { background-color: white; background-image: none; }
+      @page { size: A4 portrait; margin: 2cm; }
+      body { background-color: white; background-image: none; -webkit-print-color-adjust: exact; }
       ::-webkit-scrollbar { display: none; }
       
-      .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-      .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: left; }
-      .print-table th { background-color: #f3f4f6; text-align: center; font-weight: bold; }
+      /* Gunakan Font Cambria untuk seluruh area cetak */
+      #print-area { 
+        font-family: 'Cambria', 'Times New Roman', serif !important; 
+        color: black; 
+      }
+      
+      .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; }
+      .print-table th, .print-table td { border: 1px solid #000; padding: 8px 10px; text-align: left; vertical-align: top;}
+      .print-table th { text-align: center; font-weight: bold; }
     }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
   <!-- AREA CETAK (Hanya Muncul Saat Print) -->
-  <div id="print-area" class="hidden bg-white text-black font-serif p-4 w-full h-full overflow-visible absolute top-0 left-0 z-[9999]"></div>
+  <div id="print-area" class="hidden bg-white w-full h-full absolute top-0 left-0 z-[9999] p-4 overflow-visible"></div>
 
   <!-- SIDEBAR DESKTOP -->
   <aside class="w-72 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 text-white flex flex-col shadow-2xl z-30 hidden md:flex shrink-0 relative overflow-hidden">
@@ -81,7 +87,6 @@
     </div>
     
     <nav class="flex-1 p-6 space-y-4 relative z-10 mt-2 overflow-y-auto">
-      <!-- MENU AKTIF: JURNAL (INDEX) -->
       <a href="index.html" class="w-full text-left px-5 py-4 rounded-2xl font-bold tab-active transition-all duration-300 flex items-center gap-4">
         <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-layer-group text-white text-sm"></i></div>
         Riwayat Jurnal
@@ -112,14 +117,12 @@
       
       <div class="flex flex-col gap-3 w-full xl:w-auto items-start xl:items-end">
         
-        <!-- JAM REALTIME -->
         <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
           <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
           <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
           <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
         </div>
 
-        <!-- FILTER PENCARIAN JURNAL & TOMBOL CETAK -->
         <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
           <select id="globalTahunFilter" onchange="applyGlobalFilter()" class="w-full sm:w-auto bg-white px-4 py-2.5 rounded-xl border-2 border-brand-600 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer text-sm hover:bg-slate-50 transition-all appearance-none">
             <option value="Semua">Tampilkan Semua Semester</option>
@@ -129,18 +132,15 @@
             <option value="Semua">Semua Mata Kuliah</option>
           </select>
 
-          <!-- Tombol Cetak PDF (Otomatis Muncul Saat Matkul Dipilih) -->
+          <!-- Tombol Cetak PDF -->
           <button id="btnCetak" onclick="cetakLaporanPDF()" class="hidden w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all text-sm flex items-center justify-center gap-2">
             <i class="fas fa-file-pdf"></i> Cetak Jurnal
           </button>
         </div>
-        
       </div>
     </header>
 
     <div class="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto">
-      
-      <!-- LOADING STATE -->
       <div id="loading" class="text-center py-20 md:py-32 bg-white rounded-[2rem] shadow-soft border border-slate-100">
         <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-6">
           <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
@@ -151,10 +151,7 @@
         <p class="text-sm md:text-base text-slate-500 font-medium mt-2">Mengunduh data akademik secara real-time...</p>
       </div>
 
-      <!-- KONTEN UTAMA JURNAL -->
       <div id="tab-jurnal" class="hidden animate-slide-up">
-        
-        <!-- WIDGET STATISTIK -->
         <div id="globalStats" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 p-5 md:p-6 flex items-center gap-4 md:gap-5 relative overflow-hidden group">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:bg-emerald-100 transition-colors duration-500"></div>
@@ -190,7 +187,6 @@
           </div>
         </div>
 
-        <!-- TABEL JURNAL -->
         <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-soft border border-slate-100 overflow-hidden">
           <div class="overflow-x-auto p-2 md:p-4">
             <table class="w-full text-left text-sm whitespace-nowrap">
@@ -213,18 +209,14 @@
     <footer class="w-full text-center py-6 mt-auto border-t border-slate-200/50 text-slate-400 font-medium text-xs tracking-wide">
       &copy; 2026 Dasbor Akademik
     </footer>
-    
   </main>
 
   <!-- NAVIGASI BOTTOM (HP) -->
   <div class="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200/60 flex justify-around items-center pt-3 pb-4 px-2 z-50 shadow-up rounded-t-3xl">
-    
-    <!-- MENU AKTIF: JURNAL (INDEX) -->
     <a href="index.html" class="flex flex-col items-center gap-1 w-1/4 text-emerald-600 transform scale-110 transition-all duration-300">
       <div class="bg-emerald-50 w-10 h-10 rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-layer-group text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Jurnal</span>
     </a>
-    
     <a href="presensi.html" class="flex flex-col items-center gap-1 w-1/4 text-slate-400 hover:text-emerald-500 transition-all duration-300">
       <div class="w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-user-shield text-lg"></i></div>
       <span class="text-[9px] font-black tracking-widest uppercase">Presensi</span>
@@ -240,15 +232,12 @@
   </div>
 
   <script>
-    // URL API Backend Google Script
     const scriptUrlDash = "https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec";
     const CACHE_KEY_DASH = 'dashboard_jurnal_cache_v1';
     
-    // Variabel Global
     let globalDataJurnal = [];
     let globalDataMhs = [];
 
-    // Jam Real-time
     function updateJam() {
       try {
         const now = new Date();
@@ -262,7 +251,6 @@
     }
     setInterval(updateJam, 1000);
 
-    // Render Data Berhasil
     function handleDataSuccess(data) {
         globalDataJurnal = data.jurnal || [];
         globalDataMhs = data.mahasiswa || []; 
@@ -273,14 +261,12 @@
         populateFilters();
     }
 
-    // Ambil Data Latar Belakang (Sinkronisasi Background)
     async function fetchDataLatarBelakang() {
         try {
             const response = await fetch(scriptUrlDash);
             const result = await response.json();
             
             if (result.status === "success") { 
-                // Hapus '.data' karena GS mengirimkan key secara langsung di root object
                 const newDataString = JSON.stringify(result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
@@ -291,18 +277,14 @@
             }
         } catch (err) { 
             console.error("Error Dashboard data:", err); 
-            // Munculkan peringatan hanya jika tidak ada cache sama sekali
             if (!localStorage.getItem(CACHE_KEY_DASH)) {
                 document.getElementById('loading').innerHTML = '<div class="text-rose-500 p-10"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><h3 class="font-bold text-xl">Gagal memuat data dari server.</h3><p class="text-sm mt-2 text-slate-500">Periksa koneksi internet Anda lalu muat ulang halaman.</p></div>';
             }
         }
     }
 
-    // Eksekusi saat Web Dibuka
     window.onload = function() {
         updateJam();
-        
-        // 1. Cek Cache Dulu (Muat super cepat)
         const cachedData = localStorage.getItem(CACHE_KEY_DASH);
         if (cachedData) {
             try {
@@ -312,17 +294,13 @@
                 console.error("Gagal membaca cache:", e);
             }
         }
-        
-        // 2. Refresh diam-diam di background (Stale-while-revalidate)
         fetchDataLatarBelakang();
     };
 
-    // Fungsi Mengisi Dropdown Filter (Tahun & Matkul)
     function populateFilters() {
       let selTahun = document.getElementById('globalTahunFilter');
       let selMatkul = document.getElementById('globalMatkulFilter');
       
-      // Simpan Pilihan User Saat Ini (Agar tidak reset saat auto-refresh dari cache)
       let currentTahun = selTahun ? selTahun.value : "Semua";
       let currentMatkul = selMatkul ? selMatkul.value : "Semua";
 
@@ -335,7 +313,6 @@
       
       if(selTahun) {
           selTahun.innerHTML = optTahun;
-          // Kembalikan pilihan user jika ada, kalau tidak default "Semua"
           if(Array.from(selTahun.options).some(o => o.value === currentTahun)) {
               selTahun.value = currentTahun;
           }
@@ -350,21 +327,17 @@
       
       if(selMatkul) {
           selMatkul.innerHTML = optMatkul;
-          // Kembalikan pilihan user
           if(Array.from(selMatkul.options).some(o => o.value === currentMatkul)) {
               selMatkul.value = currentMatkul;
           }
       }
-
       applyGlobalFilter();
     }
 
-    // Fungsi Memicu Render setelah Filter diubah
     function applyGlobalFilter() {
       renderStats();
       renderJurnal();
 
-      // Logika Tombol Cetak PDF
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
       const btnCetak = document.getElementById('btnCetak');
       if (btnCetak) {
@@ -376,7 +349,6 @@
       }
     }
 
-    // Fungsi Cetak Laporan PDF
     function cetakLaporanPDF() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -386,7 +358,7 @@
         return;
       }
 
-      // Ambil data sesuai filter dan urutkan dari sesi awal ke akhir
+      // Ambil data sesuai filter dan urutkan dari sesi awal ke akhir (berdasarkan Angka Sesi)
       let filteredJurnal = globalDataJurnal.filter(j => {
           const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
           const matchMatkul = (j.matkul === filterMatkul);
@@ -400,24 +372,61 @@
 
       // Ambil metadata dari sesi pertama
       const info = filteredJurnal[0];
+      
+      // LOGIKA PENENTUAN TAHUN AKADEMIK BERDASARKAN TANGGAL SESI 1
+      let dateObj = new Date(info.tanggal.split("T")[0]);
+      let extractedYear = dateObj.getFullYear();
+      let extractedMonth = dateObj.getMonth() + 1; // getMonth() mulai dari 0
+      
+      let labelSemester = "";
+      let labelTahunAkademik = "";
+      
+      // Bulan 8 (Agustus) s/d 12 adalah Semester Ganjil TA berjalan. (cth: 2026/2027)
+      // Bulan 1 (Januari) s/d 7 adalah Semester Genap TA sebelumnya. (cth: 2025/2026)
+      if (extractedMonth >= 8) {
+          labelSemester = "Ganjil";
+          labelTahunAkademik = extractedYear + "/" + (extractedYear + 1);
+      } else {
+          labelSemester = "Genap";
+          labelTahunAkademik = (extractedYear - 1) + "/" + extractedYear;
+      }
+      
+      let teksTAFormal = `${labelSemester} ${labelTahunAkademik}`;
+      let formatNamaFile = `${labelTahunAkademik.replace('/', '-')}`; // Contoh Output: 2026-2027
 
       let htmlPrint = `
-        <div style="text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px;">
-            <h2 style="font-size: 20px; font-weight: bold; margin: 0; text-transform: uppercase;">SEKOLAH TINGGI AGAMA ISLAM IBNU SINA</h2>
-            <h3 style="font-size: 16px; font-weight: bold; margin: 5px 0;">STAIIS CIANJUR</h3>
-            <h1 style="font-size: 22px; font-weight: 800; margin: 15px 0 5px 0;">JURNAL PERKULIAHAN DOSEN</h1>
-            <p style="font-size: 14px; margin: 0;">Tahun Akademik: ${filterTahun !== 'Semua' ? filterTahun : 'Semua Semester'}</p>
+        <div style="text-align: center; border-bottom: 3px solid black; padding-bottom: 8px; margin-bottom: 25px; line-height: 1.2;">
+            <h2 style="font-size: 16pt; font-weight: bold; margin: 0; text-transform: uppercase;">SEKOLAH TINGGI AGAMA ISLAM IBNU SINA</h2>
+            <h3 style="font-size: 14pt; font-weight: bold; margin: 5px 0 0 0;">STAIIS CIANJUR</h3>
+            <br>
+            <h1 style="font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; text-decoration: underline;">JURNAL PERKULIAHAN DOSEN</h1>
+            <p style="font-size: 12pt; margin: 8px 0 0 0;">Tahun Akademik: ${teksTAFormal}</p>
         </div>
         
-        <table style="width: 100%; font-size: 14px; margin-bottom: 15px;">
-            <tr><td style="width: 150px; padding: 3px;">Mata Kuliah</td><td>: <b>${info.matkul}</b></td></tr>
-            <tr><td style="padding: 3px;">Kode MK</td><td>: ${info.kode}</td></tr>
-            <tr><td style="padding: 3px;">Dosen Pengampu</td><td>: ${info.dosen}</td></tr>
-            <tr><td style="padding: 3px;">Program Studi</td><td>: ${info.prodi}</td></tr>
-            <tr><td style="padding: 3px;">Kelas</td><td>: ${info.kelas}</td></tr>
+        <table style="width: 100%; font-size: 12pt; margin-bottom: 20px; line-height: 1.6;">
+            <tr>
+                <td style="width: 150px;">Mata Kuliah</td><td style="width: 10px;">:</td>
+                <td><b>${info.matkul}</b></td>
+            </tr>
+            <tr>
+                <td>Kode MK</td><td>:</td>
+                <td>${info.kode}</td>
+            </tr>
+            <tr>
+                <td>Dosen Pengampu</td><td>:</td>
+                <td>${info.dosen}</td>
+            </tr>
+            <tr>
+                <td>Program Studi</td><td>:</td>
+                <td>${info.prodi}</td>
+            </tr>
+            <tr>
+                <td>Kelas</td><td>:</td>
+                <td>${info.kelas}</td>
+            </tr>
         </table>
 
-        <table class="print-table" style="font-size: 13px;">
+        <table class="print-table">
             <thead>
                 <tr>
                     <th style="width: 5%;">Ke-</th>
@@ -445,10 +454,10 @@
             </tbody>
         </table>
 
-        <div style="width: 100%; margin-top: 50px; text-align: right; font-size: 14px;">
-            <div style="display: inline-block; text-align: left; width: 250px;">
+        <div style="width: 100%; margin-top: 50px; font-size: 12pt; display: flex; justify-content: flex-end;">
+            <div style="text-align: left; width: 250px;">
                 <p style="margin: 0;">Cianjur, ....................................</p>
-                <p style="margin: 5px 0 60px 0;">Dosen Pengampu,</p>
+                <p style="margin: 0; margin-bottom: 70px;">Dosen Pengampu,</p>
                 <p style="margin: 0; font-weight: bold; text-decoration: underline;">${info.dosen}</p>
             </div>
         </div>
@@ -459,7 +468,13 @@
       const sidebarApp = document.querySelector('aside');
       const bottomNav = document.querySelector('.md\\:hidden.fixed');
 
+      // Masukkan format ke HTML
       printArea.innerHTML = htmlPrint;
+
+      // 1. Simpan original title halaman
+      const originalTitle = document.title;
+      // 2. Ubah title document agar nama Save PDF otomatis sesuai instruksi
+      document.title = `${info.matkul} - ${formatNamaFile}`;
 
       // Sembunyikan Dasbor, Tampilkan Area Cetak
       printArea.classList.remove('hidden');
@@ -475,9 +490,11 @@
       mainApp.classList.remove('hidden');
       sidebarApp.classList.remove('hidden');
       if(bottomNav) bottomNav.classList.remove('hidden');
+      
+      // 3. Kembalikan Title kembali ke awal
+      document.title = originalTitle;
     }
 
-    // Fungsi Render Statistik Atas
     function renderStats() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -497,7 +514,6 @@
       document.getElementById('statTotalDosen').innerText = uniqueDosen;
     }
 
-    // Fungsi Render Tabel Jurnal
     function renderJurnal() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
       const filterMatkul = document.getElementById('globalMatkulFilter').value;
@@ -506,12 +522,11 @@
           const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
           const matchMatkul = (filterMatkul === "Semua" || j.matkul === filterMatkul);
           return matchTahun && matchMatkul;
-      }).reverse(); // Dibalik agar jadwal terbaru ada di atas
+      }).reverse();
 
       let htmlJurnal = '';
       if(filteredJurnal.length > 0) {
         filteredJurnal.forEach(j => {
-          // 1. Konversi format YYYY-MM-DD menjadi Tanggal dan Singkatan Bulan
           let dateOnly = j.tanggal.split("T")[0].split(" ")[0]; 
           let parts = dateOnly.split("-");
           let hariTgl = dateOnly;
@@ -522,11 +537,10 @@
             let tahun = parts[0];
             let bulanIdx = parseInt(parts[1], 10) - 1;
             
-            hariTgl = parts[2]; // Ambil 2 digit tanggal
+            hariTgl = parts[2]; 
             bulanTahun = (bulanIdx >= 0 && bulanIdx < 12) ? `${namaBulan[bulanIdx]} ${tahun}` : tahun;
           }
 
-          // 2. Sesuaikan desain kotak agar persis seperti referensi (ukuran presisi & padding)
           htmlJurnal += `
           <tr class="hover:bg-slate-50/80 transition-all duration-200 group hover:-translate-y-1">
             <td class="p-4 md:p-6 pl-6 md:pl-8 align-middle">
