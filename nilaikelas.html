@@ -47,9 +47,6 @@
     /* ==============================================================
        CSS KHUSUS UNTUK CETAK DAFTAR NILAI
        ============================================================== */
-    /* ==============================================================
-       CSS KHUSUS UNTUK CETAK DAFTAR NILAI
-       ============================================================== */
     #cetakArea { 
         display: none; 
         margin-top: 20px; 
@@ -57,12 +54,10 @@
         padding: 40px 50px; 
         color: #000; 
         border-radius: 1.5rem; 
-        /* Font utama diubah ke Cambria */
         font-family: 'Cambria', Georgia, serif;
     }
     
     .header-cetak { text-align: center; margin-bottom: 20px; }
-    /* Font h3 juga diseragamkan ke Cambria (menghapus Arial) */
     .header-cetak h3 { font-family: 'Cambria', Georgia, serif; font-size: 15px; font-weight: bold; margin: 0; letter-spacing: 0.5px;}
     .header-cetak h1 { font-size: 28px; font-weight: 900; margin: 5px 0 2px 0; text-transform: uppercase; letter-spacing: 1px;}
     .header-cetak h2 { font-size: 16px; font-weight: bold; margin: 0; }
@@ -77,18 +72,34 @@
 
     .data-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; margin-bottom: 30px; }
     .data-table th, .data-table td { border: 1px solid #000; padding: 6px 4px; }
-    .data-table th { font-weight: bold; }
+    .data-table th { 
+        font-weight: bold; 
+        background-color: #e5e7eb !important; /* Warna abu-abu */
+        -webkit-print-color-adjust: exact;    /* Memaksa warna tercetak di Chrome/Safari */
+        print-color-adjust: exact;            /* Standar print background */
+    }
     
     .footer-area { display: flex; justify-content: space-between; font-size: 12px; }
     
     /* Box Keterangan Nilai */
     .keterangan-box { border: 1.5px solid #000; border-radius: 8px; width: 280px; overflow: hidden; }
-    .keterangan-title { text-align: center; font-weight: bold; border-bottom: 1px solid #000; padding: 6px 0; background-color: #f3f4f6;}
+    .keterangan-title { 
+        text-align: center; 
+        font-weight: bold; 
+        border-bottom: 1px solid #000; 
+        padding: 6px 0; 
+        background-color: #e5e7eb !important; /* Warna abu-abu */
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
     .keterangan-grid { display: flex; }
     .keterangan-col { width: 50%; padding: 8px 15px; }
     .keterangan-col:first-child { border-right: 1px solid #000; }
+    
     .tabel-ket { width: 100%; border-collapse: collapse; font-weight: bold; }
     .tabel-ket td { padding: 2px 0; }
+    /* Menambahkan padding pada tanda '=' agar lebih rapi */
+    .td-sama-dengan { padding: 0 8px !important; text-align: center; } 
     
     /* Area Tanda Tangan */
     .ttd-area { text-align: center; width: 250px; font-size: 13px; }
@@ -266,33 +277,31 @@
                       <div class="keterangan-grid">
                           <div class="keterangan-col">
                               <table class="tabel-ket">
-                                  <tr><td style="width: 50%;">85 - 100</td><td>A</td></tr>
-                                  <tr><td>80 - 84</td><td>A-</td></tr>
-                                  <tr><td>75 - 79</td><td>B+</td></tr>
-                                  <tr><td>70 - 74</td><td>B</td></tr>
-                                  <tr><td>65 - 69</td><td>B-</td></tr>
+                                  <tr><td style="width: 55%;">85 - 100</td><td class="td-sama-dengan">=</td><td>A</td></tr>
+                                  <tr><td>80 - 84</td><td class="td-sama-dengan">=</td><td>A-</td></tr>
+                                  <tr><td>75 - 79</td><td class="td-sama-dengan">=</td><td>B+</td></tr>
+                                  <tr><td>70 - 74</td><td class="td-sama-dengan">=</td><td>B</td></tr>
+                                  <tr><td>65 - 69</td><td class="td-sama-dengan">=</td><td>B-</td></tr>
                               </table>
                           </div>
                           <div class="keterangan-col">
                               <table class="tabel-ket">
-                                  <tr><td style="width: 50%;">60 - 64</td><td>C+</td></tr>
-                                  <tr><td>55 - 59</td><td>C</td></tr>
-                                  <tr><td>50 - 54</td><td>C-</td></tr>
-                                  <tr><td>45 - 49</td><td>D</td></tr>
-                                  <tr><td>0 - 44</td><td>E</td></tr>
+                                  <tr><td style="width: 55%;">60 - 64</td><td class="td-sama-dengan">=</td><td>C+</td></tr>
+                                  <tr><td>55 - 59</td><td class="td-sama-dengan">=</td><td>C</td></tr>
+                                  <tr><td>50 - 54</td><td class="td-sama-dengan">=</td><td>C-</td></tr>
+                                  <tr><td>45 - 49</td><td class="td-sama-dengan">=</td><td>D</td></tr>
+                                  <tr><td>0 - 44</td><td class="td-sama-dengan">=</td><td>E</td></tr>
                               </table>
                           </div>
                       </div>
                   </div>
                   
                   <div class="ttd-area">
-                      <div id="lblTanggal">Cianjur, -</div>
+                      <div id="lblTanggal">Cianjur, 30 Agustus 2026</div>
                       <div>Dosen Mata Kuliah,</div>
                       <div class="ttd-nama" id="lblDosenTtd">-</div>
                   </div>
               </div>
-              
-          </div>
         
           <button class="w-full bg-brand-600 hover:bg-brand-500 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-md flex items-center justify-center gap-3" id="printBtn" onclick="window.print()" style="display: none;">
               <i class="fas fa-print"></i> Cetak Daftar Nilai (PDF / Printer)
