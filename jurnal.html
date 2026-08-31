@@ -378,22 +378,22 @@
       let extractedYear = dateObj.getFullYear();
       let extractedMonth = dateObj.getMonth() + 1; // getMonth() mulai dari 0
       
-      let labelSemester = "";
       let labelTahunAkademik = "";
       
       // Bulan 8 (Agustus) s/d 12 adalah Semester Ganjil TA berjalan. (cth: 2026/2027)
       // Bulan 1 (Januari) s/d 7 adalah Semester Genap TA sebelumnya. (cth: 2025/2026)
       if (extractedMonth >= 8) {
-          labelSemester = "Ganjil";
           labelTahunAkademik = extractedYear + "/" + (extractedYear + 1);
       } else {
-          labelSemester = "Genap";
           labelTahunAkademik = (extractedYear - 1) + "/" + extractedYear;
       }
+
+      // LOGIKA SEMESTER DIAMBIL DARI NAMA KELAS (Misal: "2 A" -> menghasilkan "2")
+      let labelSemester = parseInt(info.kelas) || "-";
       
       let formatNamaFile = `${labelTahunAkademik.replace('/', '-')}`; 
 
-      // FORMAT HTML CETAK (MENYESUAIKAN GAMBAR 2)
+      // FORMAT HTML CETAK 
       let htmlPrint = `
         <div style="text-align: center; margin-bottom: 25px; line-height: 1.4;">
             <h2 style="font-size: 14pt; font-weight: bold; margin: 0; text-transform: uppercase;">SEKOLAH TINGGI AGAMA ISLAM IMAM SYAFI'I CIANJUR</h2>
