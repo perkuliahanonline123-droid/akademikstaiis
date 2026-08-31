@@ -305,23 +305,52 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec'; 
         let globalData = { kurikulum: [], mahasiswa: {}, jurnal: [] };
 
-        // 1. Ambil data
+        // Durasi cache dalam milidetik (contoh: 1 jam)
+        const CACHE_DURATION = 60 * 60 * 1000; 
+        
         async function loadData() {
-            updateJam();
+            updateJam(); //
+            
+            const cachedData = localStorage.getItem('akademikData');
+            const cacheTimestamp = localStorage.getItem('akademikDataTime');
+            const currentTime = new Date().getTime();
+        
+            // Cek apakah cache ada dan belum kedaluwarsa
+            if (cachedData && cacheTimestamp && (currentTime - cacheTimestamp < CACHE_DURATION)) {
+                globalData = JSON.parse(cachedData); //
+                setupAutocomplete(); //
+                renderRiwayat(); //[cite: 1]
+                return; // Hentikan eksekusi, gunakan data cache
+            }
+        
+            // Jika tidak ada cache atau sudah kedaluwarsa, ambil dari API
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL); //[cite: 1]
                 const result = await response.json();
                 
-                if(result.status === 'success') {
-                    globalData = result;
-                    setupAutocomplete(); // Memanggil fungsi pencarian
-                    renderRiwayat(); 
+                if(result.status === 'success') { //[cite: 1]
+                    globalData = result; //[cite: 1]
+                    
+                    // Simpan data baru ke localStorage
+                    localStorage.setItem('akademikData', JSON.stringify(result));
+                    localStorage.setItem('akademikDataTime', currentTime.toString());
+                    
+                    setupAutocomplete(); //[cite: 1]
+                    renderRiwayat(); //[cite: 1]
                 } else {
-                    showToast('error', "Gagal memuat data: " + result.message);
+                    showToast('error', "Gagal memuat data: " + result.message); //[cite: 1]
                 }
             } catch (e) {
-                showToast('error', "Terjadi kesalahan jaringan saat memuat data.");
-                document.getElementById('bodyRiwayat').innerHTML = '<tr><td colspan="4" class="p-6 text-center text-rose-500 italic">Gagal mengambil data riwayat.</td></tr>';
+                // Fallback: Jika offline/error tapi ada cache lama, gunakan cache tersebut
+                if (cachedData) {
+                    globalData = JSON.parse(cachedData);
+                    setupAutocomplete();
+                    renderRiwayat();
+                    showToast('warning', "Koneksi terputus. Menggunakan data cache lokal.");
+                } else {
+                    showToast('error', "Terjadi kesalahan jaringan saat memuat data."); //[cite: 1]
+                    document.getElementById('bodyRiwayat').innerHTML = '<tr><td colspan="4" class="p-6 text-center text-rose-500 italic">Gagal mengambil data riwayat.</td></tr>'; //[cite: 1]
+                }
             }
         }
 
@@ -586,6 +615,8 @@
                         document.getElementById('metodePembelajaran').value = ""; 
                         document.getElementById('metodeLainnya').value = "";
                         document.getElementById('metodeLainnya').classList.add('hidden');
+                        localStorage.removeItem('akademikData');
+                        localStorage.removeItem('akademikDataTime'); 
                         
                         await loadData();
                         renderMahasiswa(); 
