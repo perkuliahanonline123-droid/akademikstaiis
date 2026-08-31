@@ -47,6 +47,9 @@
     /* ==============================================================
        CSS KHUSUS UNTUK CETAK DAFTAR NILAI
        ============================================================== */
+    /* ==============================================================
+       CSS KHUSUS UNTUK CETAK DAFTAR NILAI
+       ============================================================== */
     #cetakArea { 
         display: none; 
         margin-top: 20px; 
@@ -54,11 +57,13 @@
         padding: 40px 50px; 
         color: #000; 
         border-radius: 1.5rem; 
-        font-family: 'Times New Roman', Times, serif;
+        /* Font utama diubah ke Cambria */
+        font-family: 'Cambria', Georgia, serif;
     }
     
     .header-cetak { text-align: center; margin-bottom: 20px; }
-    .header-cetak h3 { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold; margin: 0; letter-spacing: 0.5px;}
+    /* Font h3 juga diseragamkan ke Cambria (menghapus Arial) */
+    .header-cetak h3 { font-family: 'Cambria', Georgia, serif; font-size: 15px; font-weight: bold; margin: 0; letter-spacing: 0.5px;}
     .header-cetak h1 { font-size: 28px; font-weight: 900; margin: 5px 0 2px 0; text-transform: uppercase; letter-spacing: 1px;}
     .header-cetak h2 { font-size: 16px; font-weight: bold; margin: 0; }
     
@@ -203,6 +208,7 @@
           
           <div id="status-msg" class="text-center font-bold text-e67e22 hidden bg-amber-50 text-amber-600 p-4 rounded-xl border border-amber-200"></div>
 
+          <!-- AREA YANG AKAN DICETAK -->
           <div id="cetakArea" class="shadow-soft border border-slate-100 relative z-10">
               
               <!-- HEADER DOKUMEN -->
@@ -212,22 +218,28 @@
                   <h2 id="lblTaSmt">TAHUN AKADEMIK -</h2>
               </div>
               
-              <div class="garis-kop"></div>
-
-              <!-- INFO KELAS -->
-              <div class="info-container">
-                  <table class="info-table">
-                      <tr><td>Mata Kuliah</td><td>: <span id="lblMatkul" style="font-weight: normal;">-</span></td></tr>
-                      <tr><td>Dosen Pengampu</td><td>: <span id="lblDosen" style="font-weight: normal;">-</span></td></tr>
-                      <tr><td>Program Studi</td><td>: <span id="lblProdi" style="font-weight: normal;">-</span></td></tr>
-                  </table>
-                  
-                  <table class="info-table-right">
-                      <tr><td>Kode</td><td>: <span id="lblKode" style="font-weight: normal;">-</span></td></tr>
-                      <tr><td>SKS</td><td>: <span id="lblSks" style="font-weight: normal;">-</span></td></tr>
-                      <tr><td>Semester</td><td>: <span id="lblSemester" style="font-weight: normal;">-</span></td></tr>
-                  </table>
+              <!-- INFO KELAS (Kolom Kiri, Garis Vertikal, Kolom Kanan) -->
+              <div class="info-wrapper">
+                  <div class="info-col">
+                      <table class="info-table">
+                          <tr><td>Mata Kuliah</td><td>: <span id="lblMatkul" style="font-weight: normal;">-</span></td></tr>
+                          <tr><td>Dosen Pengampu</td><td>: <span id="lblDosen" style="font-weight: normal;">-</span></td></tr>
+                          <tr><td>Program Studi</td><td>: <span id="lblProdi" style="font-weight: normal;">-</span></td></tr>
+                      </table>
+                  </div>
+                  <div class="info-divider"></div>
+                  <div class="info-col">
+                      <table class="info-table-right">
+                          <tr><td>Kode</td><td>: <span id="lblKode" style="font-weight: normal;">-</span></td></tr>
+                          <tr><td>SKS</td><td>: <span id="lblSks" style="font-weight: normal;">-</span></td></tr>
+                          <tr><td>Semester</td><td>: <span id="lblSemester" style="font-weight: normal;">-</span></td></tr>
+                      </table>
+                  </div>
               </div>
+
+              <!-- GARIS GANDA DI ATAS TABEL -->
+              <div class="garis-tebal"></div>
+              <div class="garis-tipis"></div>
 
               <!-- TABEL NILAI -->
               <table class="data-table">
@@ -274,7 +286,7 @@
                   </div>
                   
                   <div class="ttd-area">
-                      <div id="lblTanggal">Cianjur, 30 Agustus 2026</div>
+                      <div id="lblTanggal">Cianjur, -</div>
                       <div>Dosen Mata Kuliah,</div>
                       <div class="ttd-nama" id="lblDosenTtd">-</div>
                   </div>
@@ -563,7 +575,24 @@
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
         const targetDataMhs = isASH ? dataASH : dataPBA;
         const semesterNum = parseInt(mkInfo['Semester']) || 1;
-    
+        // LOGIKA PENENTUAN TANGGAL TTD BERDASARKAN SEMESTER GANJIL/GENAP
+        const taParts = targetTA.split('/'); 
+        let tanggalTtd = "";
+        
+        if (taParts.length === 2) {
+            const tahunAwal = taParts[0]; // Misal: 2025
+            const tahunAkhir = taParts[1]; // Misal: 2026
+            
+            if (semesterNum % 2 !== 0) {
+                // Semester Ganjil (1, 3, 5, 7) -> 31 Desember + Tahun Awal
+                tanggalTtd = `31 Desember ${tahunAwal}`;
+            } else {
+                // Semester Genap (2, 4, 6, 8) -> 30 Juni + Tahun Akhir
+                tanggalTtd = `30 Juni ${tahunAkhir}`;
+            }
+        }
+        
+        document.getElementById('lblTanggal').innerText = `Cianjur, ${tanggalTtd}`;
         // 1. Menentukan Nama Kolom di Sheet Mahasiswa Per TA
         let kolomMhsTarget = "";
         if (isASH) {
