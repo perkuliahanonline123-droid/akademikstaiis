@@ -127,7 +127,7 @@
                     <div class="mb-6 relative">
                         <label class="text-sm font-black text-slate-700 mb-3 tracking-wide uppercase block">Mata Kuliah & Semester</label>
                         <div class="relative">
-                            <input type="text" id="inputMatkul" placeholder="Ketik mata kuliah minimal 3 huruf" class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-50 font-medium transition-all" autocomplete="off">
+                            <input type="text" id="inputMatkul" placeholder="⏳ Memuat data, mohon tunggu..." disabled class="w-full p-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-slate-200 font-medium transition-all cursor-not-allowed animate-pulse" autocomplete="off">
                             <!-- Dropdown Rekomendasi -->
                             <div id="rekomendasiMatkul" class="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl hidden max-h-60 overflow-y-auto custom-scrollbar">
                                 <!-- Item rekomendasi akan dimasukkan ke sini oleh JS -->
@@ -311,6 +311,16 @@
         async function loadData() {
             updateJam(); 
             
+            const inputField = document.getElementById('inputMatkul');
+            
+            // Fungsi pembantu untuk membuka kunci kolom input saat data siap
+            const setReady = () => {
+                inputField.placeholder = "Ketik mata kuliah minimal 3 huruf";
+                inputField.disabled = false;
+                inputField.classList.remove('animate-pulse', 'cursor-not-allowed', 'bg-slate-200');
+                inputField.classList.add('bg-slate-50');
+            };
+        
             const cachedData = localStorage.getItem('akademikData');
             const cacheTimestamp = localStorage.getItem('akademikDataTime');
             const currentTime = new Date().getTime();
@@ -319,10 +329,9 @@
             if (cachedData && cacheTimestamp && (currentTime - cacheTimestamp < CACHE_DURATION)) {
                 globalData = JSON.parse(cachedData); 
                 
-                // PRIORITAS 1: Aktifkan form presensi secara instan
+                setReady(); // Buka kunci input
                 setupAutocomplete(); 
                 
-                // PRIORITAS 2: Tunda (defer) render riwayat selama 300ms agar UI tidak lag
                 setTimeout(() => {
                     renderRiwayat(); 
                 }, 300);
@@ -332,31 +341,34 @@
         
             // Jika tidak ada cache atau sudah kedaluwarsa, ambil dari API
             try {
-                const response = await fetch(API_URL);[cite: 1]
+                const response = await fetch(API_URL);
                 const result = await response.json();
                 
-                if(result.status === 'success') {[cite: 1]
-                    globalData = result;[cite: 1]
+                if(result.status === 'success') {
+                    globalData = result;
                     
                     // Simpan data baru ke localStorage
                     localStorage.setItem('akademikData', JSON.stringify(result));
                     localStorage.setItem('akademikDataTime', currentTime.toString());
                     
-                    // PRIORITAS 1: Aktifkan form presensi secara instan
-                    setupAutocomplete();[cite: 1]
+                    setReady(); // Buka kunci input
+                    setupAutocomplete();
                     
-                    // PRIORITAS 2: Tunda render riwayat
                     setTimeout(() => {
-                        renderRiwayat();[cite: 1]
+                        renderRiwayat();
                     }, 300);
                     
                 } else {
-                    showToast('error', "Gagal memuat data: " + result.message);[cite: 1]
+                    inputField.placeholder = "Gagal memuat data!";
+                    inputField.classList.remove('animate-pulse');
+                    showToast('error', "Gagal memuat data: " + result.message);
                 }
             } catch (e) {
                 // Fallback: Jika offline/error tapi ada cache lama, gunakan cache tersebut
                 if (cachedData) {
                     globalData = JSON.parse(cachedData);
+                    
+                    setReady(); // Buka kunci input
                     setupAutocomplete();
                     
                     setTimeout(() => {
@@ -365,8 +377,10 @@
                     
                     showToast('warning', "Koneksi terputus. Menggunakan data cache lokal.");
                 } else {
-                    showToast('error', "Terjadi kesalahan jaringan saat memuat data.");[cite: 1]
-                    document.getElementById('bodyRiwayat').innerHTML = '<tr><td colspan="4" class="p-6 text-center text-rose-500 italic">Gagal mengambil data riwayat.</td></tr>';[cite: 1]
+                    inputField.placeholder = "Koneksi error, coba refresh!";
+                    inputField.classList.remove('animate-pulse');
+                    showToast('error', "Terjadi kesalahan jaringan saat memuat data.");
+                    document.getElementById('bodyRiwayat').innerHTML = '<tr><td colspan="4" class="p-6 text-center text-rose-500 italic">Gagal mengambil data riwayat.</td></tr>';
                 }
             }
         }
