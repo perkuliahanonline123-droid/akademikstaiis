@@ -313,7 +313,8 @@
         
             // Jika tidak ada cache atau sudah kedaluwarsa, ambil dari API
             try {
-                const response = await fetch(API_URL);
+                // Tambahkan ?action=ringan agar server tidak memproses data rekap presensi
+                const response = await fetch(API_URL + "?action=ringan");
                 const result = await response.json();
                 
                 if(result.status === 'success') {
