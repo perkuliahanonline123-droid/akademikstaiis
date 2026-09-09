@@ -60,7 +60,21 @@
     }
     @media (max-width: 1024px) { .preview-container { transform: scale(0.7); } }
     @media (max-width: 768px) { .preview-container { transform: scale(0.45); } }
-  </style>
+
+    /* ========================================================
+       PERBAIKAN: Memperkecil tinggi dan margin/padding tabel
+       agar footer (tanda tangan) tertarik ke atas (tidak terpotong)
+       ======================================================== */
+    #previewTableBody td {
+        padding-top: 1px !important;
+        padding-bottom: 1px !important;
+        height: 16px !important; /* Batasi tinggi maksimum tiap baris mahasiswa */
+    }
+    #pdfPrintArea thead th {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+</style>
 </head>
 <body class="flex h-screen overflow-hidden text-slate-800 font-sans">
 
@@ -226,7 +240,7 @@
                 <div class="preview-container">
                     
                     <!-- Area Kertas Pratinjau: Fix 297x210mm -->
-                    <div class="bg-white shadow-md font-formal relative flex flex-col" id="pdfPrintArea" style="width: 297mm; height: 210mm; padding: 8mm 12mm; box-sizing: border-box; color: black; background: white; overflow: hidden;">
+                    <div class="bg-white shadow-md font-formal relative flex flex-col" id="pdfPrintArea" style="width: 297mm; height: 210mm; padding: 4mm 12mm; box-sizing: border-box; color: black; background: white; overflow: hidden;">
                         
                         <div>
                             <!-- Header Institusi (Margin Dirapatkan) -->
@@ -235,11 +249,11 @@
                                 <h1 class="text-[15px] font-bold leading-tight">IMAM SYAFI'I CIANJUR</h1>
                                 <p class="text-[11px] leading-tight mt-0.5">Jl. Sarongge No. 16, Desa Ciputri, Kecamatan Pacet, Kabupaten Cianjur 43253</p>
                                 
-                                <h2 class="text-[13px] font-bold mt-3 mb-2">DAFTAR HADIR PERKULIAHAN</h2>
+                                <h2 class="text-[13px] font-bold mt-1 mb-1">DAFTAR HADIR PERKULIAHAN</h2>
                             </div>
 
                             <!-- Info Mata Kuliah (Padding Dirapatkan) -->
-                            <table class="w-full text-[11px] mb-2 border-collapse border border-black font-formal text-left text-black">
+                            <table class="w-full text-[11px] mb-1 border-collapse border border-black font-formal text-left text-black">
                                 <tbody>
                                     <tr>
                                         <td class="border border-black py-0.5 px-2 w-[16%]">Program Studi</td>
