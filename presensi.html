@@ -401,17 +401,25 @@
             
             previewMatkul.innerText = firstMhsData.matkul || "-";
             
-            // Tangkap Nama Dosen Pengampu
+            // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
             let namaDosen = firstMhsData.nama_dosen_pengampu || 
                             firstMhsData.namadosenpengampu || 
                             firstMhsData['Nama Dosen Pengampu'] || 
+                            firstMhsData['nama dosen pengampu'] || 
                             firstMhsData.dosen_pengampu ||
                             firstMhsData.dosenpengampu ||
+                            firstMhsData['dosen pengampu'] ||
                             firstMhsData.nama_dosen ||
                             firstMhsData.namadosen ||
+                            firstMhsData['nama dosen'] ||
                             firstMhsData.dosen || 
                             firstMhsData.Dosen || 
                             "-";
+                            
+            // Pastikan jika isinya hanya spasi kosong, tetap dianggap "-"
+            if (typeof namaDosen === 'string' && namaDosen.trim() === "") {
+                namaDosen = "-";
+            }
                             
             previewDosenHeader.innerText = namaDosen;
             previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
@@ -448,6 +456,18 @@
             }
             
             document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
+
+            // --- KODE UNTUK QR CODE DINAMIS ---
+            const qrElement = document.getElementById('previewQRCode');
+            if (qrElement) { 
+                let kodeValidasi = firstMhsData.kode || "UNKNOWN";
+                
+                // Link menuju verifikasi.html sesuai domain Anda
+                let urlVerifikasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeValidasi)}`;
+                
+                // Masukkan link ke API pembuat QR Code
+                qrElement.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(urlVerifikasi)}`;
+            }
         }
         
         let html = '';
@@ -523,7 +543,7 @@
         modalContent.classList.add('scale-95');
         setTimeout(() => { modal.classList.add('hidden'); }, 300);
     };
-
+    
     // FUNGSI UNDUH LANGSUNG PDF (Dikunci ke ukuran 1 halaman A4)
     window.downloadPDF = function() {
         const element = document.getElementById('pdfPrintArea');
