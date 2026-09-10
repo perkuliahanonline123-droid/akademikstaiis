@@ -381,7 +381,7 @@
     let dataASH = [];
     let dataPBA = [];
     let dataNIM = []; 
-    let dataMhsPerTA = []; // Tambahan variabel untuk Sheet Mahasiswa Per TA
+    let dataMhsPerTA = []; 
     
     let selectedMatkulIndex = -1;
     
@@ -480,7 +480,7 @@
                     const tahunAwal = parseInt(match[1]);
                     const tahunAkhir = parseInt(match[2]);
                     
-                    // FILTER: Pastikan selisih tahun tepat 1 (mencegah salah ketik atau autofill aneh)
+                    // FILTER: Pastikan selisih tahun tepat 1
                     if (tahunAkhir - tahunAwal === 1) {
                         taSet.add(taValue);
                     }
@@ -606,13 +606,14 @@
         const prodiAsli = mkInfo['Program Studi'] || mkInfo['Prodi'] || "";
         const sks = parseInt(mkInfo['SKS']) || 2;
         const dosenName = mkInfo['Nama Dosen Pengampu'] || mkInfo['Nama Dosen'] || '-';
+        const kodeMK = mkInfo['Kode MK'] || '';
         
         document.title = `${mkNameAsli} - ${targetTA.replace(/\//g, '-')}`;
         
         document.getElementById('lblMatkul').innerText = mkNameAsli;
         document.getElementById('lblDosen').innerText = dosenName;
         document.getElementById('lblProdi').innerText = prodiAsli;
-        document.getElementById('lblKode').innerText = mkInfo['Kode MK'] || '-';
+        document.getElementById('lblKode').innerText = kodeMK || '-';
         document.getElementById('lblSks').innerText = sks;
         document.getElementById('lblSemester').innerText = mkInfo['Semester'] || '-';
         document.getElementById('lblDosenTtd').innerText = dosenName;
@@ -744,13 +745,17 @@
         // --- PENAMBAHAN KODE QR CODE ---
         const barcodeTtd = document.getElementById('barcodeTtd');
         
-        // Menyusun teks yang akan dibaca saat barcode dipindai (dengan cap waktu yang diminta)
-        const waktuCetak = new Date().toLocaleString('id-ID');
-        const teksValidasi = `Validasi Akademik STAI Imam Syafi'i | MK: ${mkNameAsli} | Dosen: ${dosenName} | TA: ${targetTA} | Dicetak: ${waktuCetak}`;
-        
-        // Mengubah teks menjadi URL QR Code dan menampilkannya
-        barcodeTtd.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(teksValidasi)}`;
-        barcodeTtd.style.display = 'block';
+        // Memastikan kode MK ada sebelum membuat QR
+        if (kodeMK && kodeMK !== '-') {
+            // Membuat URL dengan parameter kode MK
+            const urlValidasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeMK)}`;
+            
+            // Menyematkan URL tersebut ke dalam QR Code
+            barcodeTtd.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlValidasi)}`;
+            barcodeTtd.style.display = 'block';
+        } else {
+            barcodeTtd.style.display = 'none'; 
+        }
     }
   </script>
 </body>
