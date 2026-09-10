@@ -50,7 +50,6 @@
     #cetakArea { 
         display: none; 
         margin-top: 20px; 
-        /* Margin bottom dihapus dari sini, dipindahkan ke tombol */
         background: #fff; 
         padding: 40px 50px; 
         color: #000; 
@@ -69,7 +68,6 @@
     .info-table { width: 65%; border-collapse: collapse; } 
     .info-table-right { width: 30%; border-collapse: collapse; } 
     
-    /* 1. PERBAIKAN SPASI HEADER: Nilai padding diubah dari 4px menjadi 1px agar lebih rapat */
     .info-table td, .info-table-right td { padding: 1px 0; vertical-align: top; }
 
     .data-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; margin-bottom: 30px; }
@@ -102,12 +100,21 @@
     .tabel-ket td { padding: 2px 0; }
     .td-sama-dengan { padding: 0 8px !important; text-align: center; } 
     
-    /* Area Tanda Tangan */
+    /* Area Tanda Tangan & Barcode */
     .ttd-area { text-align: center; width: 250px; font-size: 13px; }
     .ttd-area div { margin-bottom: 5px; }
-    .ttd-nama { font-weight: bold; margin-top: 70px !important; }
+    
+    .ttd-barcode { 
+        width: 65px; 
+        height: 65px; 
+        margin: 8px auto; 
+        display: none; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
+    
+    .ttd-nama { font-weight: bold; margin-top: 5px !important; }
 
-    /* 2. PERBAIKAN JARAK TOMBOL CETAK: Menambahkan margin-top yang besar pada tombol */
     #printBtn { margin-top: 40px !important; }
     
     @media print {
@@ -325,6 +332,10 @@
                   <div class="ttd-area">
                       <div id="lblTanggal">Cianjur, 30 Agustus 2026</div>
                       <div>Dosen Mata Kuliah,</div>
+                      
+                      <!-- Elemen Barcode Ditambahkan Di Sini -->
+                      <img id="barcodeTtd" class="ttd-barcode" src="" alt="QR Code Validasi">
+                      
                       <div class="ttd-nama" id="lblDosenTtd">-</div>
                   </div>
               </div>
@@ -610,25 +621,23 @@
         const isASH = prodiAsli.toLowerCase().includes('ahwal');
         const targetDataMhs = isASH ? dataASH : dataPBA;
         const semesterNum = parseInt(mkInfo['Semester']) || 1;
-        // LOGIKA PENENTUAN TANGGAL TTD BERDASARKAN SEMESTER GANJIL/GENAP
+        
         const taParts = targetTA.split('/'); 
         let tanggalTtd = "";
         
         if (taParts.length === 2) {
-            const tahunAwal = taParts[0]; // Misal: 2025
-            const tahunAkhir = taParts[1]; // Misal: 2026
+            const tahunAwal = taParts[0]; 
+            const tahunAkhir = taParts[1]; 
             
             if (semesterNum % 2 !== 0) {
-                // Semester Ganjil (1, 3, 5, 7) -> 31 Desember + Tahun Awal
                 tanggalTtd = `31 Desember ${tahunAwal}`;
             } else {
-                // Semester Genap (2, 4, 6, 8) -> 30 Juni + Tahun Akhir
                 tanggalTtd = `30 Juni ${tahunAkhir}`;
             }
         }
         
         document.getElementById('lblTanggal').innerText = `Cianjur, ${tanggalTtd}`;
-        // 1. Menentukan Nama Kolom di Sheet Mahasiswa Per TA
+        
         let kolomMhsTarget = "";
         if (isASH) {
             if (semesterNum === 1 || semesterNum === 2) kolomMhsTarget = "Semester 1 & 2 Ahwal Al-Syakhshiyyah";
@@ -642,7 +651,6 @@
             else if (semesterNum === 7 || semesterNum === 8) kolomMhsTarget = "Semester 7 & 8 Pendidikan Bahasa Arab";
         }
     
-        // 2. Mengambil Daftar Nama Mahasiswa sesuai TA dan Kolom Target
         let daftarNama = [];
         dataMhsPerTA.forEach(row => {
             if (row['TA'] === targetTA && row[kolomMhsTarget]) {
@@ -661,7 +669,6 @@
             return;
         }
     
-        // 3. Menentukan Kolom Nilai di Sheet Nilai (ASH/PBA)
         const normTargetMK = normalizeMatkul(mkNameAsli);
         let exactColumnKey = null;
         if (targetDataMhs && targetDataMhs.length > 0) {
@@ -676,7 +683,6 @@
     
         let no = 1;
     
-        // 4. Proses Pencocokan Nilai per Mahasiswa
         daftarNama.forEach(namaMhs => {
             let nim = getNimByName(namaMhs);
             let nilaiAngkaFinal = null;
@@ -697,7 +703,6 @@
                 }
             }
     
-            // Render Baris Tabel
             if (nilaiAngkaFinal !== null) {
                 const konv = konversiNilai(nilaiAngkaFinal);
                 const mutu = sks * konv.bobot;
@@ -713,7 +718,6 @@
                     </tr>
                 `;
             } else {
-                // Jika nilai belum masuk, tampilkan mahasiswa tapi kosongkan nilainya
                 tbody.innerHTML += `
                     <tr>
                         <td>${no++}</td>
@@ -736,6 +740,17 @@
         } else {
             setStatus(""); 
         }
+
+        // --- PENAMBAHAN KODE QR CODE ---
+        const barcodeTtd = document.getElementById('barcodeTtd');
+        
+        // Menyusun teks yang akan dibaca saat barcode dipindai (dengan cap waktu yang diminta)
+        const waktuCetak = new Date().toLocaleString('id-ID');
+        const teksValidasi = `Validasi Akademik STAI Imam Syafi'i | MK: ${mkNameAsli} | Dosen: ${dosenName} | TA: ${targetTA} | Dicetak: ${waktuCetak}`;
+        
+        // Mengubah teks menjadi URL QR Code dan menampilkannya
+        barcodeTtd.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(teksValidasi)}`;
+        barcodeTtd.style.display = 'block';
     }
   </script>
 </body>
