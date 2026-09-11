@@ -68,11 +68,11 @@
     #previewTableBody td {
         padding-top: 1px !important;
         padding-bottom: 1px !important;
-        height: 16px !important; /* Batasi tinggi maksimum tiap baris mahasiswa */
+        height: 13px !important; /* Batasi tinggi maksimum tiap baris mahasiswa */
     }
     #pdfPrintArea thead th {
-        padding-top: 2px !important;
-        padding-bottom: 2px !important;
+        padding-top: 1px !important;
+        padding-bottom: 0px !important;
     }
 </style>
 </head>
@@ -305,7 +305,7 @@
                         </div>
 
                         <!-- Footer TTD (Didorong ke bawah) -->
-                        <div class="mt-auto pt-3 flex justify-between items-end shrink-0 w-full">
+                        <div class="mt-auto pt-1 mb-2 flex justify-between items-end shrink-0 w-full">
                             
                             <!-- Area Kiri: QR Code Verifikasi -->
                             <!-- Ubah menjadi flex-row dan tambahkan items-center serta gap -->
@@ -533,7 +533,7 @@
             </tr>`;
         });
 
-        let sisaBaris = 20 - mhsList.length;
+        let sisaBaris = 17 - mhsList.length;
         if (sisaBaris > 0) {
             for(let r=0; r<sisaBaris; r++) {
                 let cellKosong = '';
