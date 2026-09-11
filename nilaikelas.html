@@ -303,40 +303,24 @@
                   </tbody>
               </table>
 
-              <!-- FOOTER (KETERANGAN & TTD) -->
-              <div class="footer-area">
-                  <div class="keterangan-box">
-                      <div class="keterangan-title">KETERANGAN NILAI</div>
-                      <div class="keterangan-grid">
-                          <div class="keterangan-col">
-                              <table class="tabel-ket">
-                                  <tr><td style="width: 55%;">85 - 100</td><td class="td-sama-dengan">=</td><td>A</td></tr>
-                                  <tr><td>80 - 84</td><td class="td-sama-dengan">=</td><td>A-</td></tr>
-                                  <tr><td>75 - 79</td><td class="td-sama-dengan">=</td><td>B+</td></tr>
-                                  <tr><td>70 - 74</td><td class="td-sama-dengan">=</td><td>B</td></tr>
-                                  <tr><td>65 - 69</td><td class="td-sama-dengan">=</td><td>B-</td></tr>
-                              </table>
-                          </div>
-                          <div class="keterangan-col">
-                              <table class="tabel-ket">
-                                  <tr><td style="width: 55%;">60 - 64</td><td class="td-sama-dengan">=</td><td>C+</td></tr>
-                                  <tr><td>55 - 59</td><td class="td-sama-dengan">=</td><td>C</td></tr>
-                                  <tr><td>50 - 54</td><td class="td-sama-dengan">=</td><td>C-</td></tr>
-                                  <tr><td>45 - 49</td><td class="td-sama-dengan">=</td><td>D</td></tr>
-                                  <tr><td>0 - 44</td><td class="td-sama-dengan">=</td><td>E</td></tr>
-                              </table>
-                          </div>
+              <!-- FOOTER (VERIFIKASI & TTD) -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px; font-size: 13px; color: black; width: 100%;">
+                  
+                  <!-- Area Kiri: QR Code & Verifikasi (Sejajar Kiri Tabel) -->
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                      <img id="barcodeTtd" src="" alt="QR Code Validasi" style="width: 70px; height: 70px; padding: 2px; border: 1px solid #e2e8f0; display: none; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                      <div id="teksVerifikasi" style="display: none; text-align: left; line-height: 1.4;">
+                          <strong>Verifikasi Dokumen:</strong><br>
+                          Scan untuk verifikasi dokumen
                       </div>
                   </div>
                   
-                  <div class="ttd-area">
-                      <div id="lblTanggal">Cianjur, 30 Agustus 2026</div>
-                      <div>Dosen Mata Kuliah,</div>
-                      
-                      <!-- Elemen Barcode Ditambahkan Di Sini -->
-                      <img id="barcodeTtd" class="ttd-barcode" src="" alt="QR Code Validasi">
-                      
-                      <div class="ttd-nama" id="lblDosenTtd">-</div>
+                  <!-- Area Kanan: Tanda Tangan (Format Melebar ke Kanan) -->
+                  <div style="text-align: left; width: max-content;">
+                      <div id="lblTanggal">Cianjur, </div>
+                      <div>Dosen Pengampu,</div>
+                      <br><br>
+                      <div id="lblDosenTtd" style="font-weight: bold; white-space: nowrap;">-</div>
                   </div>
               </div>
         
@@ -744,6 +728,7 @@
 
         // --- PENAMBAHAN KODE QR CODE ---
         const barcodeTtd = document.getElementById('barcodeTtd');
+        const teksVerifikasi = document.getElementById('teksVerifikasi');
         
         // Memastikan kode MK ada sebelum membuat QR
         if (kodeMK && kodeMK !== '-') {
@@ -753,8 +738,12 @@
             // Menyematkan URL tersebut ke dalam QR Code
             barcodeTtd.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlValidasi)}`;
             barcodeTtd.style.display = 'block';
+            
+            // Menampilkan teks verifikasi bersamaan dengan QR
+            if (teksVerifikasi) teksVerifikasi.style.display = 'block';
         } else {
             barcodeTtd.style.display = 'none'; 
+            if (teksVerifikasi) teksVerifikasi.style.display = 'none';
         }
     }
   </script>
