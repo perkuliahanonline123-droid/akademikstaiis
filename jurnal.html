@@ -497,7 +497,9 @@
       const printArea = document.getElementById('print-area');
       const mainApp = document.querySelector('main');
       const sidebarApp = document.querySelector('aside');
-      const bottomNav = document.querySelector('.md\:hidden.fixed');
+      
+      // PERBAIKAN 1: Gunakan selektor yang lebih aman tanpa titik dua
+      const bottomNav = document.querySelector('.fixed.bottom-0');
 
       printArea.innerHTML = htmlPrint;
 
@@ -517,8 +519,12 @@
           document.title = originalTitle;
       };
 
-      // PERBAIKAN: Penanganan eksekusi print dan Race Condition saat load gambar QR
+      // PERBAIKAN 2: Penambahan flag 'isPrinted' untuk menghindari Race Condition
+      let isPrinted = false; 
       const executePrint = () => {
+          if (isPrinted) return; 
+          isPrinted = true;
+          
           setTimeout(() => {
               window.print();
               restoreUI();
@@ -528,20 +534,18 @@
       if (showQr) {
           const qrElement = document.getElementById('qr-verifikasi');
           
-          // Jika gambar ter-load lebih cepat sebelum event listener ditambahkan (dari cache)
           if (qrElement.complete) {
               executePrint();
           } else {
               qrElement.onload = executePrint;
               qrElement.onerror = executePrint;
               
-              // Fallback aman: paksa print setelah 2.5 detik jika API gambar error/timeout
               setTimeout(executePrint, 2500); 
           }
       } else {
           executePrint();
       }
-    }
+    } 
     
     function renderStats() {
       const filterTahun = document.getElementById('globalTahunFilter').value;
