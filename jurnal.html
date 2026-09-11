@@ -358,7 +358,7 @@
         return;
       }
 
-      // Ambil data sesuai filter dan urutkan dari sesi awal ke akhir (berdasarkan Angka Sesi)
+      // Ambil data sesuai filter dan urutkan dari sesi awal ke akhir
       let filteredJurnal = globalDataJurnal.filter(j => {
           const matchTahun = (filterTahun === "Semua" || j.tahun === filterTahun);
           const matchMatkul = (j.matkul === filterMatkul);
@@ -373,9 +373,11 @@
       // Ambil metadata dari sesi pertama
       const info = filteredJurnal[0];
       
-      let dateObj = new Date(info.tanggal.split("T")[0]);
-      let extractedYear = dateObj.getFullYear();
-      let extractedMonth = dateObj.getMonth() + 1; 
+      // PERBAIKAN: Penanganan parsing tanggal agar lebih aman
+      let dateStringSafe = info.tanggal ? info.tanggal.split("T")[0].split(" ")[0] : new Date().toISOString().split("T")[0];
+      let dateObj = new Date(dateStringSafe);
+      let extractedYear = dateObj.getFullYear() || new Date().getFullYear();
+      let extractedMonth = (dateObj.getMonth() + 1) || (new Date().getMonth() + 1); 
       
       let labelTahunAkademik = "";
       if (extractedMonth >= 8) {
@@ -434,7 +436,7 @@
       `;
 
       filteredJurnal.forEach(j => {
-          let dateOnly = j.tanggal.split("T")[0]; 
+          let dateOnly = j.tanggal ? j.tanggal.split("T")[0].split(" ")[0] : "-"; 
           htmlPrint += `
             <tr>
                 <td style="text-align: center;">${j.sesiKe}</td>
@@ -445,19 +447,15 @@
           `;
       });
 
-      // --- PERBAIKAN 1: Format Tanggal TTD Berdasarkan Tahun Akademik (Ganjil/Genap) ---
       let semesterAngka = parseInt(info.kelas);
-      let isGanjil = true; // Asumsi default Ganjil
+      let isGanjil = true; 
 
-      // Menentukan Ganjil/Genap dari input 'kelas' (biasanya berisi angka semester)
       if (!isNaN(semesterAngka)) {
           isGanjil = (semesterAngka % 2 !== 0);
       } else {
-          // Fallback: Jika bukan angka, gunakan bulan dari sesi pertama sebagai penentu
           isGanjil = (extractedMonth >= 8 || extractedMonth <= 2);
       }
 
-      // Menentukan Tahun Awal dan Tahun Akhir dari Tahun Akademik
       let tahunAwal = extractedMonth >= 8 ? extractedYear : extractedYear - 1;
       let tahunAkhir = tahunAwal + 1;
       
@@ -480,7 +478,6 @@
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px; font-size: 13px; color: black; width: 100%;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- Tambahkan ID pada img agar mudah ditarget -->
                 <img id="qr-verifikasi" src="${qrImgSrc}" alt="QR Code Validasi" style="width: 70px; height: 70px; padding: 2px; border: 1px solid #e2e8f0; display: ${showQr ? 'block' : 'none'}; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                 <div style="display: ${showQr ? 'block' : 'none'}; text-align: left; line-height: 1.4;">
                     <strong>Verifikasi Dokumen:</strong><br>
@@ -512,7 +509,6 @@
       sidebarApp.classList.add('hidden');
       if(bottomNav) bottomNav.classList.add('hidden');
 
-      // Fungsi untuk mengembalikan tampilan Dashboard
       const restoreUI = () => {
           printArea.classList.add('hidden');
           mainApp.classList.remove('hidden');
@@ -521,28 +517,29 @@
           document.title = originalTitle;
       };
 
-      // --- PERBAIKAN 2: Tunggu Gambar QR termuat ke DOM sebelum window.print() ---
-      if (showQr) {
-          const qrElement = document.getElementById('qr-verifikasi');
-          // Jika gambar ter-load dengan sukses
-          qrElement.onload = () => {
-              setTimeout(() => {
-                  window.print();
-                  restoreUI();
-              }, 300);
-          };
-          // Fallback jika API QR gagal/timeout (tetap biarkan fungsi cetak berjalan)
-          qrElement.onerror = () => {
-              setTimeout(() => {
-                  window.print();
-                  restoreUI();
-              }, 300);
-          };
-      } else {
+      // PERBAIKAN: Penanganan eksekusi print dan Race Condition saat load gambar QR
+      const executePrint = () => {
           setTimeout(() => {
               window.print();
               restoreUI();
           }, 300);
+      };
+
+      if (showQr) {
+          const qrElement = document.getElementById('qr-verifikasi');
+          
+          // Jika gambar ter-load lebih cepat sebelum event listener ditambahkan (dari cache)
+          if (qrElement.complete) {
+              executePrint();
+          } else {
+              qrElement.onload = executePrint;
+              qrElement.onerror = executePrint;
+              
+              // Fallback aman: paksa print setelah 2.5 detik jika API gambar error/timeout
+              setTimeout(executePrint, 2500); 
+          }
+      } else {
+          executePrint();
       }
     }
     
@@ -578,7 +575,7 @@
       let htmlJurnal = '';
       if(filteredJurnal.length > 0) {
         filteredJurnal.forEach(j => {
-          let dateOnly = j.tanggal.split("T")[0].split(" ")[0]; 
+          let dateOnly = j.tanggal ? j.tanggal.split("T")[0].split(" ")[0] : "-"; 
           let parts = dateOnly.split("-");
           let hariTgl = dateOnly;
           let bulanTahun = "";
