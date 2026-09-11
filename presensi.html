@@ -419,8 +419,8 @@
                 
                 previewMatkul.innerText = firstMhsData.matkul || "-";
                 
-                // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
-                let namaDosen = firstMhsData.nama_dosen_pengampu || 
+            // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
+            let namaDosen = firstMhsData.nama_dosen_pengampu || 
                                 firstMhsData.namadosenpengampu || 
                                 firstMhsData['Nama Dosen Pengampu'] || 
                                 firstMhsData['nama dosen pengampu'] || 
@@ -556,15 +556,6 @@
                 modalContent.classList.remove('scale-95');
             }, 10);
         };
-
-        previewTable.innerHTML = html;
-
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modalContent.classList.remove('scale-95');
-        }, 10);
-    };
 
     window.closePDFModal = function() {
         const modal = document.getElementById('pdfModal');
