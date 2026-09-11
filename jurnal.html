@@ -445,14 +445,24 @@
           `;
       });
 
-      // --- PERBAIKAN 1: Format Tanggal Berdasarkan Pertemuan Akhir Semester ---
-      const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      // --- PERBAIKAN 1: Format Tanggal TTD Berdasarkan Tahun Akademik (Ganjil/Genap) ---
+      let semesterAngka = parseInt(info.kelas);
+      let isGanjil = true; // Asumsi default Ganjil
+
+      // Menentukan Ganjil/Genap dari input 'kelas' (biasanya berisi angka semester)
+      if (!isNaN(semesterAngka)) {
+          isGanjil = (semesterAngka % 2 !== 0);
+      } else {
+          // Fallback: Jika bukan angka, gunakan bulan dari sesi pertama sebagai penentu
+          isGanjil = (extractedMonth >= 8 || extractedMonth <= 2);
+      }
+
+      // Menentukan Tahun Awal dan Tahun Akhir dari Tahun Akademik
+      let tahunAwal = extractedMonth >= 8 ? extractedYear : extractedYear - 1;
+      let tahunAkhir = tahunAwal + 1;
       
-      const sesiTerakhir = filteredJurnal[filteredJurnal.length - 1];
-      const tglAkhirSesi = new Date(sesiTerakhir.tanggal.split("T")[0]);
-      
-      // Jika butuh sekadar "Cianjur, Juli 2026", Anda bisa ubah menjadi `Cianjur, ${bulanIndo[tglAkhirSesi.getMonth()]} ...`
-      const tglFormatted = `Cianjur, ${tglAkhirSesi.getDate()} ${bulanIndo[tglAkhirSesi.getMonth()]} ${tglAkhirSesi.getFullYear()}`;
+      let tanggalTTD = isGanjil ? `31 Desember ${tahunAwal}` : `30 Juni ${tahunAkhir}`;
+      const tglFormatted = `Cianjur, ${tanggalTTD}`;
 
       const kodeMK = info.kode || '';
       let qrImgSrc = '';
@@ -490,7 +500,7 @@
       const printArea = document.getElementById('print-area');
       const mainApp = document.querySelector('main');
       const sidebarApp = document.querySelector('aside');
-      const bottomNav = document.querySelector('.md\\:hidden.fixed');
+      const bottomNav = document.querySelector('.md\:hidden.fixed');
 
       printArea.innerHTML = htmlPrint;
 
