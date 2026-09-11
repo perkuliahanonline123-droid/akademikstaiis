@@ -452,15 +452,43 @@
           `;
       });
 
+      // --- OTO-FORMAT TANGGAL & QR CODE ---
+      const now = new Date();
+      const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const tglFormatted = `Cianjur, ${now.getDate()} ${bulanIndo[now.getMonth()]} ${now.getFullYear()}`;
+
+      const kodeMK = info.kode || '';
+      let qrImgSrc = '';
+      let showQr = false;
+      
+      if (kodeMK && kodeMK !== '-') {
+          const urlValidasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeMK)}`;
+          qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlValidasi)}`;
+          showQr = true;
+      }
+
       htmlPrint += `
             </tbody>
         </table>
 
-        <div style="width: 100%; margin-top: 50px; font-size: 12pt; display: flex; justify-content: flex-end;">
-            <div style="text-align: left; width: 250px;">
-                <p style="margin: 0;">Cianjur, ....................................</p>
-                <p style="margin: 0; margin-bottom: 70px;">Dosen Pengampu,</p>
-                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${info.dosen}</p>
+        <!-- FOOTER (VERIFIKASI & TTD) -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px; font-size: 13px; color: black; width: 100%;">
+            
+            <!-- Area Kiri: QR Code & Verifikasi (Sejajar Kiri Tabel) -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="${qrImgSrc}" alt="QR Code Validasi" style="width: 70px; height: 70px; padding: 2px; border: 1px solid #e2e8f0; display: ${showQr ? 'block' : 'none'}; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                <div style="display: ${showQr ? 'block' : 'none'}; text-align: left; line-height: 1.4;">
+                    <strong>Verifikasi Dokumen:</strong><br>
+                    Scan untuk verifikasi dokumen
+                </div>
+            </div>
+            
+            <!-- Area Kanan: Tanda Tangan (Format Melebar ke Kanan) -->
+            <div style="text-align: left; width: max-content;">
+                <div>${tglFormatted}</div>
+                <div>Dosen Pengampu,</div>
+                <br><br>
+                <div style="font-weight: bold; white-space: nowrap; text-decoration: underline;">${info.dosen}</div>
             </div>
         </div>
       `;
