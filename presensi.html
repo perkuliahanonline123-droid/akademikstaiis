@@ -304,13 +304,11 @@
                             </table>
                         </div>
 
-                        <!-- Footer TTD (Didorong ke bawah) -->
-                        <div class="mt-auto pt-1 mb-2 flex justify-between items-end shrink-0 w-full">
+                        <!-- Footer TTD (Posisinya di tengah ruang sisa) -->
+                        <div class="my-auto flex justify-between items-end shrink-0 w-full px-2">
                             
                             <!-- Area Kiri: QR Code Verifikasi -->
-                            <!-- Ubah menjadi flex-row dan tambahkan items-center serta gap -->
-                            <div class="flex items-center gap-2">
-                                <!-- PASTIKAN ADA id="previewQRCode" DI SINI -->
+                            <div class="flex items-center gap-3">
                                 <img id="previewQRCode" src="" alt="QR Verifikasi" class="w-16 h-16 object-contain border border-slate-200 p-0.5">
                                 
                                 <!-- Keterangan Verifikasi -->
@@ -393,159 +391,171 @@
     }
 
     window.previewPDF = function(mkName) {
-        const modal = document.getElementById('pdfModal');
-        const modalContent = document.getElementById('pdfModalContent');
-        const previewProdi = document.getElementById('previewProdi');
-        const previewMatkul = document.getElementById('previewMatkulDetail');
-        const previewDosenHeader = document.getElementById('previewDosenHeader');
-        const previewKode = document.getElementById('previewKodeMK');
-        const previewSemester = document.getElementById('previewSemester');
-        const previewKelas = document.getElementById('previewKelas');
-        const previewTable = document.getElementById('previewTableBody');
-        const previewDosenSig = document.getElementById('previewDosenSignature');
-        
-        let firstMhsData = null;
-        
-        // Memfilter data dan mencocokkan grup dengan memanggil key 'program_studi'
-        const mhsList = globalDataMhs.filter(m => {
-            let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
-            const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
-            if (groupName === mkName && !firstMhsData) firstMhsData = m;
-            return groupName === mkName;
-        });
-
-        if (firstMhsData) {
-            // Tangkap Program Studi
-            let namaProdi = firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData['Program Studi'] || firstMhsData.prodi || "-";
-            previewProdi.innerText = namaProdi;
+            const modal = document.getElementById('pdfModal');
+            const modalContent = document.getElementById('pdfModalContent');
+            const previewProdi = document.getElementById('previewProdi');
+            const previewMatkul = document.getElementById('previewMatkulDetail');
+            const previewDosenHeader = document.getElementById('previewDosenHeader');
+            const previewKode = document.getElementById('previewKodeMK');
+            const previewSemester = document.getElementById('previewSemester');
+            const previewKelas = document.getElementById('previewKelas');
+            const previewTable = document.getElementById('previewTableBody');
+            const previewDosenSig = document.getElementById('previewDosenSignature');
             
-            previewMatkul.innerText = firstMhsData.matkul || "-";
+            let firstMhsData = null;
             
-            // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
-            let namaDosen = firstMhsData.nama_dosen_pengampu || 
-                            firstMhsData.namadosenpengampu || 
-                            firstMhsData['Nama Dosen Pengampu'] || 
-                            firstMhsData['nama dosen pengampu'] || 
-                            firstMhsData.dosen_pengampu ||
-                            firstMhsData.dosenpengampu ||
-                            firstMhsData['dosen pengampu'] ||
-                            firstMhsData.nama_dosen ||
-                            firstMhsData.namadosen ||
-                            firstMhsData['nama dosen'] ||
-                            firstMhsData.dosen || 
-                            firstMhsData.Dosen || 
-                            "-";
-                            
-            // Pastikan jika isinya hanya spasi kosong, tetap dianggap "-"
-            if (typeof namaDosen === 'string' && namaDosen.trim() === "") {
-                namaDosen = "-";
-            }
-                            
-            previewDosenHeader.innerText = namaDosen;
-            previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
-
-            previewKode.innerText = firstMhsData.kode || "-";
-            
-            let kelasFull = firstMhsData.kelas || "-";
-            let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
-            previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
-            previewKelas.innerText = kelasFull;
-
-            // --- LOGIKA TANGGAL TTD DINAMIS DARI DATABASE ---
-            let dataTanggalTTD = firstMhsData.tanggal_ttd;
-            let tanggalAkhir = "";
-
-            if (dataTanggalTTD && dataTanggalTTD.trim() !== "") {
-                // Jika data kolom K di spreadsheet ada
-                // Cek apakah string mengandung "Cianjur", jika tidak tambahkan
-                if (dataTanggalTTD.toLowerCase().includes("cianjur")) {
-                     tanggalAkhir = dataTanggalTTD;
-                } else {
-                     tanggalAkhir = "Cianjur, " + dataTanggalTTD;
-                }
-            } else {
-                // FALLBACK JIKA KOSONG DI SPREADSHEET (Ganjil/Genap otomatis)
-                let nilaiSemester = firstMhsData.semester || semesterAngka;
-                let tglFallback = "31 Desember 2026"; 
-                
-                if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
-                    tglFallback = "30 Juni 2026";
-                }
-                
-                tanggalAkhir = "Cianjur, " + tglFallback;
-            }
-            
-            document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
-
-            // --- KODE UNTUK QR CODE DINAMIS ---
-            const qrElement = document.getElementById('previewQRCode');
-            if (qrElement) { 
-                let kodeValidasi = firstMhsData.kode || "UNKNOWN";
-                
-                // Link menuju verifikasi.html sesuai domain Anda
-                let urlVerifikasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeValidasi)}`;
-                
-                // Masukkan link ke API pembuat QR Code
-                qrElement.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(urlVerifikasi)}`;
-            }
-        }
-        
-        let html = '';
-        mhsList.forEach((m, index) => {
-            let h = parseInt(m.hadir) || 0;
-            let a = parseInt(m.alpa) || 0;
-            let i = parseInt(m.izin) || 0;
-            let s = parseInt(m.sakit) || 0;
-
-            let meetingArray = generateMeetingData(h, a, i, s);
-            let meetingCellsHtml = '';
-            
-            meetingArray.forEach(val => {
-                let bgColor = '';
-                let textColor = 'color: black;';
-                let fontWeight = '';
-                
-                if (val === 'A') {
-                    bgColor = 'background-color: #dc2626;'; 
-                    textColor = 'color: white;';
-                    fontWeight = 'font-weight: bold;';
-                } else if (val === 'S' || val === 'I') {
-                    bgColor = 'background-color: #facc15;'; 
-                    textColor = 'color: black;';
-                    fontWeight = 'font-weight: bold;';
-                }
-
-                let style = `${bgColor} ${textColor} ${fontWeight}`;
-                meetingCellsHtml += `<td class="border border-black py-0.5 px-1 text-center" style="${style}">${val}</td>`;
+            // Memfilter data dan mencocokkan grup dengan memanggil key 'program_studi'
+            const mhsList = globalDataMhs.filter(m => {
+                let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
+                const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
+                if (groupName === mkName && !firstMhsData) firstMhsData = m;
+                return groupName === mkName;
             });
-
-            let alpaTotalStyle = a > 0 ? "background-color: #dc2626; color: white; font-weight: bold;" : "";
-
-            html += `
-            <tr>
-                <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
-                <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
-                ${meetingCellsHtml}
-                <td class="border border-black py-0.5 px-1 text-center">${h}</td>
-                <td class="border border-black py-0.5 px-1 text-center" style="${alpaTotalStyle}">${a}</td>
-                <td class="border border-black py-0.5 px-1 text-center">${i}</td>
-                <td class="border border-black py-0.5 px-1 text-center">${s}</td>
-            </tr>`;
-        });
-
-        let sisaBaris = 17 - mhsList.length;
-        if (sisaBaris > 0) {
-            for(let r=0; r<sisaBaris; r++) {
-                let cellKosong = '';
-                for(let c=1; c<=16; c++) { cellKosong += `<td class="border border-black py-0.5 px-1"></td>`; }
-                html += `<tr>
-                    <td class="border border-black py-0.5 px-1 text-center text-transparent text-[8px]">.</td>
-                    <td class="border border-black py-0.5 px-1"></td>
-                    ${cellKosong}
-                    <td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td>
-                </tr>`;
+    
+            if (firstMhsData) {
+                // Tangkap Program Studi
+                let namaProdi = firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData['Program Studi'] || firstMhsData.prodi || "-";
+                previewProdi.innerText = namaProdi;
+                
+                previewMatkul.innerText = firstMhsData.matkul || "-";
+                
+                // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
+                let namaDosen = firstMhsData.nama_dosen_pengampu || 
+                                firstMhsData.namadosenpengampu || 
+                                firstMhsData['Nama Dosen Pengampu'] || 
+                                firstMhsData['nama dosen pengampu'] || 
+                                firstMhsData.dosen_pengampu ||
+                                firstMhsData.dosenpengampu ||
+                                firstMhsData['dosen pengampu'] ||
+                                firstMhsData.nama_dosen ||
+                                firstMhsData.namadosen ||
+                                firstMhsData['nama dosen'] ||
+                                firstMhsData.dosen || 
+                                firstMhsData.Dosen || 
+                                "-";
+                                
+                // Pastikan jika isinya hanya spasi kosong, tetap dianggap "-"
+                if (typeof namaDosen === 'string' && namaDosen.trim() === "") {
+                    namaDosen = "-";
+                }
+                                
+                previewDosenHeader.innerText = namaDosen;
+                previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
+    
+                previewKode.innerText = firstMhsData.kode || "-";
+                
+                let kelasFull = firstMhsData.kelas || "-";
+                let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
+                previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
+                previewKelas.innerText = kelasFull;
+    
+                // --- LOGIKA TANGGAL TTD DINAMIS DARI DATABASE ---
+                let dataTanggalTTD = firstMhsData.tanggal_ttd;
+                let tanggalAkhir = "";
+    
+                if (dataTanggalTTD && dataTanggalTTD.trim() !== "") {
+                    // Jika data kolom K di spreadsheet ada
+                    // Cek apakah string mengandung "Cianjur", jika tidak tambahkan
+                    if (dataTanggalTTD.toLowerCase().includes("cianjur")) {
+                         tanggalAkhir = dataTanggalTTD;
+                    } else {
+                         tanggalAkhir = "Cianjur, " + dataTanggalTTD;
+                    }
+                } else {
+                    // FALLBACK JIKA KOSONG DI SPREADSHEET (Ganjil/Genap otomatis)
+                    let nilaiSemester = firstMhsData.semester || semesterAngka;
+                    let tglFallback = "31 Desember 2026"; 
+                    
+                    if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
+                        tglFallback = "30 Juni 2026";
+                    }
+                    
+                    tanggalAkhir = "Cianjur, " + tglFallback;
+                }
+                
+                document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
+    
+                // --- KODE UNTUK QR CODE DINAMIS ---
+                const qrElement = document.getElementById('previewQRCode');
+                if (qrElement) { 
+                    let kodeValidasi = firstMhsData.kode || "UNKNOWN";
+                    
+                    // Link menuju verifikasi.html sesuai domain Anda
+                    let urlVerifikasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeValidasi)}`;
+                    
+                    // Masukkan link ke API pembuat QR Code
+                    qrElement.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(urlVerifikasi)}`;
+                }
             }
-        }
+            
+            let html = '';
+            mhsList.forEach((m, index) => {
+                let h = parseInt(m.hadir) || 0;
+                let a = parseInt(m.alpa) || 0;
+                let i = parseInt(m.izin) || 0;
+                let s = parseInt(m.sakit) || 0;
+    
+                let meetingArray = generateMeetingData(h, a, i, s);
+                let meetingCellsHtml = '';
+                
+                meetingArray.forEach(val => {
+                    let bgColor = '';
+                    let textColor = 'color: black;';
+                    let fontWeight = '';
+                    
+                    if (val === 'A') {
+                        bgColor = 'background-color: #dc2626;'; 
+                        textColor = 'color: white;';
+                        fontWeight = 'font-weight: bold;';
+                    } else if (val === 'S' || val === 'I') {
+                        bgColor = 'background-color: #facc15;'; 
+                        textColor = 'color: black;';
+                        fontWeight = 'font-weight: bold;';
+                    }
+    
+                    let style = `${bgColor} ${textColor} ${fontWeight}`;
+                    meetingCellsHtml += `<td class="border border-black py-0.5 px-1 text-center" style="${style}">${val}</td>`;
+                });
+    
+                let alpaTotalStyle = a > 0 ? "background-color: #dc2626; color: white; font-weight: bold;" : "";
+    
+                html += `
+                <tr>
+                    <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
+                    <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
+                    ${meetingCellsHtml}
+                    <td class="border border-black py-0.5 px-1 text-center">${h}</td>
+                    <td class="border border-black py-0.5 px-1 text-center" style="${alpaTotalStyle}">${a}</td>
+                    <td class="border border-black py-0.5 px-1 text-center">${i}</td>
+                    <td class="border border-black py-0.5 px-1 text-center">${s}</td>
+                </tr>`;
+            });
+    
+            // --- PENYESUAIAN TERAKHIR: MINIMAL 25 BARIS, TANPA NOMOR UNTUK BARIS KOSONG ---
+            let minRows = 25;
+            let sisaBaris = minRows - mhsList.length;
+            
+            if (sisaBaris > 0) {
+                for(let r=0; r<sisaBaris; r++) {
+                    let cellKosong = '';
+                    for(let c=1; c<=16; c++) { cellKosong += `<td class="border border-black py-0.5 px-1"></td>`; }
+                    html += `<tr>
+                        <td class="border border-black py-0.5 px-1 text-center text-transparent text-[8px]">.</td>
+                        <td class="border border-black py-0.5 px-1"></td>
+                        ${cellKosong}
+                        <td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td>
+                    </tr>`;
+                }
+            }
+    
+            previewTable.innerHTML = html;
+    
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        };
 
         previewTable.innerHTML = html;
 
