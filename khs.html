@@ -300,7 +300,7 @@
     function isColumnExcludedKHS(colName) {
         const norm = colName.toString().toLowerCase().replace(/\s+/g, '');
         if (norm.includes('semester')) return true; 
-        const excludeList = ['ta', 'namamahasiswa', 'ppl', 'kkn', 'skripsi', 'nim'];
+        const excludeList = ['ta', 'namamahasiswa', 'nim'];
         return excludeList.includes(norm);
     }
 
