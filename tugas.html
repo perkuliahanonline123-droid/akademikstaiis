@@ -185,19 +185,38 @@
             selectMK.disabled = true;
 
             if (inputVal.length >= 2) { 
-                const matches = dataMahasiswa.filter(m => m.nama.toLowerCase().includes(inputVal) || (m.nim && m.nim.toString().toLowerCase().includes(inputVal)));
+                // PERBAIKAN: Menangani berbagai kemungkinan penamaan key dari Google Sheet
+                const matches = dataMahasiswa.filter(m => {
+                    const namaMhs = m['Nama Lengkap'] || m.namaLengkap || m.nama || "";
+                    const nimMhs = m['NIM'] || m.nim || "";
+                    return namaMhs.toLowerCase().includes(inputVal) || nimMhs.toString().toLowerCase().includes(inputVal);
+                });
+
                 if (matches.length > 0) {
                     dropdown.classList.remove('hidden');
                     matches.forEach(mhs => {
+                        // Menarik data berdasarkan key dari Google Sheet
+                        const namaMhs = mhs['Nama Lengkap'] || mhs.namaLengkap || mhs.nama || "";
+                        const nimMhs = mhs['NIM'] || mhs.nim || "";
+                        const prodiMhs = mhs['Prodi'] || mhs.prodi || "";
+
                         const item = document.createElement('div');
                         item.className = 'cursor-pointer p-3 hover:bg-[#f8fafc] border-b border-gray-100 flex items-center gap-3 transition-colors';
-                        item.innerHTML = `<i class="fa-solid fa-user text-[#94a3b8] text-sm"></i><span class="text-sm font-semibold text-gray-700">${mhs.nim} - ${mhs.nama}</span>`;
+                        item.innerHTML = `<i class="fa-solid fa-user text-[#94a3b8] text-sm"></i><span class="text-sm font-semibold text-gray-700">${nimMhs} - ${namaMhs}</span>`;
+                        
                         item.addEventListener('click', () => {
-                            inputNama.value = mhs.nama;
-                            currentMhs = mhs;
+                            inputNama.value = namaMhs;
+                            
+                            // Normalisasi object mhs agar data payload yang dikirim tetap terstandar
+                            currentMhs = {
+                                nama: namaMhs,
+                                nim: nimMhs,
+                                prodi: prodiMhs
+                            };
+                            
                             inputNama.parentElement.style.borderColor = '#0ba97b';
                             dropdown.classList.add('hidden');
-                            populateMataKuliah(mhs.prodi); // Memanggil filter berdasarkan prodi
+                            populateMataKuliah(prodiMhs); 
                         });
                         dropdown.appendChild(item);
                     });
@@ -213,7 +232,6 @@
         });
 
         function populateMataKuliah(prodiMahasiswa) {
-            // Filter Mata Kuliah berdasarkan Prodi Mahasiswa yang bersangkutan
             const studentCourses = masterKurikulum.filter(f => f.prodi.toLowerCase() === prodiMahasiswa.toLowerCase());
             selectMK.innerHTML = '';
 
@@ -226,7 +244,6 @@
             selectMK.disabled = false;
             selectMK.innerHTML = '<option value="" disabled selected>-- Pilih Mata Kuliah --</option>';
             
-            // Urutkan berdasarkan semester agar rapi
             studentCourses.sort((a, b) => parseInt(a.semester) - parseInt(b.semester));
             
             studentCourses.forEach(mkObj => {
@@ -253,7 +270,7 @@
             const judul = document.getElementById('judulMakalah').value.trim();
             
             if (!file) return showAlert('Silakan upload file berkas Anda.', 'error');
-            if(file.size > 10485760) return showAlert('Ukuran file maksimal 10MB.', 'error'); // 10MB
+            if(file.size > 10485760) return showAlert('Ukuran file maksimal 10MB.', 'error');
 
             const btnSubmit = document.getElementById('btnSubmit');
             btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Mengupload...';
@@ -264,7 +281,7 @@
                 const selectedMKValue = selectMK.value.split('|');
 
                 const payloadJSON = {
-                    action: "uploadTugas", // Aksi untuk endpoint baru
+                    action: "uploadTugas", 
                     prodi: currentMhs.prodi,
                     nim: currentMhs.nim,
                     namaLengkap: currentMhs.nama,
@@ -285,7 +302,7 @@
 
                 if (result.status === 'success') {
                     showAlert('Tugas berhasil dikirim! Terima kasih.', 'success');
-                    setTimeout(() => location.reload(), 2500); // Otomatis refresh form
+                    setTimeout(() => location.reload(), 2500); 
                 } else {
                     showAlert('Error dari Server: ' + result.message, 'error');
                 }
