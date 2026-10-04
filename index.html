@@ -112,10 +112,17 @@
                     <p class="text-xs md:text-sm font-medium text-slate-500 mt-0.5">Input kehadiran mahasiswa dan laporan metode ajar</p>
                 </div>
                 
-                <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
-                    <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
-                    <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
-                    <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+                <div class="flex items-center gap-3">
+                    <!-- TOMBOL PEMBARUAN DATA -->
+                    <button id="btnRefresh" onclick="refreshData()" class="flex items-center justify-center w-10 h-10 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-brand-600 hover:border-brand-300 hover:bg-brand-50 transition-all shadow-sm group" title="Perbarui Data dari Server">
+                        <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                    </button>
+            
+                    <div class="hidden lg:flex text-sm font-bold text-brand-800 bg-brand-50 px-5 py-2.5 rounded-full border border-brand-100 items-center gap-3 shadow-sm shrink-0 w-fit">
+                        <div class="w-2 h-2 rounded-full bg-brand-500 animate-ping absolute"></div>
+                        <div class="w-2 h-2 rounded-full bg-brand-500 relative"></div>
+                        <span id="realtimeClock" class="tracking-wide">Memuat waktu...</span>
+                    </div>
                 </div>
             </header>
 
@@ -282,8 +289,45 @@
         let globalData = { kurikulum: [], mahasiswa: {}, jurnal: [] };
 
         // Durasi cache dalam milidetik (contoh: 1 jam)
-        const CACHE_DURATION = 60 * 60 * 1000; 
+        const CACHE_DURATION = 365 * 24 * 60 * 60 * 1000; 
+
+        // Fungsi untuk memaksa pembaruan data (menghapus cache lama dan memuat yang baru)
+        async function refreshData() {
+            const btnRefresh = document.getElementById('btnRefresh');
+            const icon = btnRefresh.querySelector('i');
+            const inputField = document.getElementById('inputMatkul');
+            
+            // Animasi loading pada tombol refresh
+            icon.classList.remove('fa-sync-alt', 'group-hover:rotate-180');
+            icon.classList.add('fa-spinner', 'fa-spin', 'text-brand-600');
+            btnRefresh.disabled = true;
         
+            // Reset input ke mode loading
+            inputField.disabled = true;
+            inputField.placeholder = "⏳ Memperbarui data, mohon tunggu...";
+            inputField.classList.remove('bg-slate-50');
+            inputField.classList.add('animate-pulse', 'cursor-not-allowed', 'bg-slate-200');
+            inputField.value = "";
+            inputField.removeAttribute('data-selected-index');
+            renderMahasiswa(); // Menyembunyikan tabel jika sedang tampil
+            
+            try {
+                // 1. Hapus cache lokal yang lama
+                localStorage.removeItem('akademikData');
+                localStorage.removeItem('akademikDataTime');
+                
+                // 2. Panggil ulang fungsi loadData (otomatis mengambil dari API karena cache kosong)
+                await loadData();
+                showToast('success', 'Data terbaru berhasil ditarik dan disimpan di perangkat!');
+            } catch (error) {
+                showToast('error', 'Gagal memperbarui data. Periksa koneksi internet Anda.');
+            } finally {
+                // Hentikan animasi loading
+                icon.classList.remove('fa-spinner', 'fa-spin', 'text-brand-600');
+                icon.classList.add('fa-sync-alt', 'group-hover:rotate-180');
+                btnRefresh.disabled = false;
+            }
+        }
         async function loadData() {
             updateJam(); 
             
