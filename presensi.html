@@ -343,8 +343,18 @@
     
     let globalDataMhs = [];
 
+    // Fungsi pembantu untuk mengurutkan nama mahasiswa sesuai abjad (A-Z)
+    function urutkanAbjadNama(list) {
+        return list.slice().sort((a, b) => {
+            const namaA = (a.nama || "").trim();
+            const namaB = (b.nama || "").trim();
+            return namaA.localeCompare(namaB, 'id', { sensitivity: 'base' });
+        });
+    }
+
     function handleDataSuccess(data) {
-        globalDataMhs = data.rekap_presensi || []; 
+        // Urutkan data secara global berdasarkan abjad nama saat pertama kali diterima
+        globalDataMhs = urutkanAbjadNama(data.rekap_presensi || []); 
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('tab-presensi').classList.remove('hidden');
         populateFilters();
@@ -356,7 +366,8 @@
             const result = await response.json();
             
             if (result.status === "success") { 
-                const newDataString = JSON.stringify(result.data);
+                // Perbaikan: Simpan seluruh objek result ke cache agar rekap_presensi tersimpan utuh
+                const newDataString = JSON.stringify(result);
                 const currentCache = localStorage.getItem(CACHE_KEY_DASH);
                 
                 if (currentCache !== newDataString) {
@@ -385,171 +396,160 @@
     }
 
     window.previewPDF = function(mkName) {
-            const modal = document.getElementById('pdfModal');
-            const modalContent = document.getElementById('pdfModalContent');
-            const previewProdi = document.getElementById('previewProdi');
-            const previewMatkul = document.getElementById('previewMatkulDetail');
-            const previewDosenHeader = document.getElementById('previewDosenHeader');
-            const previewKode = document.getElementById('previewKodeMK');
-            const previewSemester = document.getElementById('previewSemester');
-            const previewKelas = document.getElementById('previewKelas');
-            const previewTable = document.getElementById('previewTableBody');
-            const previewDosenSig = document.getElementById('previewDosenSignature');
-            
-            let firstMhsData = null;
-            
-            // Memfilter data dan mencocokkan grup dengan memanggil key 'program_studi'
-            const mhsList = globalDataMhs.filter(m => {
+        const modal = document.getElementById('pdfModal');
+        const modalContent = document.getElementById('pdfModalContent');
+        const previewProdi = document.getElementById('previewProdi');
+        const previewMatkul = document.getElementById('previewMatkulDetail');
+        const previewDosenHeader = document.getElementById('previewDosenHeader');
+        const previewKode = document.getElementById('previewKodeMK');
+        const previewSemester = document.getElementById('previewSemester');
+        const previewKelas = document.getElementById('previewKelas');
+        const previewTable = document.getElementById('previewTableBody');
+        const previewDosenSig = document.getElementById('previewDosenSignature');
+        
+        let firstMhsData = null;
+        
+        // Memfilter data dan mengurutkan sesuai abjad nama mahasiswa
+        const mhsList = urutkanAbjadNama(
+            globalDataMhs.filter(m => {
                 let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
                 const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
                 if (groupName === mkName && !firstMhsData) firstMhsData = m;
                 return groupName === mkName;
-            });
-    
-            if (firstMhsData) {
-                // Tangkap Program Studi
-                let namaProdi = firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData['Program Studi'] || firstMhsData.prodi || "-";
-                previewProdi.innerText = namaProdi;
-                
-                previewMatkul.innerText = firstMhsData.matkul || "-";
-                
-            // Tangkap Nama Dosen Pengampu (Lebih Lengkap)
+            })
+        );
+
+        if (firstMhsData) {
+            let namaProdi = firstMhsData.program_studi || firstMhsData.programstudi || firstMhsData['Program Studi'] || firstMhsData.prodi || "-";
+            previewProdi.innerText = namaProdi;
+            
+            previewMatkul.innerText = firstMhsData.matkul || "-";
+            
             let namaDosen = firstMhsData.nama_dosen_pengampu || 
-                                firstMhsData.namadosenpengampu || 
-                                firstMhsData['Nama Dosen Pengampu'] || 
-                                firstMhsData['nama dosen pengampu'] || 
-                                firstMhsData.dosen_pengampu ||
-                                firstMhsData.dosenpengampu ||
-                                firstMhsData['dosen pengampu'] ||
-                                firstMhsData.nama_dosen ||
-                                firstMhsData.namadosen ||
-                                firstMhsData['nama dosen'] ||
-                                firstMhsData.dosen || 
-                                firstMhsData.Dosen || 
-                                "-";
-                                
-                // Pastikan jika isinya hanya spasi kosong, tetap dianggap "-"
-                if (typeof namaDosen === 'string' && namaDosen.trim() === "") {
-                    namaDosen = "-";
-                }
-                                
-                previewDosenHeader.innerText = namaDosen;
-                previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
-    
-                previewKode.innerText = firstMhsData.kode || "-";
-                
-                let kelasFull = firstMhsData.kelas || "-";
-                let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
-                previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
-                previewKelas.innerText = kelasFull;
-    
-                // --- LOGIKA TANGGAL TTD DINAMIS DARI DATABASE ---
-                let dataTanggalTTD = firstMhsData.tanggal_ttd;
-                let tanggalAkhir = "";
-    
-                if (dataTanggalTTD && dataTanggalTTD.trim() !== "") {
-                    // Jika data kolom K di spreadsheet ada
-                    // Cek apakah string mengandung "Cianjur", jika tidak tambahkan
-                    if (dataTanggalTTD.toLowerCase().includes("cianjur")) {
-                         tanggalAkhir = dataTanggalTTD;
-                    } else {
-                         tanggalAkhir = "Cianjur, " + dataTanggalTTD;
-                    }
+                            firstMhsData.namadosenpengampu || 
+                            firstMhsData['Nama Dosen Pengampu'] || 
+                            firstMhsData['nama dosen pengampu'] || 
+                            firstMhsData.dosen_pengampu ||
+                            firstMhsData.dosenpengampu ||
+                            firstMhsData['dosen pengampu'] ||
+                            firstMhsData.nama_dosen ||
+                            firstMhsData.namadosen ||
+                            firstMhsData['nama dosen'] ||
+                            firstMhsData.dosen || 
+                            firstMhsData.Dosen || 
+                            "-";
+                            
+            if (typeof namaDosen === 'string' && namaDosen.trim() === "") {
+                namaDosen = "-";
+            }
+                            
+            previewDosenHeader.innerText = namaDosen;
+            previewDosenSig.innerHTML = namaDosen !== "-" ? namaDosen : ""; 
+
+            previewKode.innerText = firstMhsData.kode || "-";
+            
+            let kelasFull = firstMhsData.kelas || "-";
+            let semesterAngka = kelasFull.replace(/[^0-9]/g, '');
+            previewSemester.innerText = firstMhsData.semester || semesterAngka || "-";
+            previewKelas.innerText = kelasFull;
+
+            let dataTanggalTTD = firstMhsData.tanggal_ttd;
+            let tanggalAkhir = "";
+
+            if (dataTanggalTTD && dataTanggalTTD.trim() !== "") {
+                if (dataTanggalTTD.toLowerCase().includes("cianjur")) {
+                     tanggalAkhir = dataTanggalTTD;
                 } else {
-                    // FALLBACK JIKA KOSONG DI SPREADSHEET (Ganjil/Genap otomatis)
-                    let nilaiSemester = firstMhsData.semester || semesterAngka;
-                    let tglFallback = "31 Desember 2026"; 
-                    
-                    if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
-                        tglFallback = "30 Juni 2026";
-                    }
-                    
-                    tanggalAkhir = "Cianjur, " + tglFallback;
+                     tanggalAkhir = "Cianjur, " + dataTanggalTTD;
+                }
+            } else {
+                let nilaiSemester = firstMhsData.semester || semesterAngka;
+                let tglFallback = "31 Desember 2026"; 
+                
+                if (String(nilaiSemester).toLowerCase().includes('genap') || parseInt(semesterAngka) % 2 === 0) {
+                    tglFallback = "30 Juni 2026";
                 }
                 
-                document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
-    
-                // --- KODE UNTUK QR CODE DINAMIS ---
-                const qrElement = document.getElementById('previewQRCode');
-                if (qrElement) { 
-                    let kodeValidasi = firstMhsData.kode || "UNKNOWN";
-                    
-                    // Link menuju verifikasi.html sesuai domain Anda
-                    let urlVerifikasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeValidasi)}`;
-                    
-                    // Masukkan link ke API pembuat QR Code
-                    qrElement.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(urlVerifikasi)}`;
-                }
+                tanggalAkhir = "Cianjur, " + tglFallback;
             }
             
-            let html = '';
-            mhsList.forEach((m, index) => {
-                let h = parseInt(m.hadir) || 0;
-                let a = parseInt(m.alpa) || 0;
-                let i = parseInt(m.izin) || 0;
-                let s = parseInt(m.sakit) || 0;
-    
-                let meetingArray = generateMeetingData(h, a, i, s);
-                let meetingCellsHtml = '';
+            document.getElementById('previewTanggalTtd').innerText = tanggalAkhir;
+
+            const qrElement = document.getElementById('previewQRCode');
+            if (qrElement) { 
+                let kodeValidasi = firstMhsData.kode || "UNKNOWN";
+                let urlVerifikasi = `https://administrasiakademik.vercel.app/verifikasi.html?kode=${encodeURIComponent(kodeValidasi)}`;
+                qrElement.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(urlVerifikasi)}`;
+            }
+        }
+        
+        let html = '';
+        mhsList.forEach((m, index) => {
+            let h = parseInt(m.hadir) || 0;
+            let a = parseInt(m.alpa) || 0;
+            let i = parseInt(m.izin) || 0;
+            let s = parseInt(m.sakit) || 0;
+
+            let meetingArray = generateMeetingData(h, a, i, s);
+            let meetingCellsHtml = '';
+            
+            meetingArray.forEach(val => {
+                let bgColor = '';
+                let textColor = 'color: black;';
+                let fontWeight = '';
                 
-                meetingArray.forEach(val => {
-                    let bgColor = '';
-                    let textColor = 'color: black;';
-                    let fontWeight = '';
-                    
-                    if (val === 'A') {
-                        bgColor = 'background-color: #dc2626;'; 
-                        textColor = 'color: white;';
-                        fontWeight = 'font-weight: bold;';
-                    } else if (val === 'S' || val === 'I') {
-                        bgColor = 'background-color: #facc15;'; 
-                        textColor = 'color: black;';
-                        fontWeight = 'font-weight: bold;';
-                    }
-    
-                    let style = `${bgColor} ${textColor} ${fontWeight}`;
-                    meetingCellsHtml += `<td class="border border-black py-0.5 px-1 text-center" style="${style}">${val}</td>`;
-                });
-    
-                let alpaTotalStyle = a > 0 ? "background-color: #dc2626; color: white; font-weight: bold;" : "";
-    
-                html += `
-                <tr>
-                    <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
-                    <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
-                    ${meetingCellsHtml}
-                    <td class="border border-black py-0.5 px-1 text-center">${h}</td>
-                    <td class="border border-black py-0.5 px-1 text-center" style="${alpaTotalStyle}">${a}</td>
-                    <td class="border border-black py-0.5 px-1 text-center">${i}</td>
-                    <td class="border border-black py-0.5 px-1 text-center">${s}</td>
-                </tr>`;
+                if (val === 'A') {
+                    bgColor = 'background-color: #dc2626;'; 
+                    textColor = 'color: white;';
+                    fontWeight = 'font-weight: bold;';
+                } else if (val === 'S' || val === 'I') {
+                    bgColor = 'background-color: #facc15;'; 
+                    textColor = 'color: black;';
+                    fontWeight = 'font-weight: bold;';
+                }
+
+                let style = `${bgColor} ${textColor} ${fontWeight}`;
+                meetingCellsHtml += `<td class="border border-black py-0.5 px-1 text-center" style="${style}">${val}</td>`;
             });
-    
-            // --- PENYESUAIAN TERAKHIR: MINIMAL 25 BARIS, TANPA NOMOR UNTUK BARIS KOSONG ---
-            let minRows = 25;
-            let sisaBaris = minRows - mhsList.length;
-            
-            if (sisaBaris > 0) {
-                for(let r=0; r<sisaBaris; r++) {
-                    let cellKosong = '';
-                    for(let c=1; c<=16; c++) { cellKosong += `<td class="border border-black py-0.5 px-1"></td>`; }
-                    html += `<tr>
-                        <td class="border border-black py-0.5 px-1 text-center text-transparent text-[8px]">.</td>
-                        <td class="border border-black py-0.5 px-1"></td>
-                        ${cellKosong}
-                        <td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td>
-                    </tr>`;
-                }
+
+            let alpaTotalStyle = a > 0 ? "background-color: #dc2626; color: white; font-weight: bold;" : "";
+
+            html += `
+            <tr>
+                <td class="border border-black py-0.5 px-1 text-center">${index + 1}</td>
+                <td class="border border-black py-0.5 px-2 text-left truncate" style="max-width: 1px;">${m.nama}</td>
+                ${meetingCellsHtml}
+                <td class="border border-black py-0.5 px-1 text-center">${h}</td>
+                <td class="border border-black py-0.5 px-1 text-center" style="${alpaTotalStyle}">${a}</td>
+                <td class="border border-black py-0.5 px-1 text-center">${i}</td>
+                <td class="border border-black py-0.5 px-1 text-center">${s}</td>
+            </tr>`;
+        });
+
+        let minRows = 25;
+        let sisaBaris = minRows - mhsList.length;
+        
+        if (sisaBaris > 0) {
+            for(let r=0; r<sisaBaris; r++) {
+                let cellKosong = '';
+                for(let c=1; c<=16; c++) { cellKosong += `<td class="border border-black py-0.5 px-1"></td>`; }
+                html += `<tr>
+                    <td class="border border-black py-0.5 px-1 text-center text-transparent text-[8px]">.</td>
+                    <td class="border border-black py-0.5 px-1"></td>
+                    ${cellKosong}
+                    <td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td><td class="border border-black py-0.5 px-1"></td>
+                </tr>`;
             }
-    
-            previewTable.innerHTML = html;
-    
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-            }, 10);
-        };
+        }
+
+        previewTable.innerHTML = html;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+        }, 10);
+    };
 
     window.closePDFModal = function() {
         const modal = document.getElementById('pdfModal');
@@ -559,7 +559,6 @@
         setTimeout(() => { modal.classList.add('hidden'); }, 300);
     };
     
-    // FUNGSI UNDUH LANGSUNG PDF (Dikunci ke ukuran 1 halaman A4)
     window.downloadPDF = function() {
         const element = document.getElementById('pdfPrintArea');
         const mkName = document.getElementById('previewMatkulDetail').innerText || 'Presensi';
@@ -587,7 +586,7 @@
 
     window.onload = function() {
         const cachedData = localStorage.getItem(CACHE_KEY_DASH);
-        if (cachedData) {
+        if (cachedData && cachedData !== "undefined") {
             try { handleDataSuccess(JSON.parse(cachedData)); } catch(e) {}
         }
         fetchDataLatarBelakang();
@@ -627,7 +626,7 @@
           return matchTahun && matchMatkul;
       });
       
-      const blockedMhs = filteredMhs.filter(m => m.alpa >= 4);
+      const blockedMhs = urutkanAbjadNama(filteredMhs.filter(m => m.alpa >= 4));
       document.getElementById('statTerblokir').innerText = blockedMhs.length;
       
       const container = document.getElementById('listTerblokirContainer');
@@ -678,7 +677,6 @@
 
       const groups = {};
       filtered.forEach(m => {
-        // Panggil key program studi dengan benar agar tidak muncul "undefined"
         let prodi = m.program_studi || m.programstudi || m['Program Studi'] || m.prodi || "-";
         const groupName = `${m.kode} - ${m.matkul} (Semester ${m.kelas}) | ${prodi}`;
         
@@ -688,6 +686,9 @@
 
       let html = '';
       for (const [mk, mhsList] of Object.entries(groups)) {
+        // Pastikan setiap grup mata kuliah diurutkan berdasarkan abjad nama mahasiswa (A-Z)
+        const sortedMhsList = urutkanAbjadNama(mhsList);
+
         html += `
         <tr class="bg-slate-50/50">
           <td colspan="5" class="px-5 py-3 border-y border-slate-100">
@@ -700,7 +701,7 @@
           </td>
         </tr>`;
         
-        mhsList.forEach(m => {
+        sortedMhsList.forEach(m => {
           html += `
           <tr class="hover:bg-slate-50 border-b border-slate-50">
             <td class="p-4 md:p-5 pl-6 md:pl-8 font-bold text-slate-700 text-xs md:text-sm">${m.nama}</td>
