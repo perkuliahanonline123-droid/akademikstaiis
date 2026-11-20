@@ -6,7 +6,7 @@
   <title>KRS Mahasiswa STAIIS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary: #14724e;
@@ -290,10 +290,20 @@
       background: var(--primary-soft);
     }
 
+    .dropdown-left {
+      display: flex;
+      flex-direction: column;
+    }
+
     .dropdown-name {
       font-weight: 600;
       font-size: 0.92rem;
       color: var(--text-main);
+    }
+
+    .dropdown-nim {
+      font-size: 0.76rem;
+      color: var(--text-muted);
     }
 
     .dropdown-meta {
@@ -382,7 +392,7 @@
       font-size: 0.9rem;
     }
 
-    /* NIM Optional Bar */
+    /* NIM Bar */
     .nim-row {
       display: flex;
       align-items: center;
@@ -397,6 +407,8 @@
       padding: 7px 12px;
       font-family: inherit;
       font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
       width: 220px;
       outline: none;
       background: #ffffff;
@@ -411,28 +423,54 @@
       background: #ffffff;
       border: 1px solid var(--border-light);
       border-radius: 12px;
-      padding: 24px;
+      padding: 26px 28px;
     }
 
+    /* Kop Surat Resmi (Sesuai Gambar 2) */
     .krs-kop {
       text-align: center;
-      border-bottom: 2.5px double #1e293b;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
+      color: #0f172a;
+    }
+
+    .kop-sub-top {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0f172a;
+      line-height: 1.3;
     }
 
     .krs-kop h2 {
-      font-size: 1.05rem;
+      font-size: 1.08rem;
       font-weight: 800;
       letter-spacing: 0.02em;
       color: #0f172a;
       text-transform: uppercase;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .kop-arabic {
+      font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.45;
+      margin-top: 2px;
     }
 
     .krs-kop p {
-      font-size: 0.78rem;
-      color: #475569;
-      margin-top: 2px;
+      font-size: 0.76rem;
+      color: #334155;
+      line-height: 1.45;
+    }
+
+    .kop-divider {
+      border-top: 2.5px solid #0f172a;
+      border-bottom: 1px solid #0f172a;
+      height: 4px;
+      margin: 10px 0 16px;
     }
 
     .krs-title {
@@ -671,6 +709,15 @@
       .krs-sheet {
         padding: 16px 12px;
       }
+      .kop-sub-top {
+        font-size: 0.68rem;
+      }
+      .krs-kop h2 {
+        font-size: 0.9rem;
+      }
+      .kop-arabic {
+        font-size: 1.12rem;
+      }
       .krs-meta-grid {
         grid-template-columns: 1fr;
       }
@@ -689,14 +736,21 @@
       }
     }
 
-    /* Print A4 Formal Stylesheet */
+    /* ============================================================
+       PRINT / SAVE AS PDF: MIRIP TAMPILAN HTML (TANPA KOLOM CENTANG)
+       ============================================================ */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 14mm;
+        margin: 12mm;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       body {
         background: #ffffff !important;
+        background-image: none !important;
         padding: 0 !important;
       }
       .header-card,
@@ -709,39 +763,51 @@
       .row-unchecked {
         display: none !important;
       }
-      .container, .main-card, .dashed-box, .krs-sheet {
+      .container,
+      .main-card,
+      .dashed-box {
         max-width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
         border: none !important;
         box-shadow: none !important;
-        background: #ffffff !important;
+        background: transparent !important;
       }
-      .col-kode, .col-dosen {
+      .krs-sheet {
+        max-width: 100% !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 24px 26px !important;
+        box-shadow: none !important;
+      }
+      .col-kode,
+      .col-dosen {
         display: table-cell !important;
       }
       .mk-sub-mobile {
         display: none !important;
       }
-      .krs-title {
-        color: #000000 !important;
-      }
       .krs-meta-grid {
-        background: #ffffff !important;
-        border: 1px solid #000000 !important;
-        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
       }
       .krs-table th {
-        background: #f1f5f9 !important;
-        color: #000000 !important;
-        border: 1px solid #000000 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background: #14724e !important;
+        color: #ffffff !important;
+        border: 1px solid #14724e !important;
       }
-      .krs-table td, .krs-table tfoot td {
-        border: 1px solid #000000 !important;
-        color: #000000 !important;
-        background: #ffffff !important;
+      .krs-table tbody tr:nth-child(even) {
+        background: #f8fafc !important;
+      }
+      .krs-table td {
+        border: 1px solid #e2e8f0 !important;
+      }
+      .krs-table tfoot td {
+        background: #ecfdf5 !important;
+        color: #0e583b !important;
+        border: 1px solid #a7f3d0 !important;
       }
     }
   </style>
@@ -843,7 +909,7 @@
 
         <div class="dashed-box" id="krsContainer">
           <div class="empty-state" id="emptyState">
-            Silakan ketik dan pilih <strong>Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
+            Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
           </div>
         </div>
 
@@ -867,7 +933,7 @@
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
-          <p><strong>Tips:</strong> Klik tombol <em>Cetak / Simpan PDF KRS</em> lalu pilih <em>Save as PDF</em> untuk menyimpan dokumen. Anda dapat mencentang atau menghapus centang mata kuliah bila diperlukan sebelum mencetak.</p>
+          <p><strong>Tips:</strong> Klik tombol <em>Cetak / Simpan PDF KRS</em> lalu pilih <em>Save as PDF</em> untuk mengunduh dokumen. Kolom centang otomatis disembunyikan pada hasil PDF.</p>
         </div>
       </section>
     </main>
@@ -877,12 +943,13 @@
 
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec';
-    const STORAGE_DATA_KEY = 'STAIIS_KRS_PAYLOAD_V1';
+    const STORAGE_DATA_KEY = 'STAIIS_KRS_PAYLOAD_V2';
     const STORAGE_VER_KEY = 'STAIIS_KRS_CACHE_VERSION';
 
     let state = {
       mahasiswa: [],
       kurikulum: [],
+      nimList: [],
       selectedStudent: null,
       selectedSemester: null,
       checkedCodes: new Set(),
@@ -924,7 +991,7 @@
     }
 
     // ==========================================
-    // 2. TOAST NOTIFICATION
+    // 2. TOAST & HELPER
     // ==========================================
     let toastTimer = null;
     function showToast(msg, type = 'success') {
@@ -945,11 +1012,33 @@
         .replace(/'/g, '&#39;');
     }
 
+    function normalizeKey(str) {
+      return String(str ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function findNimRecord(nama, prodi, nimList) {
+      if (!Array.isArray(nimList) || !nimList.length) return null;
+      const targetNama = normalizeKey(nama);
+      const targetProdi = normalizeKey(prodi);
+
+      // 1. Cocokkan Nama + Program Studi (akurat untuk nama kembar seperti Abdullah)
+      const exactMatch = nimList.find(item =>
+        normalizeKey(item.nama) === targetNama &&
+        normalizeKey(item.prodi) === targetProdi
+      );
+      if (exactMatch) return exactMatch;
+
+      // 2. Fallback: Cocokkan Nama saja jika Prodi di sheet berbeda penulisan
+      return nimList.find(item => normalizeKey(item.nama) === targetNama) || null;
+    }
+
     // ==========================================
     // 3. PARSER PAYLOAD DARI Code.gs (action=ringan)
     // ==========================================
     function parseServerResponse(json) {
-      // A. Parse json.mahasiswa ({ "Semester 1 & 2 Ahwal Al-Syakhshiyyah": ["Nama 1", ...], ... })
+      const nimList = Array.isArray(json.nim_mahasiswa) ? json.nim_mahasiswa : [];
+
+      // A. Parse json.mahasiswa
       const parsedMahasiswa = [];
       const rawMapMhs = json.mahasiswa || {};
 
@@ -965,9 +1054,11 @@
         names.forEach(namaRaw => {
           const nama = String(namaRaw || '').trim();
           if (nama) {
+            const nimRec = findNimRecord(nama, prodi, nimList);
             parsedMahasiswa.push({
               id: `${prodi}|${semList.join('-')}|${nama}`,
               nama: nama,
+              nim: nimRec && nimRec.nim ? nimRec.nim : '',
               prodi: prodi,
               semesters: semList,
               semesterLabel: semLabel
@@ -978,7 +1069,7 @@
 
       parsedMahasiswa.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
 
-      // B. Parse json.data_kurikulum (array objek dari sheet DATA KURIKULUM)
+      // B. Parse json.data_kurikulum
       const parsedKurikulum = [];
       const rawKurikulum = Array.isArray(json.data_kurikulum) ? json.data_kurikulum : [];
 
@@ -993,7 +1084,6 @@
         const kaprodi = String(row['Kaprodi'] || '-').trim();
         const kelas = String(row['Kelas'] || '').trim();
 
-        // Lewati baris header berulang dan baris "Jumlah SKS"
         if (
           !kode ||
           !mk ||
@@ -1019,7 +1109,7 @@
         });
       });
 
-      return { mahasiswa: parsedMahasiswa, kurikulum: parsedKurikulum };
+      return { mahasiswa: parsedMahasiswa, kurikulum: parsedKurikulum, nimList: nimList };
     }
 
     // ==========================================
@@ -1036,7 +1126,6 @@
           const parsedCache = JSON.parse(cachedRaw);
           applyLoadedData(parsedCache);
 
-          // Cek versi global secara cepat (?action=cek_versi)
           const verRes = await fetch(`${APPS_SCRIPT_URL}?action=cek_versi`);
           const verJson = await verRes.json();
 
@@ -1045,11 +1134,10 @@
             return;
           }
         } catch (e) {
-          // Jika cache korup atau gagal cek versi, lanjut ambil data penuh
+          // Lanjut ambil data baru dari server jika cache gagal
         }
       }
 
-      // Ambil data ringan (?action=ringan atau ?action=ringan&forceRefresh=true)
       try {
         const url = `${APPS_SCRIPT_URL}?action=ringan${forceRefresh ? '&forceRefresh=true' : ''}`;
         const res = await fetch(url);
@@ -1071,7 +1159,7 @@
         if (forceRefresh) {
           showToast('Data berhasil disegarkan untuk semua perangkat.', 'success');
         } else if (localVersion && json.cacheVersion !== localVersion) {
-          showToast('Data kurikulum terbaru telah dimuat.', 'success');
+          showToast('Data mahasiswa & kurikulum terbaru telah dimuat.', 'success');
         }
       } catch (err) {
         if (!state.mahasiswa.length) {
@@ -1087,9 +1175,10 @@
     function applyLoadedData(parsed) {
       state.mahasiswa = parsed.mahasiswa || [];
       state.kurikulum = parsed.kurikulum || [];
+      state.nimList = parsed.nimList || [];
 
       elSearch.disabled = false;
-      elSearch.placeholder = 'Ketik Nama Anda atau Program Studi...';
+      elSearch.placeholder = 'Ketik NIM atau Nama Anda...';
 
       if (!state.selectedStudent) {
         elDataCountPill.textContent = `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`;
@@ -1097,28 +1186,33 @@
         const updated = state.mahasiswa.find(m => m.id === state.selectedStudent.id);
         if (updated) {
           state.selectedStudent = updated;
+          if (updated.nim) state.nimValue = updated.nim;
           renderKrs();
         }
       }
     }
 
     // ==========================================
-    // 5. AUTOCOMPLETE PENCARIAN MAHASISWA
+    // 5. AUTOCOMPLETE PENCARIAN MAHASISWA (NAMA / NIM)
     // ==========================================
     function renderDropdown(query = '') {
       const q = query.trim().toLowerCase();
       const filtered = state.mahasiswa.filter(m =>
         m.nama.toLowerCase().includes(q) ||
+        (m.nim && m.nim.toLowerCase().includes(q)) ||
         m.prodi.toLowerCase().includes(q) ||
         m.semesterLabel.toLowerCase().includes(q)
       ).slice(0, 40);
 
       if (!filtered.length) {
-        elDropdown.innerHTML = `<div class="dropdown-empty">Nama mahasiswa "${escapeHtml(query)}" tidak ditemukan.</div>`;
+        elDropdown.innerHTML = `<div class="dropdown-empty">Data "${escapeHtml(query)}" tidak ditemukan.</div>`;
       } else {
         elDropdown.innerHTML = filtered.map(m => `
           <div class="dropdown-item" data-id="${escapeHtml(m.id)}">
-            <span class="dropdown-name">${escapeHtml(m.nama)}</span>
+            <div class="dropdown-left">
+              <span class="dropdown-name">${escapeHtml(m.nama)}</span>
+              ${m.nim ? `<span class="dropdown-nim">NIM: ${escapeHtml(m.nim)}</span>` : ''}
+            </div>
             <span class="dropdown-meta">${escapeHtml(m.prodi)} • ${escapeHtml(m.semesterLabel)}</span>
           </div>
         `).join('');
@@ -1129,7 +1223,6 @@
     function getDefaultSemester(semesters) {
       if (!semesters || !semesters.length) return 1;
       if (semesters.length === 1) return semesters[0];
-      // Sept–Jan = Ganjil (index 0), Feb–Agu = Genap (index 1)
       const month = new Date().getMonth() + 1;
       const isGanjil = month >= 9 || month <= 1;
       return isGanjil ? semesters[0] : semesters[1];
@@ -1141,7 +1234,14 @@
 
       state.selectedStudent = student;
       state.selectedSemester = getDefaultSemester(student.semesters);
-      elSearch.value = `${student.nama} (${student.prodi})`;
+
+      // Ambil NIM otomatis dari sheet NIM MAHASISWA
+      const nimRec = findNimRecord(student.nama, student.prodi, state.nimList);
+      state.nimValue = student.nim || (nimRec && nimRec.nim ? nimRec.nim : '');
+
+      elSearch.value = state.nimValue
+        ? `${student.nama} (${state.nimValue})`
+        : `${student.nama} (${student.prodi})`;
       elBtnClear.classList.add('show');
       elDropdown.classList.remove('open');
 
@@ -1247,15 +1347,19 @@
 
       elKrsContainer.innerHTML = `
         <div class="nim-row step-2-controls">
-          <label for="nimInput" style="font-size:0.83rem; font-weight:600; color:var(--text-muted);">NIM (opsional untuk cetak):</label>
-          <input type="text" id="nimInput" class="nim-input" placeholder="Ketik NIM Anda jika diperlukan..." value="${escapeHtml(state.nimValue)}" />
+          <label for="nimInput" style="font-size:0.83rem; font-weight:600; color:var(--text-muted);">NIM Mahasiswa:</label>
+          <input type="text" id="nimInput" class="nim-input" placeholder="NIM belum terdaftar, ketik manual..." value="${escapeHtml(state.nimValue)}" />
         </div>
 
         <div class="krs-sheet">
           <div class="krs-kop">
-            <h2>Sekolah Tinggi Agama Islam Imam Syafi'i Cianjur</h2>
-            <p>Jl. Raya Cianjur – Sukabumi, Jawa Barat • Sistem Informasi Akademik STAIIS</p>
+            <div class="kop-sub-top">PUSAT ILMU KEISLAMAN INTERNASIONAL</div>
+            <h2>SEKOLAH TINGGI AGAMA ISLAM (STAI) IMAM SYAFI’I CIANJUR</h2>
+            <div class="kop-arabic" dir="rtl" lang="ar">جامعة الإمام الشافعي</div>
+            <p>Jl. Sarongge No. 16, RT 01/RW 04, Desa Ciputri, Kec. Pacet, Cianjur, Jawa Barat</p>
+            <p>Telp.: +62 851-1145-0055 | Email: staiis_cianjur@yahoo.com</p>
           </div>
+          <div class="kop-divider"></div>
 
           <div class="krs-title">Kartu Rencana Studi (KRS)</div>
 
@@ -1347,7 +1451,7 @@
       `;
       elKrsContainer.innerHTML = `
         <div class="empty-state">
-          Silakan ketik dan pilih <strong>Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
+          Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
         </div>
       `;
       elSearch.focus();
@@ -1383,7 +1487,16 @@
 
     elBtnClear.addEventListener('click', resetSelection);
     document.getElementById('btnReset').addEventListener('click', resetSelection);
-    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+
+    document.getElementById('btnPrint').addEventListener('click', () => {
+      const origTitle = document.title;
+      if (state.selectedStudent) {
+        document.title = `KRS_${state.selectedStudent.nama.replace(/\s+/g, '_')}_Smt${state.selectedSemester}`;
+      }
+      window.print();
+      setTimeout(() => { document.title = origTitle; }, 500);
+    });
+
     elBtnRefresh.addEventListener('click', () => loadData(true));
 
     // Mulai muat data
