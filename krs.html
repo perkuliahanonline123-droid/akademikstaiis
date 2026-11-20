@@ -177,7 +177,7 @@
       margin-bottom: 10px;
     }
 
-    /* Search Input Box (identik dengan referensi) */
+    /* Search Input Box */
     .search-wrapper {
       position: relative;
       margin-bottom: 24px;
@@ -314,7 +314,7 @@
       color: var(--text-muted);
     }
 
-    /* Pill Badges Row (mengikuti desain pil merah/hijau di referensi) */
+    /* Pill Badges Row */
     .pills-row {
       display: flex;
       align-items: center;
@@ -366,7 +366,7 @@
       box-shadow: 0 3px 8px rgba(20, 114, 78, 0.22);
     }
 
-    /* Dashed Preview Box (serasi dengan box upload pada referensi) */
+    /* Dashed Preview Box */
     .dashed-box {
       background: #f8fafc;
       border: 1.5px dashed #cbd5e1;
@@ -473,7 +473,7 @@
       color: var(--text-main);
     }
 
-    /* Responsive Table tanpa scroll horizontal di desktop/mobile */
+    /* Responsive Table tanpa scrollbar horizontal */
     .krs-table {
       width: 100%;
       border-collapse: collapse;
@@ -608,7 +608,7 @@
       background: #f1f5f9;
     }
 
-    /* Tips Footer (identik dengan referensi) */
+    /* Tips Footer */
     .tips-row {
       display: flex;
       align-items: flex-start;
@@ -658,16 +658,6 @@
 
     .toast.error {
       background: #dc2626;
-    }
-
-    /* Loading Skeleton */
-    .loading-text {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.86rem;
-      color: var(--primary);
-      font-weight: 600;
     }
 
     /* Responsive Mobile */
@@ -887,8 +877,8 @@
 
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec';
-    const STORAGE_KEY = 'STAIIS_KRS_DATA_V1';
-    const CACHE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000; // 1 tahun (dikelola via GLOBAL_CACHE_VERSION & tombol refresh)
+    const STORAGE_DATA_KEY = 'STAIIS_KRS_PAYLOAD_V1';
+    const STORAGE_VER_KEY = 'STAIIS_KRS_CACHE_VERSION';
 
     let state = {
       mahasiswa: [],
@@ -956,53 +946,132 @@
     }
 
     // ==========================================
-    // 3. LOAD DATA (CACHE + APPS SCRIPT)
+    // 3. PARSER PAYLOAD DARI Code.gs (action=ringan)
+    // ==========================================
+    function parseServerResponse(json) {
+      // A. Parse json.mahasiswa ({ "Semester 1 & 2 Ahwal Al-Syakhshiyyah": ["Nama 1", ...], ... })
+      const parsedMahasiswa = [];
+      const rawMapMhs = json.mahasiswa || {};
+
+      Object.entries(rawMapMhs).forEach(([headerName, names]) => {
+        const match = String(headerName).trim().match(/^Semester\s*(\d+)(?:\s*(?:&|dan|,|-)\s*(\d+))?\s+(.+)$/i);
+        if (!match || !Array.isArray(names)) return;
+
+        const semList = [parseInt(match[1], 10)];
+        if (match[2]) semList.push(parseInt(match[2], 10));
+        const semLabel = match[2] ? `Semester ${match[1]} & ${match[2]}` : `Semester ${match[1]}`;
+        const prodi = match[3].trim();
+
+        names.forEach(namaRaw => {
+          const nama = String(namaRaw || '').trim();
+          if (nama) {
+            parsedMahasiswa.push({
+              id: `${prodi}|${semList.join('-')}|${nama}`,
+              nama: nama,
+              prodi: prodi,
+              semesters: semList,
+              semesterLabel: semLabel
+            });
+          }
+        });
+      });
+
+      parsedMahasiswa.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+
+      // B. Parse json.data_kurikulum (array objek dari sheet DATA KURIKULUM)
+      const parsedKurikulum = [];
+      const rawKurikulum = Array.isArray(json.data_kurikulum) ? json.data_kurikulum : [];
+
+      rawKurikulum.forEach(row => {
+        const kode = String(row['Kode MK'] || '').trim();
+        const mk = String(row['Mata Kuliah'] || '').trim();
+        const sksNum = parseInt(row['SKS'], 10);
+        const semNum = parseInt(row['Semester'], 10);
+        const dosen = String(row['Nama Dosen Pengampu'] || row['Nama Dosen'] || '-').trim();
+        const ta = String(row['TA'] || row['Tahun Akademik'] || '-').trim();
+        const prodi = String(row['Program Studi'] || row['Prodi'] || '').trim();
+        const kaprodi = String(row['Kaprodi'] || '-').trim();
+        const kelas = String(row['Kelas'] || '').trim();
+
+        // Lewati baris header berulang dan baris "Jumlah SKS"
+        if (
+          !kode ||
+          !mk ||
+          kode.toLowerCase() === 'kode mk' ||
+          mk.toLowerCase() === 'mata kuliah' ||
+          mk.toLowerCase() === 'jumlah sks' ||
+          isNaN(semNum) ||
+          !prodi
+        ) {
+          return;
+        }
+
+        parsedKurikulum.push({
+          kode: kode,
+          mataKuliah: mk,
+          sks: isNaN(sksNum) ? 0 : sksNum,
+          semester: semNum,
+          dosen: dosen || '-',
+          ta: ta || '-',
+          prodi: prodi,
+          kaprodi: kaprodi || '-',
+          kelas: kelas
+        });
+      });
+
+      return { mahasiswa: parsedMahasiswa, kurikulum: parsedKurikulum };
+    }
+
+    // ==========================================
+    // 4. SINKRONISASI GLOBAL_CACHE_VERSION & FETCH
     // ==========================================
     async function loadData(forceRefresh = false) {
       elBtnRefresh.classList.add('spinning');
 
-      // Cek cache lokal terlebih dahulu jika tidak forceRefresh
-      if (!forceRefresh) {
+      const cachedRaw = localStorage.getItem(STORAGE_DATA_KEY);
+      const localVersion = localStorage.getItem(STORAGE_VER_KEY);
+
+      if (!forceRefresh && cachedRaw && localVersion) {
         try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < CACHE_MAX_AGE_MS)) {
-              applyLoadedData(parsed.data, true);
-              // Sinkronisasi ringan di latar belakang untuk cek pembaruan versi
-              fetchFromServer(false, parsed.data.cacheVersion);
-              return;
-            }
+          const parsedCache = JSON.parse(cachedRaw);
+          applyLoadedData(parsedCache);
+
+          // Cek versi global secara cepat (?action=cek_versi)
+          const verRes = await fetch(`${APPS_SCRIPT_URL}?action=cek_versi`);
+          const verJson = await verRes.json();
+
+          if (verJson.status === 'success' && verJson.cacheVersion === localVersion) {
+            elBtnRefresh.classList.remove('spinning');
+            return;
           }
         } catch (e) {
-          localStorage.removeItem(STORAGE_KEY);
+          // Jika cache korup atau gagal cek versi, lanjut ambil data penuh
         }
       }
 
-      await fetchFromServer(forceRefresh, null);
-    }
-
-    async function fetchFromServer(forceRefresh, currentVersion) {
+      // Ambil data ringan (?action=ringan atau ?action=ringan&forceRefresh=true)
       try {
-        const url = `${APPS_SCRIPT_URL}?action=getKrsData${forceRefresh ? '&refresh=1' : ''}`;
+        const url = `${APPS_SCRIPT_URL}?action=ringan${forceRefresh ? '&forceRefresh=true' : ''}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
 
         if (json.status !== 'success') {
-          throw new Error(json.message || 'Gagal memuat data dari Apps Script.');
+          throw new Error(json.message || 'Gagal memuat data dari server.');
         }
 
-        const isNewVersion = !currentVersion || json.cacheVersion !== currentVersion;
-        if (isNewVersion || forceRefresh) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            timestamp: Date.now(),
-            data: json
-          }));
-          applyLoadedData(json, false);
-          if (forceRefresh) {
-            showToast('Data berhasil diperbarui dari Spreadsheet.', 'success');
-          }
+        const parsed = parseServerResponse(json);
+        localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(parsed));
+        if (json.cacheVersion) {
+          localStorage.setItem(STORAGE_VER_KEY, String(json.cacheVersion));
+        }
+
+        applyLoadedData(parsed);
+
+        if (forceRefresh) {
+          showToast('Data berhasil disegarkan untuk semua perangkat.', 'success');
+        } else if (localVersion && json.cacheVersion !== localVersion) {
+          showToast('Data kurikulum terbaru telah dimuat.', 'success');
         }
       } catch (err) {
         if (!state.mahasiswa.length) {
@@ -1015,29 +1084,26 @@
       }
     }
 
-    function applyLoadedData(data, fromCache) {
-      state.mahasiswa = data.mahasiswa || [];
-      state.kurikulum = data.kurikulum || [];
+    function applyLoadedData(parsed) {
+      state.mahasiswa = parsed.mahasiswa || [];
+      state.kurikulum = parsed.kurikulum || [];
 
       elSearch.disabled = false;
       elSearch.placeholder = 'Ketik Nama Anda atau Program Studi...';
+
       if (!state.selectedStudent) {
         elDataCountPill.textContent = `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`;
       } else {
-        // Segarkan tampilan KRS jika mahasiswa sudah dipilih
         const updated = state.mahasiswa.find(m => m.id === state.selectedStudent.id);
         if (updated) {
           state.selectedStudent = updated;
           renderKrs();
         }
       }
-      if (!fromCache) {
-        elBtnRefresh.classList.remove('spinning');
-      }
     }
 
     // ==========================================
-    // 4. AUTOCOMPLETE PENCARIAN MAHASISWA
+    // 5. AUTOCOMPLETE PENCARIAN MAHASISWA
     // ==========================================
     function renderDropdown(query = '') {
       const q = query.trim().toLowerCase();
@@ -1114,7 +1180,7 @@
     }
 
     // ==========================================
-    // 5. RENDER KRS & PIL SEMESTER
+    // 6. RENDER KRS & PIL SEMESTER
     // ==========================================
     function renderKrs() {
       const s = state.selectedStudent;
@@ -1129,7 +1195,6 @@
       const kaprodi = getMostFrequent(courses.map(c => c.kaprodi), '-');
       const jenisSem = state.selectedSemester % 2 === 1 ? 'Ganjil' : 'Genap';
 
-      // Render Pil Semester + Ringkasan SKS
       const semTabsHtml = s.semesters.map(sem => {
         const label = `Semester ${sem} (${sem % 2 === 1 ? 'Ganjil' : 'Genap'})`;
         const isActive = Number(sem) === Number(state.selectedSemester);
@@ -1143,7 +1208,6 @@
         </span>
       `;
 
-      // Bind klik tab semester
       elStatusPills.querySelectorAll('.pill-tab').forEach(btn => {
         btn.addEventListener('click', () => {
           state.selectedSemester = Number(btn.dataset.sem);
@@ -1152,7 +1216,6 @@
         });
       });
 
-      // Render Tabel & Dokumen KRS
       if (!courses.length) {
         elKrsContainer.innerHTML = `
           <div class="empty-state">
@@ -1248,7 +1311,6 @@
 
       elActionsBar.style.display = 'flex';
 
-      // Bind NIM input live sync
       const nimInput = document.getElementById('nimInput');
       if (nimInput) {
         nimInput.addEventListener('input', (e) => {
@@ -1258,7 +1320,6 @@
         });
       }
 
-      // Bind checkbox mata kuliah
       elKrsContainer.querySelectorAll('.mk-check').forEach(chk => {
         chk.addEventListener('change', (e) => {
           const kode = e.target.dataset.kode;
@@ -1293,7 +1354,7 @@
     }
 
     // ==========================================
-    // 6. EVENT LISTENERS
+    // 7. EVENT LISTENERS
     // ==========================================
     elSearch.addEventListener('focus', () => {
       if (state.mahasiswa.length) renderDropdown(state.selectedStudent ? '' : elSearch.value);
