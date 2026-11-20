@@ -355,25 +355,10 @@
       color: var(--primary);
     }
 
-    .pill-tab {
-      background: #ffffff;
-      border: 1px solid var(--border-light);
-      color: var(--text-muted);
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.18s ease;
-    }
-
-    .pill-tab:hover {
-      border-color: var(--primary-border);
-      color: var(--primary);
-    }
-
-    .pill-tab.active {
+    .pill-active-period {
       background: var(--primary);
-      border-color: var(--primary);
+      border: 1px solid var(--primary);
       color: #ffffff;
-      box-shadow: 0 3px 8px rgba(20, 114, 78, 0.22);
     }
 
     /* Dashed Preview Box */
@@ -807,7 +792,6 @@
         font-size: 0.92rem !important;
         margin-bottom: 12px !important;
       }
-      /* Biodata 1 baris rapi tanpa turun baris */
       .krs-meta-grid {
         grid-template-columns: 0.88fr 1.12fr !important;
         gap: 5px 14px !important;
@@ -945,12 +929,8 @@
           </div>
 
           <div id="statusPills" class="pills-row">
-            <span class="pill-badge pill-info-red">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="12" r="10" opacity="0.2"></circle>
-                <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
-              </svg>
-              Mata kuliah otomatis menyesuaikan semester mahasiswa
+            <span class="pill-badge pill-info-red" id="activePeriodHint">
+              Periode Aktif: Semester Ganjil
             </span>
             <span class="pill-badge pill-info-green" id="dataCountPill">
               Menghubungkan ke server...
@@ -1018,8 +998,44 @@
     const elToast = document.getElementById('toast');
 
     // ==========================================
-    // 1. LIVE CLOCK (WIB)
+    // 1. DETEKSI PERIODE OTOMATIS (GANJIL / GENAP) & LIVE CLOCK
     // ==========================================
+    function isPeriodeGanjil() {
+      // Berdasarkan zona waktu WIB (Asia/Jakarta):
+      // Agustus (8) s.d. Januari (1) = Periode Ganjil
+      // Februari (2) s.d. Juli (7) = Periode Genap
+      const monthStr = new Intl.DateTimeFormat('en-US', {
+        month: 'numeric',
+        timeZone: 'Asia/Jakarta'
+      }).format(new Date());
+      const month = parseInt(monthStr, 10);
+      return month >= 8 || month === 1;
+    }
+
+    function getActiveSemester(semesters) {
+      if (!semesters || !semesters.length) return isPeriodeGanjil() ? 1 : 2;
+      if (semesters.length === 1) return semesters[0];
+      const ganjil = isPeriodeGanjil();
+      const matched = semesters.find(s => (ganjil ? s % 2 === 1 : s % 2 === 0));
+      return matched !== undefined ? matched : semesters[0];
+    }
+
+    function renderIdlePills() {
+      const jenisPeriode = isPeriodeGanjil() ? 'Ganjil' : 'Genap';
+      const countText = state.mahasiswa.length
+        ? `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`
+        : 'Menghubungkan ke server...';
+
+      elStatusPills.innerHTML = `
+        <span class="pill-badge pill-info-red">
+          Periode Aktif: Semester ${jenisPeriode} (otomatis)
+        </span>
+        <span class="pill-badge pill-info-green" id="dataCountPill">
+          ${countText}
+        </span>
+      `;
+    }
+
     function updateClock() {
       const now = new Date();
       const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' }).format(now);
@@ -1033,6 +1049,7 @@
       document.getElementById('liveClock').textContent = `${hari}, ${tanggal} - ${jam} WIB`;
     }
     updateClock();
+    renderIdlePills();
     setInterval(updateClock, 15000);
 
     function getTodayIndonesianDate() {
@@ -1211,7 +1228,8 @@
       } catch (err) {
         if (!state.mahasiswa.length) {
           elSearch.placeholder = 'Gagal memuat data. Klik tombol refresh di kanan atas.';
-          elDataCountPill.textContent = 'Koneksi gagal';
+          const pill = document.getElementById('dataCountPill');
+          if (pill) pill.textContent = 'Koneksi gagal';
           showToast('Gagal mengambil data: ' + err.message, 'error');
         }
       } finally {
@@ -1228,11 +1246,12 @@
       elSearch.placeholder = 'Ketik NIM atau Nama Anda...';
 
       if (!state.selectedStudent) {
-        elDataCountPill.textContent = `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`;
+        renderIdlePills();
       } else {
         const updated = state.mahasiswa.find(m => m.id === state.selectedStudent.id);
         if (updated) {
           state.selectedStudent = updated;
+          state.selectedSemester = getActiveSemester(updated.semesters);
           if (updated.nim) state.nimValue = updated.nim;
           renderKrs();
         }
@@ -1247,32 +1266,27 @@
       const filtered = state.mahasiswa.filter(m =>
         m.nama.toLowerCase().includes(q) ||
         (m.nim && m.nim.toLowerCase().includes(q)) ||
-        m.prodi.toLowerCase().includes(q) ||
-        m.semesterLabel.toLowerCase().includes(q)
+        m.prodi.toLowerCase().includes(q)
       ).slice(0, 40);
 
       if (!filtered.length) {
         elDropdown.innerHTML = `<div class="dropdown-empty">Data "${escapeHtml(query)}" tidak ditemukan.</div>`;
       } else {
-        elDropdown.innerHTML = filtered.map(m => `
-          <div class="dropdown-item" data-id="${escapeHtml(m.id)}">
-            <div class="dropdown-left">
-              <span class="dropdown-name">${escapeHtml(m.nama)}</span>
-              ${m.nim ? `<span class="dropdown-nim">NIM: ${escapeHtml(m.nim)}</span>` : ''}
+        elDropdown.innerHTML = filtered.map(m => {
+          const semAktif = getActiveSemester(m.semesters);
+          const jenisSem = semAktif % 2 === 1 ? 'Ganjil' : 'Genap';
+          return `
+            <div class="dropdown-item" data-id="${escapeHtml(m.id)}">
+              <div class="dropdown-left">
+                <span class="dropdown-name">${escapeHtml(m.nama)}</span>
+                ${m.nim ? `<span class="dropdown-nim">NIM: ${escapeHtml(m.nim)}</span>` : ''}
+              </div>
+              <span class="dropdown-meta">${escapeHtml(m.prodi)} • Semester ${semAktif} (${jenisSem})</span>
             </div>
-            <span class="dropdown-meta">${escapeHtml(m.prodi)} • ${escapeHtml(m.semesterLabel)}</span>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
       elDropdown.classList.add('open');
-    }
-
-    function getDefaultSemester(semesters) {
-      if (!semesters || !semesters.length) return 1;
-      if (semesters.length === 1) return semesters[0];
-      const month = new Date().getMonth() + 1;
-      const isGanjil = month >= 9 || month <= 1;
-      return isGanjil ? semesters[0] : semesters[1];
     }
 
     function selectStudent(studentId) {
@@ -1280,7 +1294,7 @@
       if (!student) return;
 
       state.selectedStudent = student;
-      state.selectedSemester = getDefaultSemester(student.semesters);
+      state.selectedSemester = getActiveSemester(student.semesters);
 
       const nimRec = findNimRecord(student.nama, student.prodi, state.nimList);
       state.nimValue = student.nim || (nimRec && nimRec.nim ? nimRec.nim : '');
@@ -1326,7 +1340,7 @@
     }
 
     // ==========================================
-    // 6. RENDER KRS & PIL SEMESTER
+    // 6. RENDER KRS (TANPA PILIHAN GANJIL/GENAP)
     // ==========================================
     function renderKrs() {
       const s = state.selectedStudent;
@@ -1341,26 +1355,14 @@
       const kaprodi = getMostFrequent(courses.map(c => c.kaprodi), '-');
       const jenisSem = state.selectedSemester % 2 === 1 ? 'Ganjil' : 'Genap';
 
-      const semTabsHtml = s.semesters.map(sem => {
-        const label = `Semester ${sem} (${sem % 2 === 1 ? 'Ganjil' : 'Genap'})`;
-        const isActive = Number(sem) === Number(state.selectedSemester);
-        return `<button type="button" class="pill-badge pill-tab ${isActive ? 'active' : ''}" data-sem="${sem}">${label}</button>`;
-      }).join('');
-
       elStatusPills.innerHTML = `
-        ${semTabsHtml}
+        <span class="pill-badge pill-active-period">
+          Semester ${state.selectedSemester} (${jenisSem})
+        </span>
         <span class="pill-badge pill-info-green">
           Total Diambil: <strong id="pillTotalSks">${totalSks} SKS</strong> (${selectedCourses.length} MK)
         </span>
       `;
-
-      elStatusPills.querySelectorAll('.pill-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.selectedSemester = Number(btn.dataset.sem);
-          initCheckedCourses();
-          renderKrs();
-        });
-      });
 
       if (!courses.length) {
         elKrsContainer.innerHTML = `
@@ -1491,10 +1493,7 @@
       elSearch.value = '';
       elBtnClear.classList.remove('show');
       elActionsBar.style.display = 'none';
-      elStatusPills.innerHTML = `
-        <span class="pill-badge pill-info-red">Mata kuliah otomatis menyesuaikan semester mahasiswa</span>
-        <span class="pill-badge pill-info-green">${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah</span>
-      `;
+      renderIdlePills();
       elKrsContainer.innerHTML = `
         <div class="empty-state">
           Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
