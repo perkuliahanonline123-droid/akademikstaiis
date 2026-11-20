@@ -375,6 +375,7 @@
       padding: 20px 12px;
       color: var(--text-muted);
       font-size: 0.9rem;
+      line-height: 1.65;
     }
 
     /* NIM Bar */
@@ -928,21 +929,10 @@
             <span>2. Kartu Rencana Studi (KRS) Semester Anda:</span>
           </div>
 
-          <div id="statusPills" class="pills-row">
-            <span class="pill-badge pill-info-red" id="activePeriodHint">
-              Periode Aktif: Semester Ganjil
-            </span>
-            <span class="pill-badge pill-info-green" id="dataCountPill">
-              Menghubungkan ke server...
-            </span>
-          </div>
+          <div id="statusPills" class="pills-row"></div>
         </div>
 
-        <div class="dashed-box" id="krsContainer">
-          <div class="empty-state" id="emptyState">
-            Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
-          </div>
-        </div>
+        <div class="dashed-box" id="krsContainer"></div>
 
         <div class="actions-bar" id="actionsBar" style="display: none;">
           <button type="button" class="btn-secondary" id="btnReset">
@@ -994,45 +984,72 @@
     const elStatusPills = document.getElementById('statusPills');
     const elKrsContainer = document.getElementById('krsContainer');
     const elActionsBar = document.getElementById('actionsBar');
-    const elDataCountPill = document.getElementById('dataCountPill');
     const elToast = document.getElementById('toast');
 
     // ==========================================
-    // 1. DETEKSI PERIODE OTOMATIS (GANJIL / GENAP) & LIVE CLOCK
+    // 1. JADWAL PENGAMBILAN KRS (JULI-AGU = GANJIL, JAN-FEB = GENAP)
     // ==========================================
-    function isPeriodeGanjil() {
-      // Berdasarkan zona waktu WIB (Asia/Jakarta):
-      // Agustus (8) s.d. Januari (1) = Periode Ganjil
-      // Februari (2) s.d. Juli (7) = Periode Genap
+    function getKrsPeriodStatus() {
       const monthStr = new Intl.DateTimeFormat('en-US', {
         month: 'numeric',
         timeZone: 'Asia/Jakarta'
       }).format(new Date());
       const month = parseInt(monthStr, 10);
-      return month >= 8 || month === 1;
+
+      if (month === 7 || month === 8) {
+        return { isOpen: true, type: 'Ganjil', isGanjil: true };
+      }
+      if (month === 1 || month === 2) {
+        return { isOpen: true, type: 'Genap', isGanjil: false };
+      }
+      return { isOpen: false, type: 'Tutup', isGanjil: null };
     }
 
     function getActiveSemester(semesters) {
-      if (!semesters || !semesters.length) return isPeriodeGanjil() ? 1 : 2;
+      const period = getKrsPeriodStatus();
+      if (!period.isOpen) return null;
+      if (!semesters || !semesters.length) return period.isGanjil ? 1 : 2;
       if (semesters.length === 1) return semesters[0];
-      const ganjil = isPeriodeGanjil();
-      const matched = semesters.find(s => (ganjil ? s % 2 === 1 : s % 2 === 0));
+      const matched = semesters.find(s => (period.isGanjil ? s % 2 === 1 : s % 2 === 0));
       return matched !== undefined ? matched : semesters[0];
     }
 
-    function renderIdlePills() {
-      const jenisPeriode = isPeriodeGanjil() ? 'Ganjil' : 'Genap';
+    function renderIdleState() {
+      const period = getKrsPeriodStatus();
       const countText = state.mahasiswa.length
         ? `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`
         : 'Menghubungkan ke server...';
 
+      if (!period.isOpen) {
+        elStatusPills.innerHTML = `
+          <span class="pill-badge pill-info-red">
+            Pengambilan KRS Ditutup (Jadwal: Juli–Agustus & Januari–Februari)
+          </span>
+          <span class="pill-badge pill-info-green" id="dataCountPill">
+            ${countText}
+          </span>
+        `;
+        elKrsContainer.innerHTML = `
+          <div class="empty-state">
+            <strong>Masa pengambilan Kartu Rencana Studi (KRS) saat ini sedang ditutup.</strong><br/>
+            Pengambilan KRS Semester Ganjil dibuka pada <strong>Juli – Agustus</strong>, dan Semester Genap pada <strong>Januari – Februari</strong>.
+          </div>
+        `;
+        return;
+      }
+
       elStatusPills.innerHTML = `
-        <span class="pill-badge pill-info-red">
-          Periode Aktif: Semester ${jenisPeriode} (otomatis)
+        <span class="pill-badge pill-info-green">
+          Periode KRS Dibuka: Semester ${period.type}
         </span>
         <span class="pill-badge pill-info-green" id="dataCountPill">
           ${countText}
         </span>
+      `;
+      elKrsContainer.innerHTML = `
+        <div class="empty-state">
+          Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
+        </div>
       `;
     }
 
@@ -1049,7 +1066,7 @@
       document.getElementById('liveClock').textContent = `${hari}, ${tanggal} - ${jam} WIB`;
     }
     updateClock();
-    renderIdlePills();
+    renderIdleState();
     setInterval(updateClock, 15000);
 
     function getTodayIndonesianDate() {
@@ -1246,13 +1263,14 @@
       elSearch.placeholder = 'Ketik NIM atau Nama Anda...';
 
       if (!state.selectedStudent) {
-        renderIdlePills();
+        renderIdleState();
       } else {
         const updated = state.mahasiswa.find(m => m.id === state.selectedStudent.id);
         if (updated) {
           state.selectedStudent = updated;
           state.selectedSemester = getActiveSemester(updated.semesters);
           if (updated.nim) state.nimValue = updated.nim;
+          initCheckedCourses();
           renderKrs();
         }
       }
@@ -1272,16 +1290,19 @@
       if (!filtered.length) {
         elDropdown.innerHTML = `<div class="dropdown-empty">Data "${escapeHtml(query)}" tidak ditemukan.</div>`;
       } else {
+        const period = getKrsPeriodStatus();
         elDropdown.innerHTML = filtered.map(m => {
           const semAktif = getActiveSemester(m.semesters);
-          const jenisSem = semAktif % 2 === 1 ? 'Ganjil' : 'Genap';
+          const badgeText = period.isOpen && semAktif
+            ? `${m.prodi} • Semester ${semAktif} (${period.type})`
+            : `${m.prodi} • ${m.semesterLabel}`;
           return `
             <div class="dropdown-item" data-id="${escapeHtml(m.id)}">
               <div class="dropdown-left">
                 <span class="dropdown-name">${escapeHtml(m.nama)}</span>
                 ${m.nim ? `<span class="dropdown-nim">NIM: ${escapeHtml(m.nim)}</span>` : ''}
               </div>
-              <span class="dropdown-meta">${escapeHtml(m.prodi)} • Semester ${semAktif} (${jenisSem})</span>
+              <span class="dropdown-meta">${escapeHtml(badgeText)}</span>
             </div>
           `;
         }).join('');
@@ -1340,11 +1361,28 @@
     }
 
     // ==========================================
-    // 6. RENDER KRS (TANPA PILIHAN GANJIL/GENAP)
+    // 6. RENDER KRS (PERIODE OTOMATIS & TERKUNCI DI LUAR JADWAL)
     // ==========================================
     function renderKrs() {
       const s = state.selectedStudent;
       if (!s) return;
+
+      const period = getKrsPeriodStatus();
+      if (!period.isOpen) {
+        elStatusPills.innerHTML = `
+          <span class="pill-badge pill-info-red">
+            Pengambilan KRS Ditutup (Jadwal: Juli–Agustus & Januari–Februari)
+          </span>
+        `;
+        elKrsContainer.innerHTML = `
+          <div class="empty-state">
+            Halo <strong>${escapeHtml(s.nama)}</strong>, masa pengambilan KRS saat ini sedang <strong>ditutup</strong>.<br/>
+            Pengambilan KRS Semester Ganjil hanya dapat dilakukan pada <strong>Juli – Agustus</strong>, dan Semester Genap pada <strong>Januari – Februari</strong>.
+          </div>
+        `;
+        elActionsBar.style.display = 'none';
+        return;
+      }
 
       const courses = getMatchingCourses();
       const selectedCourses = courses.filter(c => state.checkedCodes.has(c.kode));
@@ -1493,12 +1531,7 @@
       elSearch.value = '';
       elBtnClear.classList.remove('show');
       elActionsBar.style.display = 'none';
-      renderIdlePills();
-      elKrsContainer.innerHTML = `
-        <div class="empty-state">
-          Silakan ketik dan pilih <strong>NIM atau Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
-        </div>
-      `;
+      renderIdleState();
       elSearch.focus();
     }
 
