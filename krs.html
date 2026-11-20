@@ -426,7 +426,7 @@
       padding: 26px 28px;
     }
 
-    /* Kop Surat Resmi (Sesuai Gambar 2) */
+    /* Kop Surat Resmi */
     .krs-kop {
       text-align: center;
       color: #0f172a;
@@ -485,8 +485,8 @@
 
     .krs-meta-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px 20px;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 6px 18px;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
@@ -497,21 +497,25 @@
 
     .meta-row {
       display: flex;
+      align-items: baseline;
       gap: 6px;
+      min-width: 0;
     }
 
     .meta-label {
       color: var(--text-muted);
-      min-width: 112px;
+      min-width: 108px;
       flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .meta-val {
       font-weight: 700;
       color: var(--text-main);
+      white-space: nowrap;
     }
 
-    /* Responsive Table tanpa scrollbar horizontal */
+    /* Responsive Table */
     .krs-table {
       width: 100%;
       border-collapse: collapse;
@@ -574,7 +578,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      margin-top: 28px;
+      margin-top: 26px;
       font-size: 0.84rem;
     }
 
@@ -583,7 +587,7 @@
     }
 
     .sig-space {
-      height: 62px;
+      height: 60px;
     }
 
     .sig-name {
@@ -721,6 +725,9 @@
       .krs-meta-grid {
         grid-template-columns: 1fr;
       }
+      .meta-val {
+        white-space: normal;
+      }
       .col-kode, .col-dosen {
         display: none;
       }
@@ -737,12 +744,12 @@
     }
 
     /* ============================================================
-       PRINT / SAVE AS PDF: MIRIP TAMPILAN HTML (TANPA KOLOM CENTANG)
+       PRINT / SAVE AS PDF: IDENTIK TAMPILAN HTML & TANPA TURUN BARIS
        ============================================================ */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm;
+        margin: 10mm;
       }
       * {
         -webkit-print-color-adjust: exact !important;
@@ -778,8 +785,44 @@
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
         border-radius: 12px !important;
-        padding: 24px 26px !important;
+        padding: 20px 22px !important;
         box-shadow: none !important;
+      }
+      .kop-sub-top {
+        font-size: 0.74rem !important;
+      }
+      .krs-kop h2 {
+        font-size: 1.02rem !important;
+      }
+      .kop-arabic {
+        font-size: 1.24rem !important;
+      }
+      .krs-kop p {
+        font-size: 0.72rem !important;
+      }
+      .kop-divider {
+        margin: 8px 0 12px !important;
+      }
+      .krs-title {
+        font-size: 0.92rem !important;
+        margin-bottom: 12px !important;
+      }
+      /* Biodata 1 baris rapi tanpa turun baris */
+      .krs-meta-grid {
+        grid-template-columns: 0.88fr 1.12fr !important;
+        gap: 5px 14px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 14px !important;
+        font-size: 0.77rem !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+      .meta-label {
+        min-width: 98px !important;
+        white-space: nowrap !important;
+      }
+      .meta-val {
+        white-space: nowrap !important;
       }
       .col-kode,
       .col-dosen {
@@ -788,26 +831,34 @@
       .mk-sub-mobile {
         display: none !important;
       }
-      .krs-meta-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+      .krs-table {
+        font-size: 0.78rem !important;
       }
       .krs-table th {
         background: #14724e !important;
         color: #ffffff !important;
         border: 1px solid #14724e !important;
+        padding: 8px 9px !important;
+      }
+      .krs-table td {
+        padding: 7.5px 9px !important;
+        border: 1px solid #e2e8f0 !important;
       }
       .krs-table tbody tr:nth-child(even) {
         background: #f8fafc !important;
-      }
-      .krs-table td {
-        border: 1px solid #e2e8f0 !important;
       }
       .krs-table tfoot td {
         background: #ecfdf5 !important;
         color: #0e583b !important;
         border: 1px solid #a7f3d0 !important;
+        padding: 8.5px 9px !important;
+      }
+      .krs-signatures {
+        margin-top: 22px !important;
+        font-size: 0.79rem !important;
+      }
+      .sig-space {
+        height: 54px !important;
       }
     }
   </style>
@@ -1021,14 +1072,12 @@
       const targetNama = normalizeKey(nama);
       const targetProdi = normalizeKey(prodi);
 
-      // 1. Cocokkan Nama + Program Studi (akurat untuk nama kembar seperti Abdullah)
       const exactMatch = nimList.find(item =>
         normalizeKey(item.nama) === targetNama &&
         normalizeKey(item.prodi) === targetProdi
       );
       if (exactMatch) return exactMatch;
 
-      // 2. Fallback: Cocokkan Nama saja jika Prodi di sheet berbeda penulisan
       return nimList.find(item => normalizeKey(item.nama) === targetNama) || null;
     }
 
@@ -1038,7 +1087,6 @@
     function parseServerResponse(json) {
       const nimList = Array.isArray(json.nim_mahasiswa) ? json.nim_mahasiswa : [];
 
-      // A. Parse json.mahasiswa
       const parsedMahasiswa = [];
       const rawMapMhs = json.mahasiswa || {};
 
@@ -1069,7 +1117,6 @@
 
       parsedMahasiswa.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
 
-      // B. Parse json.data_kurikulum
       const parsedKurikulum = [];
       const rawKurikulum = Array.isArray(json.data_kurikulum) ? json.data_kurikulum : [];
 
@@ -1235,7 +1282,6 @@
       state.selectedStudent = student;
       state.selectedSemester = getDefaultSemester(student.semesters);
 
-      // Ambil NIM otomatis dari sheet NIM MAHASISWA
       const nimRec = findNimRecord(student.nama, student.prodi, state.nimList);
       state.nimValue = student.nim || (nimRec && nimRec.nim ? nimRec.nim : '');
 
@@ -1376,11 +1422,11 @@
             <thead>
               <tr>
                 <th class="center col-check" style="width:38px;">Pilih</th>
-                <th class="center" style="width:44px;">No</th>
-                <th class="center col-kode" style="width:92px;">Kode MK</th>
+                <th class="center" style="width:40px;">No</th>
+                <th class="center col-kode" style="width:86px;">Kode MK</th>
                 <th>Mata Kuliah</th>
-                <th class="center" style="width:56px;">SKS</th>
-                <th class="col-dosen" style="width:230px;">Dosen Pengampu</th>
+                <th class="center" style="width:50px;">SKS</th>
+                <th class="col-dosen" style="width:240px;">Dosen Pengampu</th>
               </tr>
             </thead>
             <tbody>
