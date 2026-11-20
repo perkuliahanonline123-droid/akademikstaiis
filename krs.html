@@ -994,7 +994,9 @@
         month: 'numeric',
         timeZone: 'Asia/Jakarta'
       }).format(new Date());
-      const month = 7; // Sementara untuk uji coba Ganjil
+
+      // Untuk uji coba di luar jadwal, ganti sementara ke: const month = 7; (Ganjil) atau 1; (Genap)
+      const month = parseInt(monthStr, 10);
 
       if (month === 7 || month === 8) {
         return { isOpen: true, type: 'Ganjil', isGanjil: true };
@@ -1361,7 +1363,7 @@
     }
 
     // ==========================================
-    // 6. RENDER KRS (PERIODE OTOMATIS & TERKUNCI DI LUAR JADWAL)
+    // 6. RENDER KRS & PENCATATAN KE SPREADSHEET (VIA GET)
     // ==========================================
     function renderKrs() {
       const s = state.selectedStudent;
@@ -1523,6 +1525,32 @@
       });
     }
 
+    function logPengambilanKrs() {
+      if (!state.selectedStudent || !state.selectedSemester) return;
+
+      const params = new URLSearchParams({
+        action: 'catat_krs',
+        nama: state.selectedStudent.nama,
+        nim: state.nimValue || '-',
+        semester: String(state.selectedSemester),
+        t: String(Date.now())
+      });
+
+      const url = `${APPS_SCRIPT_URL}?${params.toString()}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.status === 'success') {
+            showToast('Riwayat pengambilan KRS berhasil dicatat.', 'success');
+          }
+        })
+        .catch(() => {
+          const beacon = new Image();
+          beacon.src = url;
+        });
+    }
+
     function resetSelection() {
       state.selectedStudent = null;
       state.selectedSemester = null;
@@ -1570,9 +1598,12 @@
       const origTitle = document.title;
       if (state.selectedStudent) {
         document.title = `KRS_${state.selectedStudent.nama.replace(/\s+/g, '_')}_Smt${state.selectedSemester}`;
+        logPengambilanKrs();
       }
-      window.print();
-      setTimeout(() => { document.title = origTitle; }, 500);
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { document.title = origTitle; }, 500);
+      }, 350);
     });
 
     elBtnRefresh.addEventListener('click', () => loadData(true));
