@@ -1,1 +1,1332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KRS Mahasiswa STAIIS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #14724e;
+      --primary-dark: #0e583b;
+      --primary-bright: #059669;
+      --primary-soft: #ecfdf5;
+      --primary-border: #a7f3d0;
+      --danger-soft: #fef2f2;
+      --danger-border: #fecaca;
+      --danger-text: #dc2626;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --card-bg: #ffffff;
+      --page-bg: #f4f7f9;
+      --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.05);
+      --radius-card: 16px;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--page-bg);
+      background-image: radial-gradient(#cbd5e1 1.25px, transparent 1.25px);
+      background-size: 20px 20px;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 28px 16px 48px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Header Card */
+    .header-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: 20px 26px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid #eef2f6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(20, 114, 78, 0.25);
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    .brand-text p {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: #047857;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    .btn-icon-refresh {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background: #ffffff;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon-refresh:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary-border);
+    }
+
+    .btn-icon-refresh.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Main Card */
+    .main-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: 26px 28px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid #eef2f6;
+    }
+
+    .step-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    /* Search Input Box (identik dengan referensi) */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: 12px;
+      padding: 6px 12px 6px 6px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(20, 114, 78, 0.12);
+    }
+
+    .search-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: var(--primary-bright);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: transparent;
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .btn-clear {
+      background: #f1f5f9;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: #64748b;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .btn-clear.show {
+      display: inline-flex;
+    }
+
+    .btn-clear:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    /* Dropdown Autocomplete */
+    .dropdown-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+
+    .dropdown-list.open {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 11px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s ease;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item.active {
+      background: var(--primary-soft);
+    }
+
+    .dropdown-name {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+
+    .dropdown-meta {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .dropdown-empty {
+      padding: 16px;
+      text-align: center;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Pill Badges Row (mengikuti desain pil merah/hijau di referensi) */
+    .pills-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 8px;
+    }
+
+    .pill-info-red {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger-border);
+      color: var(--danger-text);
+    }
+
+    .pill-info-green {
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+    }
+
+    .pill-tab {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s ease;
+    }
+
+    .pill-tab:hover {
+      border-color: var(--primary-border);
+      color: var(--primary);
+    }
+
+    .pill-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(20, 114, 78, 0.22);
+    }
+
+    /* Dashed Preview Box (serasi dengan box upload pada referensi) */
+    .dashed-box {
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px 12px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* NIM Optional Bar */
+    .nim-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .nim-input {
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      width: 220px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .nim-input:focus {
+      border-color: var(--primary);
+    }
+
+    /* KRS Printable Sheet */
+    .krs-sheet {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .krs-kop {
+      text-align: center;
+      border-bottom: 2.5px double #1e293b;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .krs-kop h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    .krs-kop p {
+      font-size: 0.78rem;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .krs-title {
+      text-align: center;
+      font-size: 0.98rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .krs-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 20px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.84rem;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      min-width: 112px;
+      flex-shrink: 0;
+    }
+
+    .meta-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Responsive Table tanpa scroll horizontal di desktop/mobile */
+    .krs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .krs-table th {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 10px;
+      border: 1px solid var(--primary);
+    }
+
+    .krs-table th.center,
+    .krs-table td.center {
+      text-align: center;
+    }
+
+    .krs-table td {
+      padding: 9px 10px;
+      border: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    .krs-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .krs-table tbody tr.row-unchecked {
+      opacity: 0.45;
+      text-decoration: line-through;
+    }
+
+    .krs-table tfoot td {
+      font-weight: 800;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary-border);
+      padding: 10px;
+    }
+
+    .mk-check {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .mk-sub-mobile {
+      display: none;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Tanda Tangan */
+    .krs-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 28px;
+      font-size: 0.84rem;
+    }
+
+    .sig-box {
+      text-align: center;
+    }
+
+    .sig-space {
+      height: 62px;
+    }
+
+    .sig-name {
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    /* Action Buttons */
+    .actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 20px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(20, 114, 78, 0.24);
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    /* Tips Footer (identik dengan referensi) */
+    .tips-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .tips-row strong {
+      color: var(--text-main);
+    }
+
+    .tips-icon {
+      color: var(--primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success {
+      background: var(--primary);
+    }
+
+    .toast.error {
+      background: #dc2626;
+    }
+
+    /* Loading Skeleton */
+    .loading-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 680px) {
+      body {
+        padding: 16px 10px 36px;
+      }
+      .header-card, .main-card {
+        padding: 18px 16px;
+      }
+      .krs-sheet {
+        padding: 16px 12px;
+      }
+      .krs-meta-grid {
+        grid-template-columns: 1fr;
+      }
+      .col-kode, .col-dosen {
+        display: none;
+      }
+      .mk-sub-mobile {
+        display: block;
+      }
+      .krs-signatures {
+        gap: 12px;
+        font-size: 0.78rem;
+      }
+      .nim-input {
+        width: 100%;
+      }
+    }
+
+    /* Print A4 Formal Stylesheet */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 14mm;
+      }
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .header-card,
+      .step-1-area,
+      .step-2-controls,
+      .actions-bar,
+      .tips-row,
+      .toast,
+      .col-check,
+      .row-unchecked {
+        display: none !important;
+      }
+      .container, .main-card, .dashed-box, .krs-sheet {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+      }
+      .col-kode, .col-dosen {
+        display: table-cell !important;
+      }
+      .mk-sub-mobile {
+        display: none !important;
+      }
+      .krs-title {
+        color: #000000 !important;
+      }
+      .krs-meta-grid {
+        background: #ffffff !important;
+        border: 1px solid #000000 !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      .krs-table th {
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .krs-table td, .krs-table tfoot td {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER CARD -->
+    <header class="header-card">
+      <div class="header-brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2.5"></rect>
+            <line x1="7" y1="9" x2="17" y2="9"></line>
+            <line x1="7" y1="13" x2="14" y2="13"></line>
+            <line x1="7" y1="17" x2="11" y2="17"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>KRS Mahasiswa STAIIS</h1>
+          <p>Gunakan PC atau laptop untuk mendapatkan hasil terbaik.</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="time-pill">
+          <span class="status-dot"></span>
+          <span id="liveClock">Memuat waktu...</span>
+        </div>
+        <button type="button" id="btnRefresh" class="btn-icon-refresh" title="Perbarui data dari Spreadsheet">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CARD -->
+    <main class="main-card">
+      <!-- STEP 1: PILIH NAMA -->
+      <section class="step-1-area">
+        <div class="step-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>1. Pilih Nama Anda:</span>
+        </div>
+
+        <div class="search-wrapper">
+          <div class="search-box">
+            <div class="search-icon-box" aria-hidden="true">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input
+              type="text"
+              id="studentSearch"
+              class="search-input"
+              placeholder="Memuat data mahasiswa..."
+              autocomplete="off"
+              disabled
+            />
+            <button type="button" id="btnClear" class="btn-clear" title="Hapus pilihan">&times;</button>
+          </div>
+          <div id="dropdownList" class="dropdown-list"></div>
+        </div>
+      </section>
+
+      <!-- STEP 2: DETAIL KRS -->
+      <section class="step-2-area">
+        <div class="step-2-controls">
+          <div class="step-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>2. Kartu Rencana Studi (KRS) Semester Anda:</span>
+          </div>
+
+          <div id="statusPills" class="pills-row">
+            <span class="pill-badge pill-info-red">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="10" opacity="0.2"></circle>
+                <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+              </svg>
+              Mata kuliah otomatis menyesuaikan semester mahasiswa
+            </span>
+            <span class="pill-badge pill-info-green" id="dataCountPill">
+              Menghubungkan ke server...
+            </span>
+          </div>
+        </div>
+
+        <div class="dashed-box" id="krsContainer">
+          <div class="empty-state" id="emptyState">
+            Silakan ketik dan pilih <strong>Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
+          </div>
+        </div>
+
+        <div class="actions-bar" id="actionsBar" style="display: none;">
+          <button type="button" class="btn-secondary" id="btnReset">
+            Ganti Mahasiswa
+          </button>
+          <button type="button" class="btn-primary" id="btnPrint">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Cetak / Simpan PDF KRS
+          </button>
+        </div>
+
+        <div class="tips-row">
+          <svg class="tips-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <p><strong>Tips:</strong> Klik tombol <em>Cetak / Simpan PDF KRS</em> lalu pilih <em>Save as PDF</em> untuk menyimpan dokumen. Anda dapat mencentang atau menghapus centang mata kuliah bila diperlukan sebelum mencetak.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMLp-QW7jpO1XFe-JHPGJIjlzLTUTmtheMWt8wz7bwtWheB-LiaaVvDCNngq1rsuAd/exec';
+    const STORAGE_KEY = 'STAIIS_KRS_DATA_V1';
+    const CACHE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000; // 1 tahun (dikelola via GLOBAL_CACHE_VERSION & tombol refresh)
+
+    let state = {
+      mahasiswa: [],
+      kurikulum: [],
+      selectedStudent: null,
+      selectedSemester: null,
+      checkedCodes: new Set(),
+      nimValue: ''
+    };
+
+    const elSearch = document.getElementById('studentSearch');
+    const elDropdown = document.getElementById('dropdownList');
+    const elBtnClear = document.getElementById('btnClear');
+    const elBtnRefresh = document.getElementById('btnRefresh');
+    const elStatusPills = document.getElementById('statusPills');
+    const elKrsContainer = document.getElementById('krsContainer');
+    const elActionsBar = document.getElementById('actionsBar');
+    const elDataCountPill = document.getElementById('dataCountPill');
+    const elToast = document.getElementById('toast');
+
+    // ==========================================
+    // 1. LIVE CLOCK (WIB)
+    // ==========================================
+    function updateClock() {
+      const now = new Date();
+      const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' }).format(now);
+      const tanggal = new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta'
+      }).format(now);
+      const jam = new Intl.DateTimeFormat('id-ID', {
+        hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta'
+      }).format(now).replace('.', ':');
+
+      document.getElementById('liveClock').textContent = `${hari}, ${tanggal} - ${jam} WIB`;
+    }
+    updateClock();
+    setInterval(updateClock, 15000);
+
+    function getTodayIndonesianDate() {
+      return new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta'
+      }).format(new Date());
+    }
+
+    // ==========================================
+    // 2. TOAST NOTIFICATION
+    // ==========================================
+    let toastTimer = null;
+    function showToast(msg, type = 'success') {
+      elToast.textContent = msg;
+      elToast.className = `toast ${type} show`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        elToast.classList.remove('show');
+      }, 3000);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==========================================
+    // 3. LOAD DATA (CACHE + APPS SCRIPT)
+    // ==========================================
+    async function loadData(forceRefresh = false) {
+      elBtnRefresh.classList.add('spinning');
+
+      // Cek cache lokal terlebih dahulu jika tidak forceRefresh
+      if (!forceRefresh) {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < CACHE_MAX_AGE_MS)) {
+              applyLoadedData(parsed.data, true);
+              // Sinkronisasi ringan di latar belakang untuk cek pembaruan versi
+              fetchFromServer(false, parsed.data.cacheVersion);
+              return;
+            }
+          }
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
+      await fetchFromServer(forceRefresh, null);
+    }
+
+    async function fetchFromServer(forceRefresh, currentVersion) {
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=getKrsData${forceRefresh ? '&refresh=1' : ''}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+
+        if (json.status !== 'success') {
+          throw new Error(json.message || 'Gagal memuat data dari Apps Script.');
+        }
+
+        const isNewVersion = !currentVersion || json.cacheVersion !== currentVersion;
+        if (isNewVersion || forceRefresh) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            timestamp: Date.now(),
+            data: json
+          }));
+          applyLoadedData(json, false);
+          if (forceRefresh) {
+            showToast('Data berhasil diperbarui dari Spreadsheet.', 'success');
+          }
+        }
+      } catch (err) {
+        if (!state.mahasiswa.length) {
+          elSearch.placeholder = 'Gagal memuat data. Klik tombol refresh di kanan atas.';
+          elDataCountPill.textContent = 'Koneksi gagal';
+          showToast('Gagal mengambil data: ' + err.message, 'error');
+        }
+      } finally {
+        elBtnRefresh.classList.remove('spinning');
+      }
+    }
+
+    function applyLoadedData(data, fromCache) {
+      state.mahasiswa = data.mahasiswa || [];
+      state.kurikulum = data.kurikulum || [];
+
+      elSearch.disabled = false;
+      elSearch.placeholder = 'Ketik Nama Anda atau Program Studi...';
+      if (!state.selectedStudent) {
+        elDataCountPill.textContent = `${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah`;
+      } else {
+        // Segarkan tampilan KRS jika mahasiswa sudah dipilih
+        const updated = state.mahasiswa.find(m => m.id === state.selectedStudent.id);
+        if (updated) {
+          state.selectedStudent = updated;
+          renderKrs();
+        }
+      }
+      if (!fromCache) {
+        elBtnRefresh.classList.remove('spinning');
+      }
+    }
+
+    // ==========================================
+    // 4. AUTOCOMPLETE PENCARIAN MAHASISWA
+    // ==========================================
+    function renderDropdown(query = '') {
+      const q = query.trim().toLowerCase();
+      const filtered = state.mahasiswa.filter(m =>
+        m.nama.toLowerCase().includes(q) ||
+        m.prodi.toLowerCase().includes(q) ||
+        m.semesterLabel.toLowerCase().includes(q)
+      ).slice(0, 40);
+
+      if (!filtered.length) {
+        elDropdown.innerHTML = `<div class="dropdown-empty">Nama mahasiswa "${escapeHtml(query)}" tidak ditemukan.</div>`;
+      } else {
+        elDropdown.innerHTML = filtered.map(m => `
+          <div class="dropdown-item" data-id="${escapeHtml(m.id)}">
+            <span class="dropdown-name">${escapeHtml(m.nama)}</span>
+            <span class="dropdown-meta">${escapeHtml(m.prodi)} • ${escapeHtml(m.semesterLabel)}</span>
+          </div>
+        `).join('');
+      }
+      elDropdown.classList.add('open');
+    }
+
+    function getDefaultSemester(semesters) {
+      if (!semesters || !semesters.length) return 1;
+      if (semesters.length === 1) return semesters[0];
+      // Sept–Jan = Ganjil (index 0), Feb–Agu = Genap (index 1)
+      const month = new Date().getMonth() + 1;
+      const isGanjil = month >= 9 || month <= 1;
+      return isGanjil ? semesters[0] : semesters[1];
+    }
+
+    function selectStudent(studentId) {
+      const student = state.mahasiswa.find(m => m.id === studentId);
+      if (!student) return;
+
+      state.selectedStudent = student;
+      state.selectedSemester = getDefaultSemester(student.semesters);
+      elSearch.value = `${student.nama} (${student.prodi})`;
+      elBtnClear.classList.add('show');
+      elDropdown.classList.remove('open');
+
+      initCheckedCourses();
+      renderKrs();
+    }
+
+    function initCheckedCourses() {
+      const courses = getMatchingCourses();
+      state.checkedCodes = new Set(courses.map(c => c.kode));
+    }
+
+    function getMatchingCourses() {
+      if (!state.selectedStudent || !state.selectedSemester) return [];
+      const targetProdi = state.selectedStudent.prodi.toLowerCase();
+      return state.kurikulum.filter(k =>
+        k.prodi.toLowerCase() === targetProdi &&
+        Number(k.semester) === Number(state.selectedSemester)
+      );
+    }
+
+    function getMostFrequent(arr, fallback = '-') {
+      const counts = {};
+      let best = fallback;
+      let max = 0;
+      for (const item of arr) {
+        const val = String(item || '').trim();
+        if (!val || val === '-') continue;
+        counts[val] = (counts[val] || 0) + 1;
+        if (counts[val] > max) {
+          max = counts[val];
+          best = val;
+        }
+      }
+      return best;
+    }
+
+    // ==========================================
+    // 5. RENDER KRS & PIL SEMESTER
+    // ==========================================
+    function renderKrs() {
+      const s = state.selectedStudent;
+      if (!s) return;
+
+      const courses = getMatchingCourses();
+      const selectedCourses = courses.filter(c => state.checkedCodes.has(c.kode));
+      const totalSks = selectedCourses.reduce((sum, c) => sum + (Number(c.sks) || 0), 0);
+
+      const kelas = getMostFrequent(courses.map(c => c.kelas), '-');
+      const ta = getMostFrequent(courses.map(c => c.ta), '-');
+      const kaprodi = getMostFrequent(courses.map(c => c.kaprodi), '-');
+      const jenisSem = state.selectedSemester % 2 === 1 ? 'Ganjil' : 'Genap';
+
+      // Render Pil Semester + Ringkasan SKS
+      const semTabsHtml = s.semesters.map(sem => {
+        const label = `Semester ${sem} (${sem % 2 === 1 ? 'Ganjil' : 'Genap'})`;
+        const isActive = Number(sem) === Number(state.selectedSemester);
+        return `<button type="button" class="pill-badge pill-tab ${isActive ? 'active' : ''}" data-sem="${sem}">${label}</button>`;
+      }).join('');
+
+      elStatusPills.innerHTML = `
+        ${semTabsHtml}
+        <span class="pill-badge pill-info-green">
+          Total Diambil: <strong id="pillTotalSks">${totalSks} SKS</strong> (${selectedCourses.length} MK)
+        </span>
+      `;
+
+      // Bind klik tab semester
+      elStatusPills.querySelectorAll('.pill-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedSemester = Number(btn.dataset.sem);
+          initCheckedCourses();
+          renderKrs();
+        });
+      });
+
+      // Render Tabel & Dokumen KRS
+      if (!courses.length) {
+        elKrsContainer.innerHTML = `
+          <div class="empty-state">
+            Data mata kuliah untuk <strong>${escapeHtml(s.prodi)} Semester ${state.selectedSemester}</strong> belum tersedia pada sheet DATA KURIKULUM.
+          </div>
+        `;
+        elActionsBar.style.display = 'none';
+        return;
+      }
+
+      const rowsHtml = courses.map((mk, idx) => {
+        const checked = state.checkedCodes.has(mk.kode);
+        return `
+          <tr class="${checked ? '' : 'row-unchecked'}" data-kode="${escapeHtml(mk.kode)}">
+            <td class="center col-check">
+              <input type="checkbox" class="mk-check" data-kode="${escapeHtml(mk.kode)}" ${checked ? 'checked' : ''} />
+            </td>
+            <td class="center">${idx + 1}</td>
+            <td class="center col-kode">${escapeHtml(mk.kode)}</td>
+            <td>
+              <strong>${escapeHtml(mk.mataKuliah)}</strong>
+              <div class="mk-sub-mobile">${escapeHtml(mk.kode)} • ${escapeHtml(mk.dosen)}</div>
+            </td>
+            <td class="center">${mk.sks}</td>
+            <td class="col-dosen">${escapeHtml(mk.dosen)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      elKrsContainer.innerHTML = `
+        <div class="nim-row step-2-controls">
+          <label for="nimInput" style="font-size:0.83rem; font-weight:600; color:var(--text-muted);">NIM (opsional untuk cetak):</label>
+          <input type="text" id="nimInput" class="nim-input" placeholder="Ketik NIM Anda jika diperlukan..." value="${escapeHtml(state.nimValue)}" />
+        </div>
+
+        <div class="krs-sheet">
+          <div class="krs-kop">
+            <h2>Sekolah Tinggi Agama Islam Imam Syafi'i Cianjur</h2>
+            <p>Jl. Raya Cianjur – Sukabumi, Jawa Barat • Sistem Informasi Akademik STAIIS</p>
+          </div>
+
+          <div class="krs-title">Kartu Rencana Studi (KRS)</div>
+
+          <div class="krs-meta-grid">
+            <div class="meta-row"><span class="meta-label">Nama Mahasiswa</span><span class="meta-val">: ${escapeHtml(s.nama)}</span></div>
+            <div class="meta-row"><span class="meta-label">Tahun Akademik</span><span class="meta-val">: ${escapeHtml(ta)}</span></div>
+            <div class="meta-row"><span class="meta-label">NIM</span><span class="meta-val" id="krsNimDisplay">: ${escapeHtml(state.nimValue || '-')}</span></div>
+            <div class="meta-row"><span class="meta-label">Semester / Kelas</span><span class="meta-val">: ${state.selectedSemester} (${jenisSem}) / ${escapeHtml(kelas)}</span></div>
+            <div class="meta-row"><span class="meta-label">Program Studi</span><span class="meta-val">: ${escapeHtml(s.prodi)}</span></div>
+            <div class="meta-row"><span class="meta-label">Ketua Prodi</span><span class="meta-val">: ${escapeHtml(kaprodi)}</span></div>
+          </div>
+
+          <table class="krs-table">
+            <thead>
+              <tr>
+                <th class="center col-check" style="width:38px;">Pilih</th>
+                <th class="center" style="width:44px;">No</th>
+                <th class="center col-kode" style="width:92px;">Kode MK</th>
+                <th>Mata Kuliah</th>
+                <th class="center" style="width:56px;">SKS</th>
+                <th class="col-dosen" style="width:230px;">Dosen Pengampu</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="col-check"></td>
+                <td colspan="3" class="center">Jumlah Total SKS Diambil</td>
+                <td class="center" id="tableTotalSks">${totalSks}</td>
+                <td class="col-dosen"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="krs-signatures">
+            <div class="sig-box">
+              <div>Mengetahui,</div>
+              <div>Ketua Program Studi ${escapeHtml(s.prodi)}</div>
+              <div class="sig-space"></div>
+              <div class="sig-name">${escapeHtml(kaprodi)}</div>
+            </div>
+            <div class="sig-box">
+              <div>Cianjur, ${getTodayIndonesianDate()}</div>
+              <div>Mahasiswa Yang Bersangkutan</div>
+              <div class="sig-space"></div>
+              <div class="sig-name">${escapeHtml(s.nama)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      elActionsBar.style.display = 'flex';
+
+      // Bind NIM input live sync
+      const nimInput = document.getElementById('nimInput');
+      if (nimInput) {
+        nimInput.addEventListener('input', (e) => {
+          state.nimValue = e.target.value.trim();
+          const disp = document.getElementById('krsNimDisplay');
+          if (disp) disp.textContent = ': ' + (state.nimValue || '-');
+        });
+      }
+
+      // Bind checkbox mata kuliah
+      elKrsContainer.querySelectorAll('.mk-check').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+          const kode = e.target.dataset.kode;
+          if (e.target.checked) {
+            state.checkedCodes.add(kode);
+          } else {
+            state.checkedCodes.delete(kode);
+          }
+          renderKrs();
+        });
+      });
+    }
+
+    function resetSelection() {
+      state.selectedStudent = null;
+      state.selectedSemester = null;
+      state.checkedCodes.clear();
+      state.nimValue = '';
+      elSearch.value = '';
+      elBtnClear.classList.remove('show');
+      elActionsBar.style.display = 'none';
+      elStatusPills.innerHTML = `
+        <span class="pill-badge pill-info-red">Mata kuliah otomatis menyesuaikan semester mahasiswa</span>
+        <span class="pill-badge pill-info-green">${state.mahasiswa.length} Mahasiswa • ${state.kurikulum.length} Mata Kuliah</span>
+      `;
+      elKrsContainer.innerHTML = `
+        <div class="empty-state">
+          Silakan ketik dan pilih <strong>Nama Anda</strong> pada kolom di atas untuk menampilkan daftar mata kuliah dan mencetak KRS.
+        </div>
+      `;
+      elSearch.focus();
+    }
+
+    // ==========================================
+    // 6. EVENT LISTENERS
+    // ==========================================
+    elSearch.addEventListener('focus', () => {
+      if (state.mahasiswa.length) renderDropdown(state.selectedStudent ? '' : elSearch.value);
+    });
+
+    elSearch.addEventListener('input', (e) => {
+      if (state.selectedStudent) {
+        state.selectedStudent = null;
+      }
+      elBtnClear.classList.toggle('show', e.target.value.length > 0);
+      renderDropdown(e.target.value);
+    });
+
+    elDropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (item && item.dataset.id) {
+        selectStudent(item.dataset.id);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrapper')) {
+        elDropdown.classList.remove('open');
+      }
+    });
+
+    elBtnClear.addEventListener('click', resetSelection);
+    document.getElementById('btnReset').addEventListener('click', resetSelection);
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+    elBtnRefresh.addEventListener('click', () => loadData(true));
+
+    // Mulai muat data
+    loadData(false);
+  </script>
+</body>
+</html>
