@@ -994,7 +994,7 @@
         month: 'numeric',
         timeZone: 'Asia/Jakarta'
       }).format(new Date());
-      const month = 7; // Sementara untuk uji coba Ganjil
+      const month = parseInt(monthStr, 10);
 
       if (month === 7 || month === 8) {
         return { isOpen: true, type: 'Ganjil', isGanjil: true };
