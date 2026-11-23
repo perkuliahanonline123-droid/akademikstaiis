@@ -605,15 +605,20 @@
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(20, 114, 78, 0.24);
-      transition: background 0.2s ease, transform 0.1s ease;
+      transition: background 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       background: var(--primary-dark);
     }
 
-    .btn-primary:active {
+    .btn-primary:active:not(:disabled) {
       transform: scale(0.99);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: wait;
     }
 
     .btn-secondary {
@@ -944,7 +949,7 @@
               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
               <rect x="6" y="14" width="12" height="8"></rect>
             </svg>
-            Cetak / Simpan PDF KRS
+            <span id="btnPrintLabel">Cetak / Simpan PDF KRS</span>
           </button>
         </div>
 
@@ -974,7 +979,8 @@
       selectedStudent: null,
       selectedSemester: null,
       checkedCodes: new Set(),
-      nimValue: ''
+      nimValue: '',
+      isLogging: false
     };
 
     const elSearch = document.getElementById('studentSearch');
@@ -984,6 +990,8 @@
     const elStatusPills = document.getElementById('statusPills');
     const elKrsContainer = document.getElementById('krsContainer');
     const elActionsBar = document.getElementById('actionsBar');
+    const elBtnPrint = document.getElementById('btnPrint');
+    const elBtnPrintLabel = document.getElementById('btnPrintLabel');
     const elToast = document.getElementById('toast');
 
     // ==========================================
@@ -1087,7 +1095,7 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         elToast.classList.remove('show');
-      }, 3000);
+      }, 3500);
     }
 
     function escapeHtml(str) {
@@ -1363,7 +1371,7 @@
     }
 
     // ==========================================
-    // 6. RENDER KRS & PENCATATAN KE SPREADSHEET (VIA GET)
+    // 6. RENDER KRS & PENCATATAN KE SPREADSHEET (AWAIT SEBELUM PRINT)
     // ==========================================
     function renderKrs() {
       const s = state.selectedStudent;
@@ -1525,30 +1533,59 @@
       });
     }
 
-    function logPengambilanKrs() {
-      if (!state.selectedStudent || !state.selectedSemester) return;
+    async function logPengambilanKrs() {
+      if (!state.selectedStudent || !state.selectedSemester) return false;
+
+      const courses = getMatchingCourses();
+      const selectedCourses = courses.filter(c => state.checkedCodes.has(c.kode));
+      const totalSks = selectedCourses.reduce((sum, c) => sum + (Number(c.sks) || 0), 0);
+      const jenisSem = state.selectedSemester % 2 === 1 ? 'Ganjil' : 'Genap';
+
+      const keterangan = `Mengambil KRS Semester ${state.selectedSemester} (${jenisSem}) - ${state.selectedStudent.prodi} (${totalSks} SKS)`;
 
       const params = new URLSearchParams({
         action: 'catat_krs',
         nama: state.selectedStudent.nama,
-        nim: state.nimValue || '-',
+        nim: state.nimValue ? state.nimValue.trim() : '-',
+        prodi: state.selectedStudent.prodi,
         semester: String(state.selectedSemester),
+        sks: String(totalSks),
+        keterangan: keterangan,
         t: String(Date.now())
       });
 
       const url = `${APPS_SCRIPT_URL}?${params.toString()}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.status === 'success') {
-            showToast('Riwayat pengambilan KRS berhasil dicatat.', 'success');
-          }
-        })
-        .catch(() => {
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          keepalive: true,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        const data = await res.json();
+        if (data && data.status === 'success') {
+          showToast('Riwayat pengambilan KRS berhasil dicatat ke Spreadsheet.', 'success');
+          return true;
+        } else {
+          showToast(data?.message || 'Gagal mencatat ke Spreadsheet.', 'error');
+          return false;
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        // Fallback jika CORS/redirect memblokir pembacaan JSON atau timeout
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(url);
+        } else {
           const beacon = new Image();
           beacon.src = url;
-        });
+        }
+        showToast('Permintaan pencatatan KRS telah dikirim ke server.', 'success');
+        return true;
+      }
     }
 
     function resetSelection() {
@@ -1594,16 +1631,31 @@
     elBtnClear.addEventListener('click', resetSelection);
     document.getElementById('btnReset').addEventListener('click', resetSelection);
 
-    document.getElementById('btnPrint').addEventListener('click', () => {
+    elBtnPrint.addEventListener('click', async () => {
+      if (state.isLogging) return;
+
       const origTitle = document.title;
+      const origLabel = elBtnPrintLabel.textContent;
+
       if (state.selectedStudent) {
+        state.isLogging = true;
+        elBtnPrint.disabled = true;
+        elBtnPrintLabel.textContent = 'Mencatat & Menyiapkan PDF...';
         document.title = `KRS_${state.selectedStudent.nama.replace(/\s+/g, '_')}_Smt${state.selectedSemester}`;
-        logPengambilanKrs();
+
+        try {
+          await logPengambilanKrs();
+        } finally {
+          state.isLogging = false;
+          elBtnPrint.disabled = false;
+          elBtnPrintLabel.textContent = origLabel;
+        }
       }
+
       setTimeout(() => {
         window.print();
         setTimeout(() => { document.title = origTitle; }, 500);
-      }, 350);
+      }, 150);
     });
 
     elBtnRefresh.addEventListener('click', () => loadData(true));
