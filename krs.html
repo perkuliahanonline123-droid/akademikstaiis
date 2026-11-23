@@ -1004,7 +1004,7 @@
       }).format(new Date());
 
       // Untuk uji coba di luar jadwal, ganti sementara ke: const month = 7; (Ganjil) atau 1; (Genap)
-      const month = 7; // Sementara untuk uji coba Ganjil
+      const month = parseInt(monthStr, 10);
 
       if (month === 7 || month === 8) {
         return { isOpen: true, type: 'Ganjil', isGanjil: true };
